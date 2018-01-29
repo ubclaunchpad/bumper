@@ -1,6 +1,7 @@
 **.DS_Store
+**npm-debug.log
 
 /client/node_modules/
-/client/**npm-debug.log
+/client/public/bundle.js
 
 /server/

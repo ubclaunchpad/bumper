@@ -1,4 +1,5 @@
-var config = {
+/* eslint-disable */
+const config = {
   entry: './index.js',
   output: {
     path: `${__dirname}/public/`,
@@ -16,11 +17,11 @@ var config = {
         exclude: '/node_modules/',
         loader: 'babel-loader',
         query: {
-          presets: ['es2015', 'react']
-        }
-      }
-    ]
-  }
-}
+          presets: ['es2015', 'react'],
+        },
+      },
+    ],
+  },
+};
 
 module.exports = config;

@@ -22,7 +22,10 @@ var broadcast = make(chan Message)
 
 // this 'upgrades' a normal HTTP connection to a persistent TCP connection (socket)
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
+	CheckOrigin: func(r *http.Request) bool {
+		log.Printf("Accepting client from remote address %v\n", r.RemoteAddr)
+		return true
+	},
 }
 
 func handleConnection(w http.ResponseWriter, r *http.Request) {

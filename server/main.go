@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -21,7 +23,7 @@ var broadcast = make(chan Message)
 
 // this 'upgrades' a normal HTTP connection to a persistent TCP connection (socket)
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true }
+	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +48,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		// terminate connection if error occurs
 		if err != nil {
 			log.Printf("error: %v", err)
-			client.Close()
 			delete(clients, ws)
 			break
 		}
@@ -70,7 +71,7 @@ func tick() {
 				delete(clients, client)
 			}
 		}
-		tickCount += 1
+		tickCount++
 	}
 }
 

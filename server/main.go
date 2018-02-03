@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -24,10 +23,6 @@ var broadcast = make(chan Message)
 // this 'upgrades' a normal HTTP connection to a persistent TCP connection (socket)
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello from Go!")
 }
 
 func handleConnection(w http.ResponseWriter, r *http.Request) {

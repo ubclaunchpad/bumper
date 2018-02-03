@@ -9,8 +9,14 @@ export default class App extends React.Component {
   render() {
     return (
       <div>
-        Henlo, <code>bumper.io</code>
+        <canvas id="ctx" style={styles.canvas} width={window.innerWidth} height={window.innerHeight} />
       </div>
     );
   }
 }
+
+const styles = {
+  canvas: {
+    background: '#000',
+  },
+};

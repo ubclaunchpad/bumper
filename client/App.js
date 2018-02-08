@@ -1,9 +1,11 @@
 import React from 'react';
 
 function drawBall(props) {
-  const {ctx, x, y, ballRadius} = props;
+  const {
+    ctx, x, y, ballRadius,
+  } = props;
   ctx.beginPath();
-  ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
   ctx.fillStyle = '#FFFFFF';
   ctx.fill();
   ctx.closePath();
@@ -29,14 +31,11 @@ export default class App extends React.Component {
     window.addEventListener('keyup', this.keyUpHandler);
     this.timerID = setInterval(
       () => this.tick(),
-      100,
+      50,
     );
   }
 
   tick() {
-    const ctx = this.refs.ctx.getContext('2d');
-    //console.log('tick');
-    
     this.updateCanvas();
   }
 
@@ -71,7 +70,6 @@ export default class App extends React.Component {
   }
 
   keyDownHandler(e) {
-    // console.log(e.keyCode);
     if (e.keyCode === 39) {
       this.setState({
         rightPressed: true,
@@ -92,7 +90,6 @@ export default class App extends React.Component {
   }
 
   keyUpHandler(e) {
-    // console.log(e.keyCode);
     if (e.keyCode === 39) {
       this.setState({
         rightPressed: false,

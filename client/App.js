@@ -1,7 +1,7 @@
 import React from 'react';
 
 const PLAYER_RADIUS = 20;
-const JUNK_COUNT = 15;
+const JUNK_COUNT = 5;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
 const HOLE_RADIUS = 25;
@@ -19,23 +19,18 @@ export default class App extends React.Component {
       holeCoords: [],
       playerCoords: []
     };
-
     this.drawObjects = this.drawObjects.bind(this);
   }
 
   componentDidMount() {
-
     this.generateJunkCoordinates();
     this.generateHoleCoordinates();
     this.generatePlayerCoordinates();
-
   }
 
   generateJunkCoordinates() {
     var newCoords = this.generateCoords(JUNK_COUNT);
-
     this.setState({ junkCoords: newCoords }); 
-
   }
 
   generateHoleCoordinates() {

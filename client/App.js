@@ -9,9 +9,6 @@ const MAX_RADIUS = 50;
 
 var width = window.innerWidth;
 var height = window.innerHeight;
-var randomizationFactor = 50;
-
-
 
 export default class App extends React.Component {
   constructor(props) {
@@ -28,18 +25,12 @@ export default class App extends React.Component {
 
   componentDidMount() {
 
-
-    //var ctx = canvas.getContext("2d");
-    // this.setState({canvasWidth: canvas.width});
-    // this.setState({canvasHeight: canvas.height});
     this.generateJunkCoordinates();
     this.generateHoleCoordinates();
     this.generatePlayerCoordinates();
-    // add to canvas
 
   }
 
-  // can be less evenly spaced
   generateJunkCoordinates() {
     var newCoords = this.generateCoords(JUNK_COUNT);
 
@@ -47,7 +38,6 @@ export default class App extends React.Component {
 
   }
 
-  // should be kind of evenly spaced
   generateHoleCoordinates() {
     var newCoords = this.generateCoords(HOLE_COUNT); 
     this.setState({
@@ -63,7 +53,7 @@ export default class App extends React.Component {
     var minHeight = height/3
     var x = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
     var y = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-    this.setState({ playerCoords: { x: x, y: y} }, this.drawObjects);
+    this.setState({ playerCoords: { x: x, y: y} });
   }
 
   generateCoords(num) {
@@ -117,6 +107,11 @@ export default class App extends React.Component {
     ctx.fill();
     ctx.closePath();
     
+  }
+
+  componentDidUpdate() {
+    this.drawObjects();
+
   }
 
   render() {

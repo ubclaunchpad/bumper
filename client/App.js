@@ -98,23 +98,13 @@ export default class App extends React.Component {
       const y = Math.floor(Math.random() * (height - MAX_RADIUS));
       let placed = true;
 
-      // // check whether area is available
-      // for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
-      //   // could not be placed because of overlap
-      //   if (Math.abs(p.x - x) < MAX_RADIUS || Math.abs(p.y - y) < MAX_RADIUS) {
-      //     placed = false;
-      //     break;
-      //   }
-      // }
-
-      for (let i = 0; i < this.state.allCoords.length; i++) {
-        const p = this.state.allCoords[i];
-
+      // check whether area is available
+      for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
+        // could not be placed because of overlap
         if (Math.abs(p.x - x) < MAX_RADIUS && Math.abs(p.y - y) < MAX_RADIUS) {
           placed = false;
           break;
         }
-        
       }
 
       if (placed) {

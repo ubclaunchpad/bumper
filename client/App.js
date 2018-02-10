@@ -48,6 +48,7 @@ export default class App extends React.Component {
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.drawObjects = this.drawObjects.bind(this);
+    this.tick = this.tick.bind(this);
   }
 
   componentDidMount() {
@@ -59,7 +60,8 @@ export default class App extends React.Component {
 
     window.addEventListener('keydown', this.keyDownHandler);
     window.addEventListener('keyup', this.keyUpHandler);
-    setInterval(() => this.tick(), 18);
+    // setInterval(() => this.tick(), 18);
+    this.tick();
   }
 
   generateJunkCoordinates() {
@@ -140,6 +142,8 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
+    // eslint-disable-next-line
+    requestAnimationFrame(this.tick);
   }
 
   updateCanvas() {
@@ -150,7 +154,7 @@ export default class App extends React.Component {
     });
     this.drawObjects();
 
-    const speed = 25;
+    const speed = 10;
     if (this.state.rightPressed) {
       this.setState(prevState => ({
         playerX: prevState.playerX + speed,
@@ -215,7 +219,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <div>
+      <div style={styles.container}>
         <canvas id="ctx" style={styles.canvas} width={window.innerWidth - 100} height={window.innerHeight - 100} />
       </div>
     );
@@ -223,7 +227,11 @@ export default class App extends React.Component {
 }
 
 const styles = {
+  container: {
+    display: 'flex',
+  },
   canvas: {
+    alignSelf: 'center',
     background: '#000000',
   },
 };

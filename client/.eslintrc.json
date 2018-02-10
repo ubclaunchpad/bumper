@@ -2,7 +2,8 @@
     "extends": "airbnb",
     "globals": {
         "window": false,
-        "WebSocket": false
+        "WebSocket": false,
+        "document": false
     },
     "rules": {
         "react/jsx-filename-extension": 0

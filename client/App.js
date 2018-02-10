@@ -9,23 +9,64 @@ const MAX_RADIUS = 50;
 
 const width = window.innerWidth;
 const height = window.innerHeight;
+const address = 'ws://localhost:9090/connect';
+
+function drawBall(props) {
+  const {
+    ctx, x, y, ballRadius,
+  } = props;
+  ctx.beginPath();
+  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fill();
+  ctx.closePath();
+}
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
+    if (window.WebSocket) {
+      this.socket = new WebSocket(address);
+      this.socket.onmessage = event => console.log(event.data);
+    } else {
+      console.log('websocket not available');
+    }
+
     this.state = {
+      playerX: 200,
+      playerY: 200,
+      rightPressed: false,
+      leftPressed: false,
+      upPressed: false,
+      downPressed: false,
       allCoords: [],
       junkCoords: [],
       holeCoords: [],
       playerCoords: [],
     };
+
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.keyUpHandler = this.keyUpHandler.bind(this);
     this.drawObjects = this.drawObjects.bind(this);
   }
 
   componentDidMount() {
     this.generateJunkCoordinates();
-    this.generateHoleCoordinates();
-    this.generatePlayerCoordinates();
+    //this.generateHoleCoordinates();
+    //this.generatePlayerCoordinates();
+
+    this.canvas = document.getElementById('ctx');
+
+    window.addEventListener('keydown', this.keyDownHandler);
+    window.addEventListener('keyup', this.keyUpHandler);
+    this.timerID = setInterval(
+      () => this.tick(),
+      50,
+    );
+  }
+
+  componentDidUpdate() {
+    this.drawObjects();
   }
 
   generateJunkCoordinates() {
@@ -79,8 +120,7 @@ export default class App extends React.Component {
   }
 
   drawObjects() {
-    const canvas = document.getElementById('ctx');
-    const ctx = canvas.getContext('2d');
+    const ctx = this.canvas.getContext('2d');
     for (const p of this.state.junkCoords) {
       ctx.beginPath();
       ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
@@ -102,8 +142,78 @@ export default class App extends React.Component {
     ctx.fill();
     ctx.closePath();
   }
-  componentDidUpdate() {
-    this.drawObjects();
+
+  tick() {
+    this.updateCanvas();
+  }
+
+  updateCanvas() {
+    const ctx = this.canvas.getContext('2d');
+    ctx.clearRect(0, 0, width, height);
+    drawBall({
+      ctx, x: this.state.playerX, y: this.state.playerY, ballRadius: 50,
+    });
+
+    if (this.state.rightPressed) {
+      this.setState(prevState => ({
+        playerX: prevState.playerX + 5,
+      }));
+    }
+    if (this.state.leftPressed) {
+      this.setState(prevState => ({
+        playerX: prevState.playerX - 5,
+      }));
+    }
+    if (this.state.upPressed) {
+      this.setState(prevState => ({
+        playerY: prevState.playerY - 5,
+      }));
+    }
+    if (this.state.downPressed) {
+      this.setState(prevState => ({
+        playerY: prevState.playerY + 5,
+      }));
+    }
+  }
+
+  keyDownHandler(e) {
+    if (e.keyCode === 39) {
+      this.setState({
+        rightPressed: true,
+      });
+    } else if (e.keyCode === 37) {
+      this.setState({
+        leftPressed: true,
+      });
+    } else if (e.keyCode === 38) {
+      this.setState({
+        upPressed: true,
+      });
+    } else if (e.keyCode === 40) {
+      this.setState({
+        downPressed: true,
+      });
+    }
+  }
+
+  keyUpHandler(e) {
+    if (e.keyCode === 39) {
+      this.setState({
+        rightPressed: false,
+      });
+    } else if (e.keyCode === 37) {
+      this.setState({
+        leftPressed: false,
+      });
+    } else if (e.keyCode === 38) {
+      this.setState({
+        upPressed: false,
+      });
+    } else if (e.keyCode === 40) {
+      this.setState({
+        downPressed: false,
+      });
+    }
   }
 
   render() {
@@ -117,6 +227,6 @@ export default class App extends React.Component {
 
 const styles = {
   canvas: {
-    background: '#000',
+    background: '#000000',
   },
 };

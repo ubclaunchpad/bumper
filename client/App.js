@@ -1,9 +1,9 @@
 import React from 'react';
 
-const PLAYER_RADIUS = 20;
-const JUNK_COUNT = 5;
+const PLAYER_RADIUS = 50;
+const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
-const HOLE_COUNT = 5;
+const HOLE_COUNT = 10;
 const HOLE_RADIUS = 25;
 const MAX_RADIUS = 50;
 
@@ -52,8 +52,8 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.generateJunkCoordinates();
-    //this.generateHoleCoordinates();
-    //this.generatePlayerCoordinates();
+    this.generateHoleCoordinates();
+    this.generatePlayerCoordinates();
 
     this.canvas = document.getElementById('ctx');
 
@@ -63,10 +63,6 @@ export default class App extends React.Component {
       () => this.tick(),
       50,
     );
-  }
-
-  componentDidUpdate() {
-    this.drawObjects();
   }
 
   generateJunkCoordinates() {
@@ -89,7 +85,9 @@ export default class App extends React.Component {
     const minHeight = height / 3;
     const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
     const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
-    this.setState({ playerCoords: { x, y } });
+    this.setState({ playerX: x, playerY: y });
+    this.state.allCoords.push({ x, y });
+    this.setState({ allCoords: this.state.allCoords });
   }
 
   generateCoords(num) {
@@ -103,7 +101,7 @@ export default class App extends React.Component {
       // check whether area is available
       for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
         // could not be placed because of overlap
-        if (Math.abs(p.x - x) < MAX_RADIUS || Math.abs(p.y - y) < MAX_RADIUS) {
+        if (Math.abs(p.x - x) < MAX_RADIUS && Math.abs(p.y - y) < MAX_RADIUS) {
           placed = false;
           break;
         }
@@ -151,8 +149,9 @@ export default class App extends React.Component {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
     drawBall({
-      ctx, x: this.state.playerX, y: this.state.playerY, ballRadius: 50,
+      ctx, x: this.state.playerX, y: this.state.playerY, ballRadius: PLAYER_RADIUS,
     });
+    this.drawObjects();
 
     if (this.state.rightPressed) {
       this.setState(prevState => ({

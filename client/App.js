@@ -114,7 +114,7 @@ export default class App extends React.Component {
   drawObjects() {
     this.drawJunk();
     this.drawHoles();
-    this.drawPlayer();    
+    this.drawPlayer();
   }
 
   drawJunk() {
@@ -221,8 +221,8 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <div>
-        <canvas id="ctx" style={styles.canvas} width={window.innerWidth} height={window.innerHeight} />
+      <div style={styles.canvasContainer}>
+        <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
       </div>
     );
   }
@@ -231,5 +231,12 @@ export default class App extends React.Component {
 const styles = {
   canvas: {
     background: '#000000',
+    textAlign: 'center',
+    
   },
+  canvasContainer: {
+    textAlign: 'center',
+  }
+
 };
+

@@ -59,10 +59,7 @@ export default class App extends React.Component {
 
     window.addEventListener('keydown', this.keyDownHandler);
     window.addEventListener('keyup', this.keyUpHandler);
-    this.timerID = setInterval(
-      () => this.tick(),
-      50,
-    );
+    setInterval(() => this.tick(), 18);
   }
 
   generateJunkCoordinates() {
@@ -153,24 +150,25 @@ export default class App extends React.Component {
     });
     this.drawObjects();
 
+    const speed = 25;
     if (this.state.rightPressed) {
       this.setState(prevState => ({
-        playerX: prevState.playerX + 5,
+        playerX: prevState.playerX + speed,
       }));
     }
     if (this.state.leftPressed) {
       this.setState(prevState => ({
-        playerX: prevState.playerX - 5,
+        playerX: prevState.playerX - speed,
       }));
     }
     if (this.state.upPressed) {
       this.setState(prevState => ({
-        playerY: prevState.playerY - 5,
+        playerY: prevState.playerY - speed,
       }));
     }
     if (this.state.downPressed) {
       this.setState(prevState => ({
-        playerY: prevState.playerY + 5,
+        playerY: prevState.playerY + speed,
       }));
     }
   }
@@ -218,7 +216,7 @@ export default class App extends React.Component {
   render() {
     return (
       <div>
-        <canvas id="ctx" style={styles.canvas} width={window.innerWidth} height={window.innerHeight} />
+        <canvas id="ctx" style={styles.canvas} width={window.innerWidth - 100} height={window.innerHeight - 100} />
       </div>
     );
   }

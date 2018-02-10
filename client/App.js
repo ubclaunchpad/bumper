@@ -5,13 +5,11 @@ const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
 const HOLE_RADIUS = 25;
-const MAX_RADIUS = 50;
+const MAX_DISTANCE_BETWEEN = 50;
 
 const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
-
-
 
 export default class App extends React.Component {
   constructor(props) {
@@ -81,17 +79,23 @@ export default class App extends React.Component {
   }
 
   generateCoords(num) {
+    // make sure object radius isn't outside of canvas
+    const maxWidth = width - MAX_DISTANCE_BETWEEN;
+    const minWidth = MAX_DISTANCE_BETWEEN;
+    const maxHeight = height - MAX_DISTANCE_BETWEEN;
+    const minHeight = MAX_DISTANCE_BETWEEN;
+
     let count = num;
     const coords = [];
     while (count > 0) {
-      const x = Math.floor(Math.random() * (width - MAX_RADIUS));
-      const y = Math.floor(Math.random() * (height - MAX_RADIUS));
+      const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
+      const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
       let placed = true;
 
       // check whether area is available
       for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
         // could not be placed because of overlap
-        if (Math.abs(p.x - x) < MAX_RADIUS && Math.abs(p.y - y) < MAX_RADIUS) {
+        if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
           placed = false;
           break;
         }

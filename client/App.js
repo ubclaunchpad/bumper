@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PLAYER_RADIUS = 50;
+const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
@@ -11,16 +11,7 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
 
-function drawBall(props) {
-  const {
-    ctx, x, y, ballRadius,
-  } = props;
-  ctx.beginPath();
-  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fill();
-  ctx.closePath();
-}
+
 
 export default class App extends React.Component {
   constructor(props) {
@@ -42,7 +33,6 @@ export default class App extends React.Component {
       allCoords: [],
       junkCoords: [],
       holeCoords: [],
-      playerCoords: [],
     };
 
     this.keyDownHandler = this.keyDownHandler.bind(this);
@@ -118,7 +108,13 @@ export default class App extends React.Component {
   }
 
   drawObjects() {
-    const ctx = this.canvas.getContext('2d');
+    this.drawJunk();
+    this.drawHoles();
+    this.drawPlayer();    
+  }
+
+  drawJunk() {
+    const ctx = this.canvas.getContext('2d');    
     for (const p of this.state.junkCoords) {
       ctx.beginPath();
       ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
@@ -126,6 +122,10 @@ export default class App extends React.Component {
       ctx.fill();
       ctx.closePath();
     }
+  }
+
+  drawHoles() {
+    const ctx = this.canvas.getContext('2d');
     for (const p of this.state.holeCoords) {
       ctx.beginPath();
       ctx.arc(p.x, p.y, HOLE_RADIUS, 0, Math.PI * 2);
@@ -133,9 +133,12 @@ export default class App extends React.Component {
       ctx.fill();
       ctx.closePath();
     }
+  }
 
+  drawPlayer() {
+    const ctx = this.canvas.getContext('2d');
     ctx.beginPath();
-    ctx.arc(this.state.playerCoords.x, this.state.playerCoords.y, PLAYER_RADIUS, 0, Math.PI * 2);
+    ctx.arc(this.state.playerX, this.state.playerY, PLAYER_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = 'green';
     ctx.fill();
     ctx.closePath();
@@ -148,9 +151,6 @@ export default class App extends React.Component {
   updateCanvas() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
-    drawBall({
-      ctx, x: this.state.playerX, y: this.state.playerY, ballRadius: PLAYER_RADIUS,
-    });
     this.drawObjects();
 
     if (this.state.rightPressed) {

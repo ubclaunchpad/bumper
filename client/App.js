@@ -11,15 +11,33 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
 
-function drawBall(props) {
+function drawPlayer(props) {
   const {
-    ctx, x, y, ballRadius,
+    ctx, x, y, ballRadius, theta,
   } = props;
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = '#00FFFF';
   ctx.fill();
   ctx.closePath();
+
+  // Draw the flag
+  ctx.beginPath();
+  ctx.moveTo(x + (ballRadius * Math.sin(theta)), y + (ballRadius * Math.cos(theta)));
+  ctx.lineTo(x - (ballRadius * Math.sin(theta)), y - (ballRadius * Math.cos(theta)));
+  ctx.strokeStyle = '#000000';
+  ctx.strokeWidth = 5;
+  ctx.stroke();
+
+  const backCenterX = x - ((ballRadius * Math.sin(theta)) / 2);
+  const backCenterY = y - ((ballRadius * Math.cos(theta)) / 2);
+  const backLength = (2.5 * ((ballRadius / 2) / Math.tan(45)));
+  ctx.beginPath();
+  ctx.moveTo(backCenterX - (backLength * Math.cos(theta)), backCenterY + (backLength * Math.sin(theta)));
+  ctx.lineTo(backCenterX + (backLength * Math.cos(theta)), backCenterY - (backLength * Math.sin(theta)));
+  ctx.strokeStyle = '#0000000';
+  ctx.strokeWidth = 5;
+  ctx.stroke();
 }
 
 export default class App extends React.Component {
@@ -35,6 +53,7 @@ export default class App extends React.Component {
     this.state = {
       playerX: 200,
       playerY: 200,
+      playerTheta: 0,
       rightPressed: false,
       leftPressed: false,
       upPressed: false,
@@ -148,29 +167,35 @@ export default class App extends React.Component {
   updateCanvas() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
-    drawBall({
-      ctx, x: this.state.playerX, y: this.state.playerY, ballRadius: PLAYER_RADIUS,
+    drawPlayer({
+      ctx,
+      x: this.state.playerX,
+      y: this.state.playerY,
+      ballRadius: PLAYER_RADIUS,
+      theta: this.state.playerTheta,
     });
     this.drawObjects();
 
     if (this.state.rightPressed) {
       this.setState(prevState => ({
-        playerX: prevState.playerX + 5,
+        playerTheta: (prevState.playerTheta + 0.25) % 360,
       }));
     }
     if (this.state.leftPressed) {
       this.setState(prevState => ({
-        playerX: prevState.playerX - 5,
+        playerTheta: (prevState.playerTheta - 0.25) % 360,
       }));
     }
     if (this.state.upPressed) {
       this.setState(prevState => ({
-        playerY: prevState.playerY - 5,
+        playerY: prevState.playerY + (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta))),
+        playerX: prevState.playerX + (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta))),
       }));
     }
     if (this.state.downPressed) {
       this.setState(prevState => ({
-        playerY: prevState.playerY + 5,
+        playerY: prevState.playerY - (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta))),
+        playerX: prevState.playerX - (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta))),
       }));
     }
   }

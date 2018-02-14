@@ -176,28 +176,25 @@ export default class App extends React.Component {
     });
     this.drawObjects();
 
-    if (this.state.rightPressed) {
-      this.setState(prevState => ({
-        playerTheta: (prevState.playerTheta + 0.25) % 360,
-      }));
-    }
-    if (this.state.leftPressed) {
-      this.setState(prevState => ({
-        playerTheta: (prevState.playerTheta - 0.25) % 360,
-      }));
-    }
-    if (this.state.upPressed) {
-      this.setState(prevState => ({
-        playerY: prevState.playerY + (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta))),
-        playerX: prevState.playerX + (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta))),
-      }));
-    }
-    if (this.state.downPressed) {
-      this.setState(prevState => ({
-        playerY: prevState.playerY - (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta))),
-        playerX: prevState.playerX - (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta))),
-      }));
-    }
+    this.calculateNextState();
+  }
+
+  calculateNextState() {
+    this.setState((prevState) => {
+      const newState = prevState;
+      if (this.state.rightPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
+      if (this.state.leftPressed) newState.playerTheta = (prevState.playerTheta - 0.25) % 360;
+      if (this.state.upPressed) {
+        newState.playerY = prevState.playerY + (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
+        newState.playerX = prevState.playerX + (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
+      }
+      if (this.state.downPressed) {
+        newState.playerY = prevState.playerY - (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
+        newState.playerX = prevState.playerX - (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
+      }
+
+      return newState;
+    });
   }
 
   keyDownHandler(e) {

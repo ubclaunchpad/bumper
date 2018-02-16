@@ -60,7 +60,6 @@ export default class App extends React.Component {
 
     window.addEventListener('keydown', this.keyDownHandler);
     window.addEventListener('keyup', this.keyUpHandler);
-    // setInterval(() => this.tick(), 18);
     this.tick();
   }
 

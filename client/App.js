@@ -210,13 +210,13 @@ export default class App extends React.Component {
         newState.playerX = prevState.playerX - (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
       }
 
-      if (newState.playerX + PLAYER_RADIUS > width) {
-        newState.playerX = width - PLAYER_RADIUS;
+      if (newState.playerX + PLAYER_RADIUS > (width - 20)) {
+        newState.playerX = width - 20 - PLAYER_RADIUS;
       } else if (newState.playerX - PLAYER_RADIUS < 0) {
         newState.playerX = PLAYER_RADIUS;
       }
-      if (newState.playerY + PLAYER_RADIUS > height) {
-        newState.playerY = height - PLAYER_RADIUS;
+      if (newState.playerY + PLAYER_RADIUS > (height - 20)) {
+        newState.playerY = height - 20 - PLAYER_RADIUS;
       } else if (newState.playerY - PLAYER_RADIUS < 0) {
         newState.playerY = PLAYER_RADIUS;
       }

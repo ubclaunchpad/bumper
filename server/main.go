@@ -88,6 +88,7 @@ func tick() {
 }
 
 func main() {
+
 	// main thread that will listen for connections
 	http.HandleFunc("/connect", handleConnection)
 	// separate thread that will handle updates

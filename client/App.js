@@ -48,6 +48,7 @@ export default class App extends React.Component {
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.drawObjects = this.drawObjects.bind(this);
+    this.tick = this.tick.bind(this);
   }
 
   componentDidMount() {
@@ -59,10 +60,7 @@ export default class App extends React.Component {
 
     window.addEventListener('keydown', this.keyDownHandler);
     window.addEventListener('keyup', this.keyUpHandler);
-    this.timerID = setInterval(
-      () => this.tick(),
-      50,
-    );
+    this.tick();
   }
 
   generateJunkCoordinates() {
@@ -143,6 +141,8 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
+    // eslint-disable-next-line
+    requestAnimationFrame(this.tick);
   }
 
   updateCanvas() {
@@ -153,24 +153,25 @@ export default class App extends React.Component {
     });
     this.drawObjects();
 
+    const speed = 10;
     if (this.state.rightPressed) {
       this.setState(prevState => ({
-        playerX: prevState.playerX + 5,
+        playerX: prevState.playerX + speed,
       }));
     }
     if (this.state.leftPressed) {
       this.setState(prevState => ({
-        playerX: prevState.playerX - 5,
+        playerX: prevState.playerX - speed,
       }));
     }
     if (this.state.upPressed) {
       this.setState(prevState => ({
-        playerY: prevState.playerY - 5,
+        playerY: prevState.playerY - speed,
       }));
     }
     if (this.state.downPressed) {
       this.setState(prevState => ({
-        playerY: prevState.playerY + 5,
+        playerY: prevState.playerY + speed,
       }));
     }
   }
@@ -217,7 +218,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <div>
+      <div style={styles.container}>
         <canvas id="ctx" style={styles.canvas} width={window.innerWidth} height={window.innerHeight} />
       </div>
     );
@@ -225,6 +226,9 @@ export default class App extends React.Component {
 }
 
 const styles = {
+  container: {
+    display: 'flex',
+  },
   canvas: {
     background: '#000000',
   },

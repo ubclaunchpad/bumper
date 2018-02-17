@@ -1,8 +1,4 @@
-class Hole {
-  var position = null;
-  var radius = null;
-  var lifespan = null;
-  
+export default class Hole {
   // Note: Lifespan must be in milliseconds (for use in setTimeout)
   constructor(position, radius, lifespan, canvas) { 
 	this.radius = radius;

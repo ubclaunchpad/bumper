@@ -1,11 +1,4 @@
-class Player {
-	var position = {null, null}; 
-	var mass = null;
-	var color = null;
-	var name = null;
-	var canvas = null;
-	var velocity = {0.0, 0.0};
-	var alive = true; 
+export default class Player {
 	
 	constructor(mass, color, name, canvas) { 
 		this.mass = mass;
@@ -13,6 +6,8 @@ class Player {
 		this.name = name;
 		this.canvas = canvas;
 		this.position = generatePlayerCoords(); // Need to change this function to return position array, or take this line out and keep as is
+		this.velocity = [0.0, 0.0];
+		this.alive = true; 
 	 }
 		  
 	// Can either input the arrow key that is currently being pressed
@@ -37,7 +32,7 @@ class Player {
 					// AND MAKE THEM ALL IN THE POSITIVE X DIRECTION
 					break;
 				case noKeyPressed:
-					velocity = { 0.0, 0.0 };
+					velocity = [0.0, 0.0];
 					break;
 				default: this.velocity = velocity
 		}

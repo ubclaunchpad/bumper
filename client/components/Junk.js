@@ -1,15 +1,12 @@
-class Junk {
-	var velocity = { 0.0, 0.0 };
-	var lastBumped = undefined;
-	var mass;
-	var position;
-	var pointVal;
-	var alive = true; 
+export default class Junk {
 	
   constructor(mass, pointVal, canvas) {
     this.mass = mass;
 	this.pointVal = pointVal;
 	this.position = generateJunkCoordinates(); // Need to change this function to return position array, or take this line out and keep as is
+	this.velocity = [0.0, 0.0];
+	this.lastBumped = null;
+	this.alive = true; 
   }
   
   drawJunk() {

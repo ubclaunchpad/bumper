@@ -1,26 +1,15 @@
 import React from 'react';
 
-const PLAYER_RADIUS = 50;
+const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
 const HOLE_RADIUS = 25;
-const MAX_RADIUS = 50;
+const MAX_DISTANCE_BETWEEN = 50;
 
 const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
-
-function drawBall(props) {
-  const {
-    ctx, x, y, ballRadius,
-  } = props;
-  ctx.beginPath();
-  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fill();
-  ctx.closePath();
-}
 
 export default class App extends React.Component {
   constructor(props) {
@@ -42,9 +31,9 @@ export default class App extends React.Component {
       allCoords: [],
       junkCoords: [],
       holeCoords: [],
-      playerCoords: [],
     };
 
+    this.resizeCanvas = this.resizeCanvas.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.drawObjects = this.drawObjects.bind(this);
@@ -57,7 +46,7 @@ export default class App extends React.Component {
     this.generatePlayerCoordinates();
 
     this.canvas = document.getElementById('ctx');
-
+    window.addEventListener('resize', this.resizeCanvas);
     window.addEventListener('keydown', this.keyDownHandler);
     window.addEventListener('keyup', this.keyUpHandler);
     this.tick();
@@ -89,17 +78,23 @@ export default class App extends React.Component {
   }
 
   generateCoords(num) {
+    // make sure object radius isn't outside of canvas
+    const maxWidth = width - MAX_DISTANCE_BETWEEN;
+    const minWidth = MAX_DISTANCE_BETWEEN;
+    const maxHeight = height - MAX_DISTANCE_BETWEEN;
+    const minHeight = MAX_DISTANCE_BETWEEN;
+
     let count = num;
     const coords = [];
     while (count > 0) {
-      const x = Math.floor(Math.random() * (width - MAX_RADIUS));
-      const y = Math.floor(Math.random() * (height - MAX_RADIUS));
+      const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
+      const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
       let placed = true;
 
       // check whether area is available
       for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
         // could not be placed because of overlap
-        if (Math.abs(p.x - x) < MAX_RADIUS && Math.abs(p.y - y) < MAX_RADIUS) {
+        if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
           placed = false;
           break;
         }
@@ -116,7 +111,13 @@ export default class App extends React.Component {
   }
 
   drawObjects() {
-    const ctx = this.canvas.getContext('2d');
+    this.drawJunk();
+    this.drawHoles();
+    this.drawPlayer();
+  }
+
+  drawJunk() {
+    const ctx = this.canvas.getContext('2d');    
     for (const p of this.state.junkCoords) {
       ctx.beginPath();
       ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
@@ -124,6 +125,10 @@ export default class App extends React.Component {
       ctx.fill();
       ctx.closePath();
     }
+  }
+
+  drawHoles() {
+    const ctx = this.canvas.getContext('2d');
     for (const p of this.state.holeCoords) {
       ctx.beginPath();
       ctx.arc(p.x, p.y, HOLE_RADIUS, 0, Math.PI * 2);
@@ -131,12 +136,24 @@ export default class App extends React.Component {
       ctx.fill();
       ctx.closePath();
     }
+  }
 
+  drawPlayer() {
+    const ctx = this.canvas.getContext('2d');
     ctx.beginPath();
-    ctx.arc(this.state.playerCoords.x, this.state.playerCoords.y, PLAYER_RADIUS, 0, Math.PI * 2);
+    ctx.arc(this.state.playerX, this.state.playerY, PLAYER_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = 'green';
     ctx.fill();
     ctx.closePath();
+  }
+
+
+  resizeCanvas() {
+    const ctx = document.getElementById('ctx');
+    ctx.width = window.innerWidth - 20;
+    ctx.height = window.innerHeight - 20;
+    ctx.textAlign = 'center';
+    this.updateCanvas();
   }
 
   tick() {
@@ -148,9 +165,6 @@ export default class App extends React.Component {
   updateCanvas() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
-    drawBall({
-      ctx, x: this.state.playerX, y: this.state.playerY, ballRadius: PLAYER_RADIUS,
-    });
     this.drawObjects();
 
     const speed = 10;
@@ -218,8 +232,8 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <div style={styles.container}>
-        <canvas id="ctx" style={styles.canvas} width={window.innerWidth} height={window.innerHeight} />
+      <div style={styles.canvasContainer}>
+        <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
       </div>
     );
   }
@@ -231,5 +245,12 @@ const styles = {
   },
   canvas: {
     background: '#000000',
+    textAlign: 'center',
+    
   },
+  canvasContainer: {
+    textAlign: 'center',
+  }
+
 };
+

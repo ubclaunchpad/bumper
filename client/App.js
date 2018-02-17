@@ -1,10 +1,10 @@
 import React from 'react';
+import Hole from './components/Hole';
 
 const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
-const HOLE_RADIUS = 25;
 const MAX_DISTANCE_BETWEEN = 50;
 
 const width = window.innerWidth;
@@ -58,9 +58,9 @@ export default class App extends React.Component {
       leftPressed: false,
       upPressed: false,
       downPressed: false,
-      allCoords: [],
+      allCoords: [], // might need to change this
       junkCoords: [],
-      holeCoords: [],
+      holes: [],
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
@@ -71,11 +71,11 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
+    this.canvas = document.getElementById('ctx');
     this.generateJunkCoordinates();
-    this.generateHoleCoordinates();
+    this.generateHoles();
     this.generatePlayerCoordinates();
 
-    this.canvas = document.getElementById('ctx');
     window.addEventListener('resize', this.resizeCanvas);
     window.addEventListener('keydown', this.keyDownHandler);
     window.addEventListener('keyup', this.keyUpHandler);
@@ -87,10 +87,19 @@ export default class App extends React.Component {
     this.setState({ junkCoords: newCoords });
   }
 
-  generateHoleCoordinates() {
+  generateHoles() {
     const newCoords = this.generateCoords(HOLE_COUNT);
+    const newHoles = [];
+    newCoords.forEach((coord) => {
+      const props = {
+        position: { x: coord.x, y: coord.y },
+        canvas: this.canvas,
+      };
+      const hole = new Hole(props);
+      newHoles.push(hole);
+    });
     this.setState({
-      holeCoords: newCoords,
+      holes: newHoles,
     });
   }
 
@@ -157,15 +166,12 @@ export default class App extends React.Component {
   }
 
   drawHoles() {
-    const ctx = this.canvas.getContext('2d');
-    for (const p of this.state.holeCoords) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, HOLE_RADIUS, 0, Math.PI * 2);
-      ctx.fillStyle = 'white';
-      ctx.fill();
-      ctx.closePath();
+    for (const h of this.state.holes) {
+      h.drawHole();
     }
   }
+
+
 
   resizeCanvas() {
     const ctx = document.getElementById('ctx');

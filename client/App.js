@@ -182,13 +182,13 @@ export default class App extends React.Component {
   calculateNextState() {
     this.setState((prevState) => {
       const newState = prevState;
-      if (this.state.rightPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
-      if (this.state.leftPressed) newState.playerTheta = (prevState.playerTheta - 0.25) % 360;
-      if (this.state.upPressed) {
+      if (this.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
+      if (this.state.rightPressed) newState.playerTheta = (prevState.playerTheta - 0.25) % 360;
+      if (this.state.downPressed) {
         newState.playerY = prevState.playerY + (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
         newState.playerX = prevState.playerX + (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
       }
-      if (this.state.downPressed) {
+      if (this.state.upPressed) {
         newState.playerY = prevState.playerY - (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
         newState.playerX = prevState.playerX - (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
       }

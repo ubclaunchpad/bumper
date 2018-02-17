@@ -33,6 +33,7 @@ export default class App extends React.Component {
       holeCoords: [],
     };
 
+    this.resizeCanvas = this.resizeCanvas.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.drawObjects = this.drawObjects.bind(this);
@@ -44,7 +45,7 @@ export default class App extends React.Component {
     this.generatePlayerCoordinates();
 
     this.canvas = document.getElementById('ctx');
-
+    window.addEventListener('resize', this.resizeCanvas);
     window.addEventListener('keydown', this.keyDownHandler);
     window.addEventListener('keyup', this.keyUpHandler);
     this.timerID = setInterval(
@@ -146,6 +147,15 @@ export default class App extends React.Component {
     ctx.fillStyle = 'green';
     ctx.fill();
     ctx.closePath();
+  }
+
+
+  resizeCanvas() {
+    const ctx = document.getElementById('ctx');
+    ctx.width = window.innerWidth - 20;
+    ctx.height = window.innerHeight - 20;
+    ctx.textAlign = 'center';
+    this.updateCanvas();
   }
 
   tick() {

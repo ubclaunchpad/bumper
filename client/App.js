@@ -219,7 +219,7 @@ export default class App extends React.Component {
   render() {
     return (
       <div style={styles.container}>
-        <canvas id="ctx" style={styles.canvas} width={window.innerWidth - 100} height={window.innerHeight - 100} />
+        <canvas id="ctx" style={styles.canvas} width={window.innerWidth} height={window.innerHeight} />
       </div>
     );
   }
@@ -230,7 +230,6 @@ const styles = {
     display: 'flex',
   },
   canvas: {
-    alignSelf: 'center',
     background: '#000000',
   },
 };

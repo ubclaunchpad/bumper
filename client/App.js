@@ -11,6 +11,35 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
 
+function drawPlayer(props) {
+  const {
+    ctx, x, y, ballRadius, theta,
+  } = props;
+  ctx.beginPath();
+  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+  ctx.fillStyle = '#00FFFF';
+  ctx.fill();
+  ctx.closePath();
+
+  // Draw the flag
+  ctx.beginPath();
+  ctx.moveTo(x + (ballRadius * Math.sin(theta)), y + (ballRadius * Math.cos(theta)));
+  ctx.lineTo(x - (ballRadius * Math.sin(theta)), y - (ballRadius * Math.cos(theta)));
+  ctx.strokeStyle = '#000000';
+  ctx.strokeWidth = 5;
+  ctx.stroke();
+
+  const backCenterX = x - ((ballRadius * Math.sin(theta)) / 2);
+  const backCenterY = y - ((ballRadius * Math.cos(theta)) / 2);
+  const backLength = (2.5 * ((ballRadius / 2) / Math.tan(45)));
+  ctx.beginPath();
+  ctx.moveTo(backCenterX - (backLength * Math.cos(theta)), backCenterY + (backLength * Math.sin(theta)));
+  ctx.lineTo(backCenterX + (backLength * Math.cos(theta)), backCenterY - (backLength * Math.sin(theta)));
+  ctx.strokeStyle = '#0000000';
+  ctx.strokeWidth = 5;
+  ctx.stroke();
+}
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -24,6 +53,7 @@ export default class App extends React.Component {
     this.state = {
       playerX: 200,
       playerY: 200,
+      playerTheta: 0,
       rightPressed: false,
       leftPressed: false,
       upPressed: false,
@@ -113,7 +143,6 @@ export default class App extends React.Component {
   drawObjects() {
     this.drawJunk();
     this.drawHoles();
-    this.drawPlayer();
   }
 
   drawJunk() {
@@ -138,16 +167,6 @@ export default class App extends React.Component {
     }
   }
 
-  drawPlayer() {
-    const ctx = this.canvas.getContext('2d');
-    ctx.beginPath();
-    ctx.arc(this.state.playerX, this.state.playerY, PLAYER_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = 'green';
-    ctx.fill();
-    ctx.closePath();
-  }
-
-
   resizeCanvas() {
     const ctx = document.getElementById('ctx');
     ctx.width = window.innerWidth - 20;
@@ -165,29 +184,45 @@ export default class App extends React.Component {
   updateCanvas() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
+    drawPlayer({
+      ctx,
+      x: this.state.playerX,
+      y: this.state.playerY,
+      ballRadius: PLAYER_RADIUS,
+      theta: this.state.playerTheta,
+    });
     this.drawObjects();
 
-    const speed = 10;
-    if (this.state.rightPressed) {
-      this.setState(prevState => ({
-        playerX: prevState.playerX + speed,
-      }));
-    }
-    if (this.state.leftPressed) {
-      this.setState(prevState => ({
-        playerX: prevState.playerX - speed,
-      }));
-    }
-    if (this.state.upPressed) {
-      this.setState(prevState => ({
-        playerY: prevState.playerY - speed,
-      }));
-    }
-    if (this.state.downPressed) {
-      this.setState(prevState => ({
-        playerY: prevState.playerY + speed,
-      }));
-    }
+    this.calculateNextState();
+  }
+
+  calculateNextState() {
+    this.setState((prevState) => {
+      const newState = prevState;
+      if (this.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
+      if (this.state.rightPressed) newState.playerTheta = (prevState.playerTheta - 0.25) % 360;
+      if (this.state.downPressed) {
+        newState.playerY = prevState.playerY + (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
+        newState.playerX = prevState.playerX + (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
+      }
+      if (this.state.upPressed) {
+        newState.playerY = prevState.playerY - (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
+        newState.playerX = prevState.playerX - (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
+      }
+
+      if (newState.playerX + PLAYER_RADIUS > (width - 20)) {
+        newState.playerX = width - 20 - PLAYER_RADIUS;
+      } else if (newState.playerX - PLAYER_RADIUS < 0) {
+        newState.playerX = PLAYER_RADIUS;
+      }
+      if (newState.playerY + PLAYER_RADIUS > (height - 20)) {
+        newState.playerY = height - 20 - PLAYER_RADIUS;
+      } else if (newState.playerY - PLAYER_RADIUS < 0) {
+        newState.playerY = PLAYER_RADIUS;
+      }
+
+      return newState;
+    });
   }
 
   keyDownHandler(e) {

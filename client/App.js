@@ -63,6 +63,18 @@ export default class App extends React.Component {
       () => this.tick(),
       50,
     );
+    this.timerID2 = setInterval(
+      () => this.clientMessage(),
+      1000,
+    );
+  }
+
+  clientMessage() {
+      this.socket.send(JSON.stringify({
+      message: "client2",
+      data: "foo"
+    }));
+    console.log("send msg");
   }
 
   generateJunkCoordinates() {

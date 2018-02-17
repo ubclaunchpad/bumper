@@ -183,8 +183,23 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
+    // check for hole and player collistions
+    // TODO check rest
+    this.checkForCollisions();
     // eslint-disable-next-line
     requestAnimationFrame(this.tick);
+  }
+
+  checkForCollisions() {
+    this.state.holes.forEach((hole) => {
+      const { position, radius } = hole;
+      if (this.state.playerX <= (position.x + radius) &&
+        this.state.playerX >= (position.x - radius) &&
+        this.state.playerY <= (position.y + radius) &&
+        this.state.playerY >= (position.y - radius)) {
+        console.log("PLAYER KILLED");
+      }
+    });
   }
 
   updateCanvas() {

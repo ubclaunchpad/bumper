@@ -1,23 +1,16 @@
 export default class Junk {
-	
-  constructor(mass, pointVal, canvas) {
-    this.mass = mass;
-	this.pointVal = pointVal;
-	this.position = generateJunkCoordinates(); // Need to change this function to return position array, or take this line out and keep as is
-	this.velocity = [0.0, 0.0];
+  constructor(props) {
+    this.mass = props.mass || 10;
+	this.pointVal = props.pointVal || 50;
+	this.position = props.position || { x: (window.innerWidth / 2), y: (window.innerHeight) / 2) };
+	this.velocity = { dx: 0, dy: 0 };
 	this.lastBumped = null;
-	this.alive = true; 
+	this.alive = true;
+	
+	this.drawJunk = this.drawJunk.bind(this);
   }
   
   drawJunk() {
-	// Check if new coords are within a hole
-	// If yes, set alive to false
-	if(!alive) {
-		// Don't redraw - game over code
-	}
-	else {
-		// Draw player with current coords
-	}
+
   }
-  
 }

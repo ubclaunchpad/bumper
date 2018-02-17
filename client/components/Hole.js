@@ -1,6 +1,6 @@
 export default class Hole {
   // Note: Lifespan must be in milliseconds (for use in setTimeout)
-  constructor(position, radius, lifespan, canvas) { 
+  constructor({ position, radius, lifespan, canvas }) { 
 	this.radius = radius;
 	this.lifespan = lifespan;
 	this.position = generateHoleCoordinates(); // Need to change this function to return position array, or take this line out and keep as is
@@ -25,7 +25,7 @@ export default class Hole {
   // Getter method to be used to detect if a player/junk is within
   // the bounds of a hole
   getPositionAndRadius() {
-	  return {position, radius};
+	  return { position, radius };
   }
   
 }

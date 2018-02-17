@@ -143,7 +143,6 @@ export default class App extends React.Component {
   drawObjects() {
     this.drawJunk();
     this.drawHoles();
-    this.drawPlayer();
   }
 
   drawJunk() {
@@ -167,16 +166,6 @@ export default class App extends React.Component {
       ctx.closePath();
     }
   }
-
-  drawPlayer() {
-    const ctx = this.canvas.getContext('2d');
-    ctx.beginPath();
-    ctx.arc(this.state.playerX, this.state.playerY, PLAYER_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = 'green';
-    ctx.fill();
-    ctx.closePath();
-  }
-
 
   resizeCanvas() {
     const ctx = document.getElementById('ctx');

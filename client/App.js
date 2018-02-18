@@ -82,7 +82,7 @@ export default class App extends React.Component {
     const props = {
       x,
       y,
-      canvas: this.state.canvas,
+      canvas: this.canvas,
       theta: 0,
     };
     this.state.allCoords.push({ x, y });
@@ -134,14 +134,15 @@ export default class App extends React.Component {
       ctx.closePath();
     }
   }
-  
+
   drawHoles() {
     this.state.holes.forEach(h => h.drawHole());
   }
-  
+
   drawPlayers() {
-    console.log(this.state);
-    this.state.player.drawPlayer();
+    if (this.state.player) {
+      this.state.player.drawPlayer();
+    }
   }
 
   resizeCanvas() {

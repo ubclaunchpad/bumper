@@ -17,8 +17,7 @@ export default class Player {
 
   drawPlayer() {
     const ctx = this.canvas.getContext('2d');
-    const { theta } = this.state;
-    const { x, y } = this.state.position;
+    const { x, y } = this.position;
     ctx.beginPath();
     ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = '#00FFFF';
@@ -26,18 +25,18 @@ export default class Player {
     ctx.closePath();
 
     ctx.beginPath();
-    ctx.moveTo(x + (PLAYER_RADIUS * Math.sin(theta)), y + (PLAYER_RADIUS * Math.cos(theta)));
-    ctx.lineTo(x - (PLAYER_RADIUS * Math.sin(theta)), y - (PLAYER_RADIUS * Math.cos(theta)));
+    ctx.moveTo(x + (PLAYER_RADIUS * Math.sin(this.theta)), y + (PLAYER_RADIUS * Math.cos(this.theta)));
+    ctx.lineTo(x - (PLAYER_RADIUS * Math.sin(this.theta)), y - (PLAYER_RADIUS * Math.cos(this.theta)));
     ctx.strokeStyle = '#000000';
     ctx.strokeWidth = 5;
     ctx.stroke();
 
-    const backCenterX = x - ((PLAYER_RADIUS * Math.sin(theta)) / 2);
-    const backCenterY = y - ((PLAYER_RADIUS * Math.cos(theta)) / 2);
+    const backCenterX = x - ((PLAYER_RADIUS * Math.sin(this.theta)) / 2);
+    const backCenterY = y - ((PLAYER_RADIUS * Math.cos(this.theta)) / 2);
     const backLength = (2.5 * ((PLAYER_RADIUS / 2) / Math.tan(45)));
     ctx.beginPath();
-    ctx.moveTo(backCenterX - (backLength * Math.cos(theta)), backCenterY + (backLength * Math.sin(theta)));
-    ctx.lineTo(backCenterX + (backLength * Math.cos(theta)), backCenterY - (backLength * Math.sin(theta)));
+    ctx.moveTo(backCenterX - (backLength * Math.cos(this.theta)), backCenterY + (backLength * Math.sin(this.theta)));
+    ctx.lineTo(backCenterX + (backLength * Math.cos(this.theta)), backCenterY - (backLength * Math.sin(this.theta)));
     ctx.strokeStyle = '#0000000';
     ctx.strokeWidth = 5;
     ctx.stroke();

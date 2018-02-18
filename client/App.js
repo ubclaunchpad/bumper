@@ -2,7 +2,6 @@ import React from 'react';
 import Player from './components/Player';
 import Hole from './components/Hole';
 
-const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;

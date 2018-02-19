@@ -8157,7 +8157,7 @@ var Hole = function () {
       var ctx = this.canvas.getContext('2d');
       ctx.beginPath();
       ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-      ctx.fillStyle = 'blue';
+      ctx.fillStyle = '#FF0000';
       ctx.fill();
       ctx.closePath();
     }

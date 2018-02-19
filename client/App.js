@@ -1,7 +1,7 @@
 import React from 'react';
+import Player from './components/Player';
 import Hole from './components/Hole';
 
-const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
@@ -10,35 +10,6 @@ const MAX_DISTANCE_BETWEEN = 50;
 const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
-
-function drawPlayer(props) {
-  const {
-    ctx, x, y, ballRadius, theta,
-  } = props;
-  ctx.beginPath();
-  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = '#00FFFF';
-  ctx.fill();
-  ctx.closePath();
-
-  // Draw the flag
-  ctx.beginPath();
-  ctx.moveTo(x + (ballRadius * Math.sin(theta)), y + (ballRadius * Math.cos(theta)));
-  ctx.lineTo(x - (ballRadius * Math.sin(theta)), y - (ballRadius * Math.cos(theta)));
-  ctx.strokeStyle = '#000000';
-  ctx.strokeWidth = 5;
-  ctx.stroke();
-
-  const backCenterX = x - ((ballRadius * Math.sin(theta)) / 2);
-  const backCenterY = y - ((ballRadius * Math.cos(theta)) / 2);
-  const backLength = (2.5 * ((ballRadius / 2) / Math.tan(45)));
-  ctx.beginPath();
-  ctx.moveTo(backCenterX - (backLength * Math.cos(theta)), backCenterY + (backLength * Math.sin(theta)));
-  ctx.lineTo(backCenterX + (backLength * Math.cos(theta)), backCenterY - (backLength * Math.sin(theta)));
-  ctx.strokeStyle = '#0000000';
-  ctx.strokeWidth = 5;
-  ctx.stroke();
-}
 
 export default class App extends React.Component {
   constructor(props) {
@@ -51,9 +22,6 @@ export default class App extends React.Component {
     }
 
     this.state = {
-      playerX: 200,
-      playerY: 200,
-      playerTheta: 0,
       rightPressed: false,
       leftPressed: false,
       upPressed: false,
@@ -66,15 +34,14 @@ export default class App extends React.Component {
     this.resizeCanvas = this.resizeCanvas.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
-    this.drawObjects = this.drawObjects.bind(this);
     this.tick = this.tick.bind(this);
   }
 
   componentDidMount() {
     this.canvas = document.getElementById('ctx');
+    this.generatePlayerCoordinates();
     this.generateJunkCoordinates();
     this.generateHoles();
-    this.generatePlayerCoordinates();
 
     window.addEventListener('resize', this.resizeCanvas);
     window.addEventListener('keydown', this.keyDownHandler);
@@ -111,9 +78,17 @@ export default class App extends React.Component {
     const minHeight = height / 3;
     const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
     const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
-    this.setState({ playerX: x, playerY: y });
+    const props = {
+      x,
+      y,
+      canvas: this.canvas,
+      theta: 0,
+    };
     this.state.allCoords.push({ x, y });
-    this.setState({ allCoords: this.state.allCoords });
+    this.setState({
+      player: new Player(props),
+      allCoords: this.state.allCoords,
+    });
   }
 
   generateCoords(num) {
@@ -130,7 +105,6 @@ export default class App extends React.Component {
       const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
       let placed = true;
 
-      // check whether area is available
       for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
         // could not be placed because of overlap
         if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
@@ -148,14 +122,9 @@ export default class App extends React.Component {
     }
     return coords;
   }
-
-  drawObjects() {
-    this.drawJunk();
-    this.drawHoles();
-  }
-
+  
   drawJunk() {
-    const ctx = this.canvas.getContext('2d');    
+    const ctx = this.canvas.getContext('2d');
     for (const p of this.state.junkCoords) {
       ctx.beginPath();
       ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
@@ -166,12 +135,16 @@ export default class App extends React.Component {
   }
 
   drawHoles() {
-    for (const h of this.state.holes) {
-      h.drawHole();
-    }
+    this.state.holes.forEach(h => h.drawHole());
   }
 
+  drawPlayers() {
+    if (this.state.player) {
+      this.state.player.drawPlayer();
+    }
 
+    // TODO: Draw other players
+  }
 
   resizeCanvas() {
     const ctx = document.getElementById('ctx');
@@ -190,19 +163,14 @@ export default class App extends React.Component {
   updateCanvas() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
-    drawPlayer({
-      ctx,
-      x: this.state.playerX,
-      y: this.state.playerY,
-      ballRadius: PLAYER_RADIUS,
-      theta: this.state.playerTheta,
-    });
-    this.drawObjects();
-
+    this.drawPlayers();
+    this.drawJunk();
+    this.drawHoles();
     this.calculateNextState();
   }
 
   calculateNextState() {
+    const PLAYER_RADIUS = 25;
     this.setState((prevState) => {
       const newState = prevState;
       if (this.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
@@ -287,11 +255,9 @@ const styles = {
   canvas: {
     background: '#000000',
     textAlign: 'center',
-    
   },
   canvasContainer: {
     textAlign: 'center',
-  }
-
+  },
 };
 

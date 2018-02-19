@@ -2,4 +2,4 @@
 **npm-debug.log
 
 /client/node_modules/
-/client/public/bundle.js
+#/client/public/bundle.js

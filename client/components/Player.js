@@ -4,7 +4,7 @@ export default class Player {
 		this.color = props.color || '#FF0000'; // Red 
 		this.name = props.name || 'Default name';
 		this.canvas = props.canvas;
-		this.position = props.position || { x: (window.innerWidth / 2), y: (window.innerHeight) / 2) }; 
+		this.position = props.position || { x: (window.innerWidth / 2), y: (window.innerHeight / 2) }; 
 		this.velocity = { dx: 0, dy: 0 };
 		this.alive = true;  
 		

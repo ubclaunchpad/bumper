@@ -7,7 +7,7 @@
     "start": "webpack-dev-server --hot",
     "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "npm run build && cd .. && git subtree push --prefix client/public origin gh-pages"
+    "deploy": "cd .. && git subtree push --prefix client/public origin gh-pages"
   },
   "author": "",
   "license": "ISC",

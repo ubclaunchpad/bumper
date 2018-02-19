@@ -7723,6 +7723,14 @@ var _react = __webpack_require__(2);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _Player = __webpack_require__(28);
+
+var _Player2 = _interopRequireDefault(_Player);
+
+var _Hole = __webpack_require__(29);
+
+var _Hole2 = _interopRequireDefault(_Hole);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -7731,29 +7739,14 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var PLAYER_RADIUS = 50;
 var JUNK_COUNT = 10;
 var JUNK_SIZE = 15;
 var HOLE_COUNT = 10;
-var HOLE_RADIUS = 25;
-var MAX_RADIUS = 50;
+var MAX_DISTANCE_BETWEEN = 50;
 
 var width = window.innerWidth;
 var height = window.innerHeight;
 var address = 'ws://localhost:9090/connect';
-
-function drawBall(props) {
-  var ctx = props.ctx,
-      x = props.x,
-      y = props.y,
-      ballRadius = props.ballRadius;
-
-  ctx.beginPath();
-  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fill();
-  ctx.closePath();
-}
 
 var App = function (_React$Component) {
   _inherits(App, _React$Component);
@@ -7764,6 +7757,7 @@ var App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
     if (window.WebSocket) {
+      console.log('websocket available');
       _this.socket = new WebSocket(address);
       _this.socket.onmessage = function (event) {
         return console.log(event.data);
@@ -7773,40 +7767,34 @@ var App = function (_React$Component) {
     }
 
     _this.state = {
-      playerX: 200,
-      playerY: 200,
       rightPressed: false,
       leftPressed: false,
       upPressed: false,
       downPressed: false,
-      allCoords: [],
+      allCoords: [], // might need to change this
       junkCoords: [],
-      holeCoords: [],
-      playerCoords: []
+      holes: []
     };
 
+    _this.resizeCanvas = _this.resizeCanvas.bind(_this);
     _this.keyDownHandler = _this.keyDownHandler.bind(_this);
     _this.keyUpHandler = _this.keyUpHandler.bind(_this);
-    _this.drawObjects = _this.drawObjects.bind(_this);
+    _this.tick = _this.tick.bind(_this);
     return _this;
   }
 
   _createClass(App, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
-      var _this2 = this;
-
-      this.generateJunkCoordinates();
-      this.generateHoleCoordinates();
-      this.generatePlayerCoordinates();
-
       this.canvas = document.getElementById('ctx');
+      this.generatePlayerCoordinates();
+      this.generateJunkCoordinates();
+      this.generateHoles();
 
+      window.addEventListener('resize', this.resizeCanvas);
       window.addEventListener('keydown', this.keyDownHandler);
       window.addEventListener('keyup', this.keyUpHandler);
-      this.timerID = setInterval(function () {
-        return _this2.tick();
-      }, 50);
+      this.tick();
     }
   }, {
     key: 'generateJunkCoordinates',
@@ -7815,11 +7803,22 @@ var App = function (_React$Component) {
       this.setState({ junkCoords: newCoords });
     }
   }, {
-    key: 'generateHoleCoordinates',
-    value: function generateHoleCoordinates() {
+    key: 'generateHoles',
+    value: function generateHoles() {
+      var _this2 = this;
+
       var newCoords = this.generateCoords(HOLE_COUNT);
+      var newHoles = [];
+      newCoords.forEach(function (coord) {
+        var props = {
+          position: { x: coord.x, y: coord.y },
+          canvas: _this2.canvas
+        };
+        var hole = new _Hole2.default(props);
+        newHoles.push(hole);
+      });
       this.setState({
-        holeCoords: newCoords
+        holes: newHoles
       });
     }
 
@@ -7834,21 +7833,34 @@ var App = function (_React$Component) {
       var minHeight = height / 3;
       var x = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
       var y = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-      this.setState({ playerX: x, playerY: y });
+      var props = {
+        x: x,
+        y: y,
+        canvas: this.canvas,
+        theta: 0
+      };
       this.state.allCoords.push({ x: x, y: y });
-      this.setState({ allCoords: this.state.allCoords });
+      this.setState({
+        player: new _Player2.default(props),
+        allCoords: this.state.allCoords
+      });
     }
   }, {
     key: 'generateCoords',
     value: function generateCoords(num) {
+      // make sure object radius isn't outside of canvas
+      var maxWidth = width - MAX_DISTANCE_BETWEEN;
+      var minWidth = MAX_DISTANCE_BETWEEN;
+      var maxHeight = height - MAX_DISTANCE_BETWEEN;
+      var minHeight = MAX_DISTANCE_BETWEEN;
+
       var count = num;
       var coords = [];
       while (count > 0) {
-        var x = Math.floor(Math.random() * (width - MAX_RADIUS));
-        var y = Math.floor(Math.random() * (height - MAX_RADIUS));
+        var x = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
+        var y = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
         var placed = true;
 
-        // check whether area is available
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -7858,7 +7870,7 @@ var App = function (_React$Component) {
             var p = _step.value;
             //es-lint-disable no-restricted-syntax 
             // could not be placed because of overlap
-            if (Math.abs(p.x - x) < MAX_RADIUS && Math.abs(p.y - y) < MAX_RADIUS) {
+            if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
               placed = false;
               break;
             }
@@ -7888,8 +7900,8 @@ var App = function (_React$Component) {
       return coords;
     }
   }, {
-    key: 'drawObjects',
-    value: function drawObjects() {
+    key: 'drawJunk',
+    value: function drawJunk() {
       var ctx = this.canvas.getContext('2d');
       var _iteratorNormalCompletion2 = true;
       var _didIteratorError2 = false;
@@ -7919,85 +7931,81 @@ var App = function (_React$Component) {
           }
         }
       }
-
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
-
-      try {
-        for (var _iterator3 = this.state.holeCoords[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var _p = _step3.value;
-
-          ctx.beginPath();
-          ctx.arc(_p.x, _p.y, HOLE_RADIUS, 0, Math.PI * 2);
-          ctx.fillStyle = 'white';
-          ctx.fill();
-          ctx.closePath();
-        }
-      } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-            _iterator3.return();
-          }
-        } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
-          }
-        }
+    }
+  }, {
+    key: 'drawHoles',
+    value: function drawHoles() {
+      this.state.holes.forEach(function (h) {
+        return h.drawHole();
+      });
+    }
+  }, {
+    key: 'drawPlayers',
+    value: function drawPlayers() {
+      if (this.state.player) {
+        this.state.player.drawPlayer();
       }
 
-      ctx.beginPath();
-      ctx.arc(this.state.playerCoords.x, this.state.playerCoords.y, PLAYER_RADIUS, 0, Math.PI * 2);
-      ctx.fillStyle = 'green';
-      ctx.fill();
-      ctx.closePath();
+      // TODO: Draw other players
+    }
+  }, {
+    key: 'resizeCanvas',
+    value: function resizeCanvas() {
+      var ctx = document.getElementById('ctx');
+      ctx.width = window.innerWidth - 20;
+      ctx.height = window.innerHeight - 20;
+      ctx.textAlign = 'center';
+      this.updateCanvas();
     }
   }, {
     key: 'tick',
     value: function tick() {
       this.updateCanvas();
+      // eslint-disable-next-line
+      requestAnimationFrame(this.tick);
     }
   }, {
     key: 'updateCanvas',
     value: function updateCanvas() {
       var ctx = this.canvas.getContext('2d');
       ctx.clearRect(0, 0, width, height);
-      drawBall({
-        ctx: ctx, x: this.state.playerX, y: this.state.playerY, ballRadius: PLAYER_RADIUS
-      });
-      this.drawObjects();
+      this.drawPlayers();
+      this.drawJunk();
+      this.drawHoles();
+      this.calculateNextState();
+    }
+  }, {
+    key: 'calculateNextState',
+    value: function calculateNextState() {
+      var _this3 = this;
 
-      if (this.state.rightPressed) {
-        this.setState(function (prevState) {
-          return {
-            playerX: prevState.playerX + 5
-          };
-        });
-      }
-      if (this.state.leftPressed) {
-        this.setState(function (prevState) {
-          return {
-            playerX: prevState.playerX - 5
-          };
-        });
-      }
-      if (this.state.upPressed) {
-        this.setState(function (prevState) {
-          return {
-            playerY: prevState.playerY - 5
-          };
-        });
-      }
-      if (this.state.downPressed) {
-        this.setState(function (prevState) {
-          return {
-            playerY: prevState.playerY + 5
-          };
-        });
-      }
+      var PLAYER_RADIUS = 25;
+      this.setState(function (prevState) {
+        var newState = prevState;
+        if (_this3.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
+        if (_this3.state.rightPressed) newState.playerTheta = (prevState.playerTheta - 0.25) % 360;
+        if (_this3.state.downPressed) {
+          newState.playerY = prevState.playerY + 0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta));
+          newState.playerX = prevState.playerX + 0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta));
+        }
+        if (_this3.state.upPressed) {
+          newState.playerY = prevState.playerY - 0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta));
+          newState.playerX = prevState.playerX - 0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta));
+        }
+
+        if (newState.playerX + PLAYER_RADIUS > width - 20) {
+          newState.playerX = width - 20 - PLAYER_RADIUS;
+        } else if (newState.playerX - PLAYER_RADIUS < 0) {
+          newState.playerX = PLAYER_RADIUS;
+        }
+        if (newState.playerY + PLAYER_RADIUS > height - 20) {
+          newState.playerY = height - 20 - PLAYER_RADIUS;
+        } else if (newState.playerY - PLAYER_RADIUS < 0) {
+          newState.playerY = PLAYER_RADIUS;
+        }
+
+        return newState;
+      });
     }
   }, {
     key: 'keyDownHandler',
@@ -8046,8 +8054,8 @@ var App = function (_React$Component) {
     value: function render() {
       return _react2.default.createElement(
         'div',
-        null,
-        _react2.default.createElement('canvas', { id: 'ctx', style: styles.canvas, width: window.innerWidth, height: window.innerHeight })
+        { style: styles.canvasContainer },
+        _react2.default.createElement('canvas', { id: 'ctx', style: styles.canvas, display: 'inline', width: window.innerWidth - 20, height: window.innerHeight - 20, margin: 0 })
       );
     }
   }]);
@@ -8059,10 +8067,106 @@ exports.default = App;
 
 
 var styles = {
+  container: {
+    display: 'flex'
+  },
   canvas: {
-    background: '#000000'
+    background: '#000000',
+    textAlign: 'center'
+  },
+  canvasContainer: {
+    textAlign: 'center'
   }
 };
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Player = function () {
+	function Player(props) {
+		_classCallCheck(this, Player);
+
+		this.mass = props.mass || 10;
+		this.color = props.color || '#FF0000'; // Red 
+		this.name = props.name || 'Default name';
+		this.canvas = props.canvas;
+		this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+		this.velocity = { dx: 0, dy: 0 };
+		this.alive = true;
+
+		this.drawPlayer = this.drawPlayer.bind(this);
+	}
+
+	_createClass(Player, [{
+		key: 'drawPlayer',
+		value: function drawPlayer() {}
+	}]);
+
+	return Player;
+}();
+
+exports.default = Player;
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Hole = function () {
+  function Hole(props) {
+    _classCallCheck(this, Hole);
+
+    this.canvas = props.canvas;
+    this.position = props.position;
+    this.radius = 25;
+    this.lifespan = 20000;
+    this.getPositionAndRadius = this.getPositionAndRadius.bind(this);
+    this.drawHole = this.drawHole.bind(this);
+  }
+
+  _createClass(Hole, [{
+    key: 'getPositionAndRadius',
+    value: function getPositionAndRadius() {
+      return { position: this.position, radius: this.radius };
+    }
+  }, {
+    key: 'drawHole',
+    value: function drawHole() {
+      var ctx = this.canvas.getContext('2d');
+      ctx.beginPath();
+      ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = 'blue';
+      ctx.fill();
+      ctx.closePath();
+    }
+  }]);
+
+  return Hole;
+}();
+
+exports.default = Hole;
 
 /***/ })
 /******/ ]);

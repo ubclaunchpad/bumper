@@ -16,7 +16,7 @@ export default class Hole {
     const ctx = this.canvas.getContext('2d');
     ctx.beginPath();
     ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = 'blue';
     ctx.fill();
     ctx.closePath();
   }

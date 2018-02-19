@@ -142,6 +142,8 @@ export default class App extends React.Component {
     if (this.state.player) {
       this.state.player.drawPlayer();
     }
+
+    // TODO: Draw other players
   }
 
   resizeCanvas() {
@@ -168,6 +170,7 @@ export default class App extends React.Component {
   }
 
   calculateNextState() {
+    const PLAYER_RADIUS = 25;
     this.setState((prevState) => {
       const newState = prevState;
       if (this.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;

@@ -1,52 +1,44 @@
+const PLAYER_RADIUS = 25;
+
 export default class Player {
-	
-	constructor(mass, color, name, canvas) { 
-		this.mass = mass;
-		this.color = color; 
-		this.name = name;
-		this.canvas = canvas;
-		this.position = generatePlayerCoords(); // Need to change this function to return position array, or take this line out and keep as is
-		this.velocity = [0.0, 0.0];
-		this.alive = true; 
-	 }
-		  
-	// Can either input the arrow key that is currently being pressed
-	// (NOT TAKING INTO ACCOUNT 2 BEING PRESSED AT THE SAME TIME YET),
-	// or a calculated velocity value (i.e. from after a collision)
-	updateVelocity(value) {
-			switch(value) {
-				case up:
-					// CALCULATION : TAKE X AND Y COMPONENTS OF VELOCITY
-					// AND MAKE THEM ALL IN THE NEGATIVE (b/c switched with canvas) Y DIRECTION
-					break;
-				case down:
-					// CALCULATION : TAKE X AND Y COMPONENTS OF VELOCITY
-					// AND MAKE THEM ALL IN THE POSITIVE (b/c switched with canvas) Y DIRECTION
-					break;
-				case left:
-					// CALCULATION : TAKE X AND Y COMPONENTS OF VELOCITY
-					// AND MAKE THEM ALL IN THE NEGATIVE X DIRECTION
-					break;
-				case right:
-					// CALCULATION : TAKE X AND Y COMPONENTS OF VELOCITY
-					// AND MAKE THEM ALL IN THE POSITIVE X DIRECTION
-					break;
-				case noKeyPressed:
-					velocity = [0.0, 0.0];
-					break;
-				default: this.velocity = velocity
-		}
-	}
-		
-	drawPlayer() {
-		// Check if new coords are within a hole
-		// If yes, set alive to false
-		if(!alive) {
-			// Don't redraw - game over code
-		}
-		else {
-			// Draw player with current coords
-		}	
-	}
-	  
+  constructor(props) {
+    this.canvas = props.canvas;
+    this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    this.velocity = { dx: 0, dy: 0 };
+    this.theta = props.theta;
+
+    this.mass = props.mass || 10;
+    this.color = props.color || '#FF0000';
+    this.name = props.name || 'Default name';
+    this.alive = true;
+
+    this.drawPlayer = this.drawPlayer.bind(this);
+  }
+
+  drawPlayer() {
+    const ctx = this.canvas.getContext('2d');
+    const { x, y } = this.position;
+    ctx.beginPath();
+    ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = '#00FFFF';
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.moveTo(x + (PLAYER_RADIUS * Math.sin(this.theta)), y + (PLAYER_RADIUS * Math.cos(this.theta)));
+    ctx.lineTo(x - (PLAYER_RADIUS * Math.sin(this.theta)), y - (PLAYER_RADIUS * Math.cos(this.theta)));
+    ctx.strokeStyle = '#000000';
+    ctx.strokeWidth = 5;
+    ctx.stroke();
+
+    const backCenterX = x - ((PLAYER_RADIUS * Math.sin(this.theta)) / 2);
+    const backCenterY = y - ((PLAYER_RADIUS * Math.cos(this.theta)) / 2);
+    const backLength = (2.5 * ((PLAYER_RADIUS / 2) / Math.tan(45)));
+    ctx.beginPath();
+    ctx.moveTo(backCenterX - (backLength * Math.cos(this.theta)), backCenterY + (backLength * Math.sin(this.theta)));
+    ctx.lineTo(backCenterX + (backLength * Math.cos(this.theta)), backCenterY - (backLength * Math.sin(this.theta)));
+    ctx.strokeStyle = '#0000000';
+    ctx.strokeWidth = 5;
+    ctx.stroke();
+  }
 }

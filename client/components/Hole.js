@@ -1,10 +1,7 @@
 export default class Hole {
-
-  // Note: Lifespan must be in milliseconds (for use in setTimeout)
   constructor(props) {
     this.canvas = props.canvas;
     this.position = props.position;
-
     this.radius = 25;
     this.lifespan = 20000;
     this.getPositionAndRadius = this.getPositionAndRadius.bind(this);

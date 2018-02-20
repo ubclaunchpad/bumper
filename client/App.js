@@ -15,6 +15,12 @@ function drawPlayer(props) {
   const {
     ctx, x, y, ballRadius, theta,
   } = props;
+
+  // don't draw player if dead
+  // TODO remove when player objects are introduced
+  if (x === null || y === null) {
+    return;
+  }
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
   ctx.fillStyle = '#00FFFF';
@@ -38,6 +44,10 @@ function drawPlayer(props) {
   ctx.strokeStyle = '#0000000';
   ctx.strokeWidth = 5;
   ctx.stroke();
+}
+
+function areCirclesColliding(x1, y1, r1, x2, y2, r2) {
+  return (((x1 - x2) ** 2) + ((y1 - y2) ** 2)) <= ((r1 + r2) ** 2);
 }
 
 export default class App extends React.Component {
@@ -72,9 +82,9 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.canvas = document.getElementById('ctx');
+    this.generatePlayerCoordinates();
     this.generateJunkCoordinates();
     this.generateHoles();
-    this.generatePlayerCoordinates();
 
     window.addEventListener('resize', this.resizeCanvas);
     window.addEventListener('keydown', this.keyDownHandler);
@@ -133,7 +143,7 @@ export default class App extends React.Component {
       // check whether area is available
       for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
         // could not be placed because of overlap
-        if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
+        if (areCirclesColliding(p.x, p.y, MAX_DISTANCE_BETWEEN, x, y, MAX_DISTANCE_BETWEEN)) {
           placed = false;
           break;
         }
@@ -193,14 +203,19 @@ export default class App extends React.Component {
   checkForCollisions() {
     this.state.holes.forEach((hole) => {
       const { position, radius } = hole;
-      if (this.state.playerX <= (position.x + radius) &&
-        this.state.playerX >= (position.x - radius) &&
-        this.state.playerY <= (position.y + radius) &&
-        this.state.playerY >= (position.y - radius)) {
-        console.log("PLAYER KILLED");
+      // detect collision
+      // (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
+      if (areCirclesColliding(this.state.playerX, this.state.playerY, PLAYER_RADIUS, position.x, position.y, radius)) {
+        console.log("ur dead");
+        this.setState({
+          playerX: null,
+          playerY: null,
+        });
       }
     });
   }
+
+  
 
   updateCanvas() {
     const ctx = this.canvas.getContext('2d');
@@ -218,6 +233,11 @@ export default class App extends React.Component {
   }
 
   calculateNextState() {
+    // player is dead don't render
+    // TODO remove when player objects introduced
+    if (this.state.playerX === null || this.state.playerY === null) {
+      return;
+    }
     this.setState((prevState) => {
       const newState = prevState;
       if (this.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;

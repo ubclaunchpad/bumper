@@ -173,30 +173,39 @@ export default class App extends React.Component {
   calculateNextState() {
     const PLAYER_RADIUS = 25;
     this.setState((prevState) => {
-      const newState = prevState;
-      if (this.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
-      if (this.state.rightPressed) newState.playerTheta = (prevState.playerTheta - 0.25) % 360;
+      const { player } = prevState;
+      const { position } = player;
+      if (this.state.leftPressed) {
+        player.theta = (player.theta + 0.25) % 360;
+      }
+
+      if (this.state.rightPressed) {
+        player.theta = (player.theta - 0.25) % 360;
+      }
+
       if (this.state.downPressed) {
-        newState.playerY = prevState.playerY + (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
-        newState.playerX = prevState.playerX + (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
+        position.y += (0.5 * (PLAYER_RADIUS * Math.cos(player.theta)));
+        position.x += (0.5 * (PLAYER_RADIUS * Math.sin(player.theta)));
       }
+
       if (this.state.upPressed) {
-        newState.playerY = prevState.playerY - (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
-        newState.playerX = prevState.playerX - (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
+        position.y -= (0.5 * (PLAYER_RADIUS * Math.cos(player.theta)));
+        position.x -= (0.5 * (PLAYER_RADIUS * Math.sin(player.theta)));
       }
 
-      if (newState.playerX + PLAYER_RADIUS > (width - 20)) {
-        newState.playerX = width - 20 - PLAYER_RADIUS;
-      } else if (newState.playerX - PLAYER_RADIUS < 0) {
-        newState.playerX = PLAYER_RADIUS;
-      }
-      if (newState.playerY + PLAYER_RADIUS > (height - 20)) {
-        newState.playerY = height - 20 - PLAYER_RADIUS;
-      } else if (newState.playerY - PLAYER_RADIUS < 0) {
-        newState.playerY = PLAYER_RADIUS;
+      if (position.x + PLAYER_RADIUS > (width - 20)) {
+        position.x = width - 20 - PLAYER_RADIUS;
+      } else if (position.x - PLAYER_RADIUS < 0) {
+        position.x = PLAYER_RADIUS;
       }
 
-      return newState;
+      if (position.y + PLAYER_RADIUS > (height - 20)) {
+        position.y = height - 20 - PLAYER_RADIUS;
+      } else if (position.y - PLAYER_RADIUS < 0) {
+        position.y = PLAYER_RADIUS;
+      }
+
+      return prevState;
     });
   }
 

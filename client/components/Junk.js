@@ -11,6 +11,12 @@ export default class Junk {
   }
   
   drawJunk() {
-
+	const ctx = this.canvas.getContext('2d');    
+    for (const p of this.state.junkCoords) {
+      ctx.beginPath();
+      ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+      ctx.closePath();
   }
 }

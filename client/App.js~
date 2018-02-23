@@ -83,20 +83,16 @@ export default class App extends React.Component {
     this.tick();
   }
 
+  generateJunkCoordinates() {
+    const newCoords = this.generateCoords(JUNK_COUNT);
+    this.setState({ junkCoords: newCoords });
+  }
+  
   generateJunk() {
-	const newCoords = this.generateCoords(JUNK_COUNT);
-  	const newJunk = [];
-	newCoords.forEach((coord) => {
-		const props = {
-			position: { x: coord.x, y: coord.y },
-			canvas: this.canvas;
-		};
-		const junk = new Junk(props);
-		newJunk.push(junk);
-	});
-    this.setState({ 
-		junkCoords: newCoords,
-	});
+	  const newCoords = this.generateCoords(JUNK_COUNT);
+	  const newJunk = [];
+	  
+	  
   }
 
   generateHoles() {
@@ -167,7 +163,14 @@ export default class App extends React.Component {
   }
 
   drawJunk() {
-    this.state.junkCoords.forEach(h => h.drawJunk());
+    const ctx = this.canvas.getContext('2d');    
+    for (const p of this.state.junkCoords) {
+      ctx.beginPath();
+      ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+      ctx.closePath();
+    }
   }
 
   drawHoles() {

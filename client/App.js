@@ -174,8 +174,10 @@ export default class App extends React.Component {
   }
 
   checkForCollisions() {
+    // Check hole to player/junk collisions
     this.state.holes.forEach((hole) => {
       const { position, radius } = hole;
+      // Check the player
       if (this.state.player) {
         if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, radius)) {
           this.setState({
@@ -183,7 +185,19 @@ export default class App extends React.Component {
           });
         }
       }
+      // Check each junk
+      this.state.junk.forEach((junk) => {
+        if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
+          // Add points for the last bumper player here
+          this.state.junk = this.state.junk.filter((j) => {
+            return j !== junk;
+          });
+          this.setState(this.state);
+        }
+      });
     });
+
+    // Check player to junk collisions
     this.state.junk.forEach((junk) => {
       const { position } = junk;
       if (this.state.player) {

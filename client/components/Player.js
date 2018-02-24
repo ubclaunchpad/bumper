@@ -60,7 +60,7 @@ export default class Player {
     ctx.stroke();
   }
 
-  updatePosition(screen) {
+  updatePosition() {
     const controlsVector = { dx: 0, dy: 0 };
 
     if (this.leftPressed) {
@@ -107,13 +107,13 @@ export default class Player {
     this.position.y += this.velocity.dy;
 
     // Check wall collisions
-    if (this.position.x + PLAYER_RADIUS > (screen.width - 20)) {
+    if (this.position.x + PLAYER_RADIUS > this.canvas.width) {
       this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
     } else if (this.position.x - PLAYER_RADIUS < 0) {
       this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
     }
 
-    if (this.position.y + PLAYER_RADIUS > (screen.height - 20)) {
+    if (this.position.y + PLAYER_RADIUS > this.canvas.height) {
       this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
     } else if (this.position.y - PLAYER_RADIUS < 0) {
       this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;

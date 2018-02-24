@@ -56,6 +56,9 @@ export default class App extends React.Component {
       () => this.clientMessage(),
       1000,
     );
+
+    window.addEventListener('resize', this.resizeCanvas);
+    this.tick();
   }
 
   clientMessage() {
@@ -63,9 +66,6 @@ export default class App extends React.Component {
       message: 'client2',
       data: 'foo',
     }));
-
-    window.addEventListener('resize', this.resizeCanvas);
-    this.tick();
   }
 
   generateJunk() {

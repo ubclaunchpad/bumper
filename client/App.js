@@ -89,7 +89,7 @@ export default class App extends React.Component {
 	newCoords.forEach((coord) => {
 		const props = {
 			position: { x: coord.x, y: coord.y },
-			canvas: this.canvas;
+			canvas: this.canvas,
 		};
 		const junk = new Junk(props);
 		newJunk.push(junk);

@@ -2,7 +2,7 @@ export default class Junk {
   constructor(props) {
     this.mass = props.mass || 10;
 	this.pointVal = props.pointVal || 50;
-	this.position = props.position || { x: (window.innerWidth / 2), y: (window.innerHeight) / 2) };
+	this.position = props.position;
 	this.velocity = { dx: 0, dy: 0 };
 	this.lastBumped = null;
 	this.alive = true;
@@ -18,5 +18,6 @@ export default class Junk {
       ctx.fillStyle = 'white';
       ctx.fill();
       ctx.closePath();
+	}
   }
 }

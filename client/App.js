@@ -14,8 +14,8 @@ const address = 'ws://localhost:9090/connect';
 
 // detect collision
 // (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
-function areCirclesColliding(x1, y1, r1, x2, y2, r2) {
-  return (((x1 - x2) ** 2) + ((y1 - y2) ** 2)) <= ((r1 + r2) ** 2);
+function areCirclesColliding(p, r1, q, r2) {
+  return (((p.x - q.x) ** 2) + ((p.y - q.y) ** 2)) <= ((r1 + r2) ** 2);
 }
 
 export default class App extends React.Component {
@@ -176,7 +176,7 @@ export default class App extends React.Component {
     this.state.holes.forEach((hole) => {
       const { position, radius } = hole;
       if (this.state.player) {
-        if (areCirclesColliding(this.state.player.position.x, this.state.player.position.y, PLAYER_RADIUS, position.x, position.y, radius)) {
+        if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, radius)) {
           this.setState({
             player: null,
           });

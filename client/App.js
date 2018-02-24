@@ -112,15 +112,11 @@ export default class App extends React.Component {
     while (count > 0) {
       const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
       const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
-      let placed = true;
-      const collision = this.state.allCoords.some((p) => {
+      const isColliding = this.state.allCoords.some((p) => {
         return areCirclesColliding(p.x, p.y, MAX_DISTANCE_BETWEEN, x, y, MAX_DISTANCE_BETWEEN);
       });
-      if (collision) {
-        placed = false;
-      }
 
-      if (placed) {
+      if (!isColliding) {
         const newAllCoords = this.state.allCoords.push({ x, y });
         this.setState({ allCoords: newAllCoords });
         coords.push({ x, y });

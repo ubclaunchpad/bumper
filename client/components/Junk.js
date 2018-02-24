@@ -1,4 +1,6 @@
 const JUNK_SIZE = 15;
+const JUNK_FRICTION = 0.99;
+const JUNK_MINBUMP = 0.5;
 
 export default class Junk {
   constructor(props) {
@@ -24,8 +26,8 @@ export default class Junk {
 
   hitBy(player) {
     // LastBumped = player;
-    this.velocity.dx = player.velocity.dx;
-    this.velocity.dy = player.velocity.dy;
+    this.velocity.dx = Math.max(player.velocity.dx * 1.05, JUNK_MINBUMP);
+    this.velocity.dy = Math.max(player.velocity.dy * 1.05, JUNK_MINBUMP);
   }
 
   updatePosition() {
@@ -36,6 +38,9 @@ export default class Junk {
     if (this.position.y + this.velocity.dy > this.canvas.height - r || this.position.y + this.velocity.dy < r) {
       this.velocity.dy = -this.velocity.dy;
     }
+
+    this.velocity.dy *= JUNK_FRICTION;
+    this.velocity.dx *= JUNK_FRICTION;
 
     this.position.x += this.velocity.dx;
     this.position.y += this.velocity.dy;

@@ -96,11 +96,11 @@ export default class Player {
     // console.log("vdx: " + this.velocity.dx + "vdy: " + this.velocity.dy);
 
     // Ensure it never gets going too fast
-    // if (magnitude(this.velocity) > MAX_VELOCITY) {
-    //   normalize(this.velocity);
-    //   this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
-    //   this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
-    // }
+    if (magnitude(this.velocity) > MAX_VELOCITY) {
+      normalize(this.velocity);
+      this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
+      this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
+    }
 
     // Apply player's velocity vector
     this.position.x += this.velocity.dx;

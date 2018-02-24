@@ -53,7 +53,7 @@ export default class Player {
     ctx.stroke();
   }
 
-  updatePosition(screen) {
+  updatePosition() {
     const controlsVector = { dx: 0, dy: 0 };
 
     if (this.leftPressed) {
@@ -79,14 +79,14 @@ export default class Player {
     this.position.y += controlsVector.dy;
 
     // Validate position result
-    if (this.position.x + PLAYER_RADIUS > (screen.width - 20)) {
-      this.position.x = screen.width - 20 - PLAYER_RADIUS;
+    if (this.position.x + PLAYER_RADIUS > this.canvas.width) {
+      this.position.x = this.canvas.width - PLAYER_RADIUS;
     } else if (this.position.x - PLAYER_RADIUS < 0) {
       this.position.x = PLAYER_RADIUS;
     }
 
-    if (this.position.y + PLAYER_RADIUS > (screen.height - 20)) {
-      this.position.y = screen.height - 20 - PLAYER_RADIUS;
+    if (this.position.y + PLAYER_RADIUS > this.canvas.height) {
+      this.position.y = this.canvas.height - PLAYER_RADIUS;
     } else if (this.position.y - PLAYER_RADIUS < 0) {
       this.position.y = PLAYER_RADIUS;
     }

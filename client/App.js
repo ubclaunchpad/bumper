@@ -201,7 +201,7 @@ export default class App extends React.Component {
       return;
     }
 
-    this.state.player.updatePosition({ width, height });
+    this.state.player.updatePosition();
     this.state.junk.forEach(j => j.updatePosition());
   }
 

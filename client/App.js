@@ -46,8 +46,7 @@ export default class App extends React.Component {
     this.generateJunk();
     this.generatePlayerCoordinates();
     this.generateHoles();
-    window.addEventListener('keydown', this.keyDownHandler);
-    window.addEventListener('keyup', this.keyUpHandler);
+
     this.timerID = setInterval(
       () => this.tick(),
       50,
@@ -62,6 +61,8 @@ export default class App extends React.Component {
   }
 
   clientMessage() {
+    if (!this.socket) return;
+
     this.socket.send(JSON.stringify({
       message: 'client2',
       data: 'foo',

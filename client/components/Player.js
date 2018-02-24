@@ -2,8 +2,9 @@ import { magnitude, normalize } from '../utils/utils';
 
 const PLAYER_RADIUS = 25;
 const MAX_VELOCITY = 15;
-const PLAYER_SPEED = 5;
-const PLAYER_FRICTION = 0.6;
+const PLAYER_ACCELERATION = 0.5;
+const PLAYER_FRICTION = 0.97;
+const WALL_BOUNCE_FACTOR = 1.5;
 
 export default class Player {
   constructor(props) {
@@ -81,8 +82,8 @@ export default class Player {
 
     // Normalize controls vector and apply speed
     normalize(controlsVector);
-    controlsVector.dx *= PLAYER_SPEED;
-    controlsVector.dy *= PLAYER_SPEED;
+    controlsVector.dx *= PLAYER_ACCELERATION;
+    controlsVector.dy *= PLAYER_ACCELERATION;
 
     // Apply some friction damping
     this.velocity.dx = this.velocity.dx * PLAYER_FRICTION;
@@ -90,6 +91,8 @@ export default class Player {
 
     this.velocity.dx += controlsVector.dx;
     this.velocity.dy += controlsVector.dy;
+
+    // console.log("vdx: " + this.velocity.dx + "vdy: " + this.velocity.dy);
 
     // Ensure it never gets going too fast
     // if (magnitude(this.velocity) > MAX_VELOCITY) {
@@ -104,15 +107,15 @@ export default class Player {
 
     // Check wall collisions
     if (this.position.x + PLAYER_RADIUS > (screen.width - 20)) {
-      this.velocity.dx = -this.velocity.dx * 10;
+      this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
     } else if (this.position.x - PLAYER_RADIUS < 0) {
-      this.velocity.dx = -this.velocity.dx * 10;
+      this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
     }
 
     if (this.position.y + PLAYER_RADIUS > (screen.height - 20)) {
-      this.velocity.dy = -this.velocity.dy * 10;
+      this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
     } else if (this.position.y - PLAYER_RADIUS < 0) {
-      this.velocity.dy = -this.velocity.dy * 10;
+      this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
     }
   }
 

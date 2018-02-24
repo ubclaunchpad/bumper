@@ -5,6 +5,7 @@ const MAX_VELOCITY = 15;
 const PLAYER_ACCELERATION = 0.5;
 const PLAYER_FRICTION = 0.97;
 const WALL_BOUNCE_FACTOR = 1.5;
+const JUNK_BOUNCE_FACTOR = 0.5;
 
 export default class Player {
   constructor(props) {
@@ -117,6 +118,11 @@ export default class Player {
     } else if (this.position.y - PLAYER_RADIUS < 0) {
       this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
     }
+  }
+
+  hitJunk() {
+    this.velocity.dx *= JUNK_BOUNCE_FACTOR;
+    this.velocity.dy *= JUNK_BOUNCE_FACTOR;
   }
 
   keyDownHandler(e) {

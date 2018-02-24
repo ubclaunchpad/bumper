@@ -189,6 +189,7 @@ export default class App extends React.Component {
       if (this.state.player) {
         if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
           junk.hitBy(this.state.player);
+          this.state.player.hitJunk();
         }
       }
     });

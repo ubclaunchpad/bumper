@@ -22,4 +22,10 @@ export default class Junk {
     ctx.fill();
     ctx.closePath();
   }
+
+  hitBy(player) {
+    // LastBumped = player;
+    this.velocity.dx = player.velocity.dx;
+    this.velocity.dx = player.velocity.dx;
+  }
 }

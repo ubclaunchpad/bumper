@@ -13,24 +13,27 @@ export default class Player {
     this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     this.velocity = { dx: 0, dy: 0 };
     this.theta = props.theta;
-
     this.mass = props.mass || 10;
-    this.color = props.color || '#FF0000';
-    this.name = props.name || 'Default name';
+
     this.alive = true;
+    this.name = props.name || 'Default name';
 
-    this.drawPlayer = this.drawPlayer.bind(this);
-
-    this.keyDownHandler = this.keyDownHandler.bind(this);
-    this.keyUpHandler = this.keyUpHandler.bind(this);
-
-    window.addEventListener('keydown', this.keyDownHandler);
-    window.addEventListener('keyup', this.keyUpHandler);
+    let c = '';
+    while (c.length < 6) {
+      c += (Math.random()).toString(16).substr(-6).substr(-1);
+    }
+    this.color = `#${c}`;
 
     this.rightPressed = false;
     this.leftPressed = false;
     this.upPressed = false;
     this.downPressed = false;
+
+    this.drawPlayer = this.drawPlayer.bind(this);
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.keyUpHandler = this.keyUpHandler.bind(this);
+    window.addEventListener('keydown', this.keyDownHandler);
+    window.addEventListener('keyup', this.keyUpHandler);
   }
 
   drawPlayer() {
@@ -38,7 +41,7 @@ export default class Player {
     const { x, y } = this.position;
     ctx.beginPath();
     ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = '#00FFFF';
+    ctx.fillStyle = this.color;
     ctx.fill();
     ctx.closePath();
 

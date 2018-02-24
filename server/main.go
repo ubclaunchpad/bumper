@@ -15,14 +15,19 @@ type Message struct {
 }
 
 // Coordinate x y position
-type Coordinate struct {
+type Position struct {
 	x int
 	y int
 }
 
+type Velocity struct {
+	dx float32
+	dy float32
+}
+
 // State of an object, position and velocity
 type State struct {
-	position Coordinate
+	position Position
 	velocity Coordinate
 }
 
@@ -41,7 +46,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func handleConnection(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
+	ws, err := upgrader.Upgit pgrade(w, r, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

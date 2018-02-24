@@ -47,8 +47,22 @@ export default class App extends React.Component {
     this.generatePlayerCoordinates();
     this.generateHoles();
 
+    this.timerID2 = setInterval(
+      () => this.clientMessage(),
+      1000,
+    );
+
     window.addEventListener('resize', this.resizeCanvas);
     this.tick();
+  }
+
+  clientMessage() {
+    if (!this.socket) return;
+
+    this.socket.send(JSON.stringify({
+      message: 'client2',
+      data: 'foo',
+    }));
   }
 
   generateJunk() {
@@ -112,17 +126,11 @@ export default class App extends React.Component {
     while (count > 0) {
       const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
       const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
-      let placed = true;
+      const isColliding = this.state.allCoords.some((p) => {
+        return areCirclesColliding(p.x, p.y, MAX_DISTANCE_BETWEEN, x, y, MAX_DISTANCE_BETWEEN);
+      });
 
-      for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
-        // could not be placed because of overlap
-        if (areCirclesColliding(p, MAX_DISTANCE_BETWEEN, { x, y }, MAX_DISTANCE_BETWEEN)) {
-          placed = false;
-          break;
-        }
-      }
-
-      if (placed) {
+      if (!isColliding) {
         const newAllCoords = this.state.allCoords.push({ x, y });
         this.setState({ allCoords: newAllCoords });
         coords.push({ x, y });

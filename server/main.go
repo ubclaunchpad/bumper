@@ -14,6 +14,23 @@ type Message struct {
 	Message string `json:"message"`
 }
 
+// Coordinate x y position
+type Position struct {
+	x int
+	y int
+}
+
+type Velocity struct {
+	dx float32
+	dy float32
+}
+
+// State of an object, position and velocity
+type State struct {
+	position Position
+	velocity Velocity
+}
+
 // global variable is fine for now, all we need is reference to connection
 var clients = make(map[*websocket.Conn]bool)
 
@@ -38,10 +55,11 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	// record this connection in our map
 	clients[ws] = true
 
+	var msg Message
 	// infinite loop that receives msgs from clients
 	for {
 		// ReadJSON blocks until a message is received
-		var msg Message
+		log.Printf("%+v\n", msg)
 		err := ws.ReadJSON(&msg)
 		// terminate connection if error occurs
 		if err != nil {
@@ -50,8 +68,9 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
+		log.Printf("%+v\n", msg.Message)
 		// pass received message to the global channel
-		broadcast <- msg
+		//broadcast <- msg
 	}
 }
 
@@ -74,6 +93,7 @@ func tick() {
 }
 
 func main() {
+
 	// main thread that will listen for connections
 	http.HandleFunc("/connect", handleConnection)
 	// separate thread that will handle updates

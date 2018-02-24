@@ -13,6 +13,17 @@ export default class Player {
     this.alive = true;
 
     this.drawPlayer = this.drawPlayer.bind(this);
+
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.keyUpHandler = this.keyUpHandler.bind(this);
+
+    window.addEventListener('keydown', this.keyDownHandler);
+    window.addEventListener('keyup', this.keyUpHandler);
+
+    this.rightPressed = false;
+    this.leftPressed = false;
+    this.upPressed = false;
+    this.downPressed = false;
   }
 
   drawPlayer() {
@@ -40,5 +51,68 @@ export default class Player {
     ctx.strokeStyle = '#0000000';
     ctx.strokeWidth = 5;
     ctx.stroke();
+  }
+
+  updatePosition(screen) {
+    const controlsVector = { dx: 0, dy: 0 };
+
+    if (this.leftPressed) {
+      this.theta = (this.theta + 0.1) % 360;
+    }
+
+    if (this.rightPressed) {
+      this.theta = (this.theta - 0.1) % 360;
+    }
+
+    if (this.downPressed) {
+      controlsVector.dy = (0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
+      controlsVector.dx = (0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
+    }
+
+    if (this.upPressed) {
+      controlsVector.dy = (0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
+      controlsVector.dx = (0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
+    }
+
+    // Apply resultant vector
+    this.position.x += controlsVector.dx;
+    this.position.y += controlsVector.dy;
+
+    // Validate position result
+    if (this.position.x + PLAYER_RADIUS > (screen.width - 20)) {
+      this.position.x = screen.width - 20 - PLAYER_RADIUS;
+    } else if (this.position.x - PLAYER_RADIUS < 0) {
+      this.position.x = PLAYER_RADIUS;
+    }
+
+    if (this.position.y + PLAYER_RADIUS > (screen.height - 20)) {
+      this.position.y = screen.height - 20 - PLAYER_RADIUS;
+    } else if (this.position.y - PLAYER_RADIUS < 0) {
+      this.position.y = PLAYER_RADIUS;
+    }
+  }
+
+  keyDownHandler(e) {
+    if (e.keyCode === 39) {
+      this.rightPressed = true;
+    } else if (e.keyCode === 37) {
+      this.leftPressed = true;
+    } else if (e.keyCode === 38) {
+      this.upPressed = true;
+    } else if (e.keyCode === 40) {
+      this.downPressed = true;
+    }
+  }
+
+  keyUpHandler(e) {
+    if (e.keyCode === 39) {
+      this.rightPressed = false;
+    } else if (e.keyCode === 37) {
+      this.leftPressed = false;
+    } else if (e.keyCode === 38) {
+      this.upPressed = false;
+    } else if (e.keyCode === 40) {
+      this.downPressed = false;
+    }
   }
 }

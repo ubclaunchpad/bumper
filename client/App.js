@@ -31,10 +31,6 @@ export default class App extends React.Component {
     }
 
     this.state = {
-      rightPressed: false,
-      leftPressed: false,
-      upPressed: false,
-      downPressed: false,
       allCoords: [], // might need to change this
       junk: [],
       holes: [],
@@ -42,8 +38,6 @@ export default class App extends React.Component {
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
-    this.keyDownHandler = this.keyDownHandler.bind(this);
-    this.keyUpHandler = this.keyUpHandler.bind(this);
     this.tick = this.tick.bind(this);
   }
 
@@ -54,8 +48,6 @@ export default class App extends React.Component {
     this.generateHoles();
 
     window.addEventListener('resize', this.resizeCanvas);
-    window.addEventListener('keydown', this.keyDownHandler);
-    window.addEventListener('keyup', this.keyUpHandler);
     this.tick();
   }
 
@@ -196,46 +188,12 @@ export default class App extends React.Component {
   }
 
   calculateNextState() {
-    // player is dead don't render
     // TODO check all players
     if (!this.state.player) {
       return;
     }
-    this.setState((prevState) => {
-      const { player } = prevState;
-      const { position } = player;
-      if (this.state.leftPressed) {
-        player.theta = (player.theta + 0.25) % 360;
-      }
 
-      if (this.state.rightPressed) {
-        player.theta = (player.theta - 0.25) % 360;
-      }
-
-      if (this.state.downPressed) {
-        position.y += (0.5 * (PLAYER_RADIUS * Math.cos(player.theta)));
-        position.x += (0.5 * (PLAYER_RADIUS * Math.sin(player.theta)));
-      }
-
-      if (this.state.upPressed) {
-        position.y -= (0.5 * (PLAYER_RADIUS * Math.cos(player.theta)));
-        position.x -= (0.5 * (PLAYER_RADIUS * Math.sin(player.theta)));
-      }
-
-      if (position.x + PLAYER_RADIUS > (width - 20)) {
-        position.x = width - 20 - PLAYER_RADIUS;
-      } else if (position.x - PLAYER_RADIUS < 0) {
-        position.x = PLAYER_RADIUS;
-      }
-
-      if (position.y + PLAYER_RADIUS > (height - 20)) {
-        position.y = height - 20 - PLAYER_RADIUS;
-      } else if (position.y - PLAYER_RADIUS < 0) {
-        position.y = PLAYER_RADIUS;
-      }
-
-      return prevState;
-    });
+    this.state.player.updatePosition({ width, height });
   }
 
   keyDownHandler(e) {

@@ -84,7 +84,7 @@ export default class App extends React.Component {
       const props = {
         position: { x: coord.x, y: coord.y },
         radius: Math.floor(Math.random() * ((25 - 15) + 1)) + 15,
-        lifespan: Math.floor(Math.random() * ((45 - 15) + 1)) + 15,
+        lifespan: Math.floor(Math.random() * ((75 - 25) + 1)) + 25,
         canvas: this.canvas,
       };
       const hole = new Hole(props);
@@ -145,8 +145,19 @@ export default class App extends React.Component {
   drawHoles() {
     this.state.holes.forEach((hole) => {
       if (hole.drawHole() === false) {
-        this.state.holes = this.state.holes.filter(h => h !== hole);
-        this.setState(this.state);
+        //const newCoords = this.generateCoords(1);
+        const newCoords = { x: 0, y: 0 };
+        const maxWidth = width - MAX_DISTANCE_BETWEEN;
+        const minWidth = MAX_DISTANCE_BETWEEN;
+        const maxHeight = height - MAX_DISTANCE_BETWEEN;
+        const minHeight = MAX_DISTANCE_BETWEEN;
+        newCoords.x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
+        newCoords.y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
+        const newRadius = Math.floor(Math.random() * ((25 - 15) + 1)) + 15;
+        const newLifespan = Math.floor(Math.random() * ((75 - 25) + 1)) + 25;
+        hole.startNewLife(newCoords, newRadius, newLifespan);
+        // this.state.holes = this.state.holes.filter(h => h !== hole);
+        // this.setState(this.state);
       }
     });
   }

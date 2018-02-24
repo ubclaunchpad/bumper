@@ -18,6 +18,12 @@ export default class Hole {
     );
   }
 
+  startNewLife(newCoords, newRadius, newLifespan) {
+    this.position = newCoords;
+    this.radius = newRadius;
+    this.lifespan = newLifespan;
+  }
+
   getPositionAndRadius() {
     return { position: this.position, radius: this.radius };
   }

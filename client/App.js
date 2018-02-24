@@ -46,7 +46,23 @@ export default class App extends React.Component {
     this.generateJunk();
     this.generatePlayerCoordinates();
     this.generateHoles();
+    window.addEventListener('keydown', this.keyDownHandler);
+    window.addEventListener('keyup', this.keyUpHandler);
+    this.timerID = setInterval(
+      () => this.tick(),
+      50,
+    );
+    this.timerID2 = setInterval(
+      () => this.clientMessage(),
+      1000,
+    );
 
+    clientMessage() {
+      this.socket.send(JSON.stringify({
+      message: "client2",
+      data: "foo"
+    }));
+      
     window.addEventListener('resize', this.resizeCanvas);
     this.tick();
   }

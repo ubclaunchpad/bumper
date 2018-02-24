@@ -1,7 +1,9 @@
 import React from 'react';
 import Player from './components/Player';
 import Hole from './components/Hole';
+import Junk from './components/Junk';
 
+const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
@@ -10,6 +12,12 @@ const MAX_DISTANCE_BETWEEN = 50;
 const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
+
+// detect collision
+// (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
+function areCirclesColliding(p, r1, q, r2) {
+  return (((p.x - q.x) ** 2) + ((p.y - q.y) ** 2)) <= ((r1 + r2) ** 2);
+}
 
 export default class App extends React.Component {
   constructor(props) {
@@ -24,8 +32,9 @@ export default class App extends React.Component {
 
     this.state = {
       allCoords: [], // might need to change this
-      junkCoords: [],
+      junk: [],
       holes: [],
+      player: null,
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
@@ -34,17 +43,24 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.canvas = document.getElementById('ctx');
+    this.generateJunk();
     this.generatePlayerCoordinates();
-    this.generateJunkCoordinates();
     this.generateHoles();
 
     window.addEventListener('resize', this.resizeCanvas);
     this.tick();
   }
 
-  generateJunkCoordinates() {
+  generateJunk() {
     const newCoords = this.generateCoords(JUNK_COUNT);
-    this.setState({ junkCoords: newCoords });
+    newCoords.forEach((coord) => {
+      const props = {
+        position: { x: coord.x, y: coord.y },
+        canvas: this.canvas,
+      };
+      this.state.junk.push(new Junk(props));
+    });
+    this.setState(this.state);
   }
 
   generateHoles() {
@@ -100,7 +116,7 @@ export default class App extends React.Component {
 
       for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
         // could not be placed because of overlap
-        if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
+        if (areCirclesColliding(p, MAX_DISTANCE_BETWEEN, { x, y }, MAX_DISTANCE_BETWEEN)) {
           placed = false;
           break;
         }
@@ -115,20 +131,13 @@ export default class App extends React.Component {
     }
     return coords;
   }
-  
-  drawJunk() {
-    const ctx = this.canvas.getContext('2d');
-    for (const p of this.state.junkCoords) {
-      ctx.beginPath();
-      ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
-      ctx.fillStyle = 'white';
-      ctx.fill();
-      ctx.closePath();
-    }
-  }
 
   drawHoles() {
     this.state.holes.forEach(h => h.drawHole());
+  }
+
+  drawJunk() {
+    this.state.junk.forEach(j => j.drawJunk());
   }
 
   drawPlayers() {
@@ -149,22 +158,81 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
+    // check for hole and player collistions
+    // TODO check rest of the possible collisions
+    this.checkForCollisions();
     // eslint-disable-next-line
     requestAnimationFrame(this.tick);
+  }
+
+  checkForCollisions() {
+    this.state.holes.forEach((hole) => {
+      const { position, radius } = hole;
+      if (this.state.player) {
+        if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, radius)) {
+          this.setState({
+            player: null,
+          });
+        }
+      }
+    });
   }
 
   updateCanvas() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
-    this.drawPlayers();
     this.drawJunk();
     this.drawHoles();
+    this.drawPlayers();
     this.calculateNextState();
   }
 
   calculateNextState() {
-    if (this.state.player) {
-      this.state.player.updatePosition({ width: width, height: height });
+    // TODO check all players
+    if (!this.state.player) {
+      return;
+    }
+
+    this.state.player.updatePosition({ width, height });
+  }
+
+  keyDownHandler(e) {
+    if (e.keyCode === 39) {
+      this.setState({
+        rightPressed: true,
+      });
+    } else if (e.keyCode === 37) {
+      this.setState({
+        leftPressed: true,
+      });
+    } else if (e.keyCode === 38) {
+      this.setState({
+        upPressed: true,
+      });
+    } else if (e.keyCode === 40) {
+      this.setState({
+        downPressed: true,
+      });
+    }
+  }
+
+  keyUpHandler(e) {
+    if (e.keyCode === 39) {
+      this.setState({
+        rightPressed: false,
+      });
+    } else if (e.keyCode === 37) {
+      this.setState({
+        leftPressed: false,
+      });
+    } else if (e.keyCode === 38) {
+      this.setState({
+        upPressed: false,
+      });
+    } else if (e.keyCode === 40) {
+      this.setState({
+        downPressed: false,
+      });
     }
   }
 

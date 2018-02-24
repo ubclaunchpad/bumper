@@ -24,30 +24,31 @@ export default class App extends React.Component {
     super(props);
     if (window.WebSocket) {
       this.socket = new WebSocket(address);
-      this.socket.onmessage = event => console.log(event.data);
+      this.socket.onmessage = event => this.handleServerMessage(event.data);
     } else {
-      console.log('websocket not available');
+      console.log('websocket not available')
     }
 
     this.state = {
       allCoords: [], // might need to change this
       junk: [],
       holes: [],
-      player: null,
+      players: [],
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
     this.tick = this.tick.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.canvas = document.getElementById('ctx');
     this.generateJunk();
-    this.generatePlayerCoordinates();
     this.generateHoles();
 
+    //this.initialClientMessage();
+
     this.timerID2 = setInterval(
-      () => this.clientMessage(),
+      () => this.updateClientMessage(),
       1000,
     );
 
@@ -55,12 +56,34 @@ export default class App extends React.Component {
     this.tick();
   }
 
-  clientMessage() {
-    if (this.socket.readyState !== 1) return; //1 === OPEN
-    console.log("CLIENT SENDING")
+
+  handleServerMessage(msg) {
+    if (msg.type === 'initial') {
+      // generate new player
+      this.generatePlayer(msg.id);
+      console.log('RECEIVED INITIAL ID');
+      // TODO update state
+    } else if (msg.type === 'update') {
+
+      // TODO send rest of update
+    }
+  }
+
+  initialClientMessage() {
+    console.log("SENDING INITIAL MESSAGE");
+    if (this.socket.readyState !== 'OPEN') return;
     this.socket.send(JSON.stringify({
-      message: 'client2',
-      data: 'foo',
+      type: 'initial',
+      id: 1,
+      message: "null",
+    }));
+  }
+
+  updateClientMessage() {
+    if (this.socket.readyState !== 'OPEN') return;
+
+    this.socket.send(JSON.stringify({
+      message: 'update',
     }));
   }
 
@@ -92,25 +115,35 @@ export default class App extends React.Component {
     });
   }
 
-  // should appear somewhere in the centre
-  generatePlayerCoordinates() {
+  // TODO check for collisions
+  generatePlayerCoords() {
     const maxWidth = (2 * width) / 3;
     const minWidth = width / 3;
     const maxHeight = (2 * height) / 3;
     const minHeight = height / 3;
     const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
     const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
+    return {x, y};
+  }
+
+  // should appear somewhere in the centre
+  generatePlayer(id) {
+    const coords = this.generatePlayerCoords();
     const props = {
-      x,
-      y,
+      id,
+      x: coords.x,
+      y: coords.y,
       canvas: this.canvas,
       theta: 0,
     };
-    this.state.allCoords.push({ x, y });
+    this.state.allCoords.push({ x: coords.x, y: coords.y });
+    const player = new Player(props);
+    const newPlayers = this.state.players.push(player);
     this.setState({
-      player: new Player(props),
+      players: newPlayers,
       allCoords: this.state.allCoords,
     });
+    return player;
   }
 
   generateCoords(num) {

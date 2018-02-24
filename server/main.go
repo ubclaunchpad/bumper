@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,6 +12,12 @@ import (
 
 // Message is the schema for client/server communication
 type Message struct {
+	Message string `json:"message"`
+}
+
+type InitialMessage struct {
+	Type    string `json:"type"`
+	Id      int    `json:"id"`
 	Message string `json:"message"`
 }
 
@@ -25,8 +32,12 @@ type Velocity struct {
 	dy float32
 }
 
+type ServerState struct {
+	Players []ObjectState
+}
+
 // State of an object, position and velocity
-type State struct {
+type ObjectState struct {
 	position Position
 	velocity Velocity
 }
@@ -51,9 +62,28 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	defer ws.Close()
-
+	log.Println("accepted client")
 	// record this connection in our map
 	clients[ws] = true
+	// var initialMsg Message
+	// err = ws.ReadJSON(&initialMsg)
+
+	// log.Printf("InitialMessage: %v", initialMsg.Type)
+	// // terminate connection if error occurs
+	// if err != nil {
+	// 	log.Printf("error: initial message %v", err)
+	// 	delete(clients, ws)
+	// 	return
+	// }
+
+	// reply := createInitialReply(&initialMsg)
+
+	// err = ws.WriteJSON(&reply)
+	// if err != nil {
+	// 	log.Printf("error: %v", err)
+	// 	ws.Close()
+	// 	delete(clients, ws)
+	// }
 
 	var msg Message
 	// infinite loop that receives msgs from clients
@@ -61,6 +91,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		// ReadJSON blocks until a message is received
 		log.Printf("%+v\n", msg)
 		err := ws.ReadJSON(&msg)
+
 		// terminate connection if error occurs
 		if err != nil {
 			log.Printf("error: %v", err)
@@ -74,11 +105,27 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// func createInitialReply(msg *Message) *Message {
+// 	fmt.Println("Creating initial id")
+// 	id := generateUniqueId()
+// 	return &Message{
+// 		Type: "initial",
+// 		Id:   id,
+// 	}
+
+// }
+
+func generateUniqueId() int {
+	return rand.Intn(1000)
+}
+
 func tick() {
 	tickCount := 0
 	for {
 		time.Sleep(time.Second * 5)
-		msg := Message{"tick" + strconv.Itoa(tickCount)}
+		msg := Message{
+			Message: "tick" + strconv.Itoa(tickCount),
+		}
 		// update every client
 		for client := range clients {
 			err := client.WriteJSON(&msg)

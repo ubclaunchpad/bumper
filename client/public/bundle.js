@@ -7768,7 +7768,6 @@ var App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
     if (window.WebSocket) {
-      console.log('websocket available');
       _this.socket = new WebSocket(address);
       _this.socket.onmessage = function (event) {
         return console.log(event.data);
@@ -7809,7 +7808,7 @@ var App = function (_React$Component) {
   }, {
     key: 'clientMessage',
     value: function clientMessage() {
-      if (!this.socket.readyState !== 'OPEN') return;
+      if (this.socket.readyState !== 1) return;
 
       this.socket.send(JSON.stringify({
         message: 'client2',
@@ -7955,9 +7954,11 @@ var App = function (_React$Component) {
     value: function checkForCollisions() {
       var _this6 = this;
 
+      // Check hole to player/junk collisions
       this.state.holes.forEach(function (hole) {
         var position = hole.position,
             radius = hole.radius;
+        // Check the player
 
         if (_this6.state.player) {
           if (areCirclesColliding(_this6.state.player.position, PLAYER_RADIUS, position, radius)) {
@@ -7966,7 +7967,19 @@ var App = function (_React$Component) {
             });
           }
         }
+        // Check each junk
+        _this6.state.junk.forEach(function (junk) {
+          if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
+            // Add points for the last bumper player here
+            _this6.state.junk = _this6.state.junk.filter(function (j) {
+              return j !== junk;
+            });
+            _this6.setState(_this6.state);
+          }
+        });
       });
+
+      // Check player to junk collisions
       this.state.junk.forEach(function (junk) {
         var position = junk.position;
 
@@ -8155,11 +8168,11 @@ var Player = function () {
       // console.log("vdx: " + this.velocity.dx + "vdy: " + this.velocity.dy);
 
       // Ensure it never gets going too fast
-      // if (magnitude(this.velocity) > MAX_VELOCITY) {
-      //   normalize(this.velocity);
-      //   this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
-      //   this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
-      // }
+      if ((0, _utils.magnitude)(this.velocity) > MAX_VELOCITY) {
+        (0, _utils.normalize)(this.velocity);
+        this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
+        this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
+      }
 
       // Apply player's velocity vector
       this.position.x += this.velocity.dx;
@@ -8306,6 +8319,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var JUNK_SIZE = 15;
+var JUNK_FRICTION = 0.99;
+var JUNK_MINBUMP = 0.5;
 
 var Junk = function () {
   function Junk(props) {
@@ -8337,8 +8352,16 @@ var Junk = function () {
     key: 'hitBy',
     value: function hitBy(player) {
       this.color = player.color;
-      this.velocity.dx = player.velocity.dx;
-      this.velocity.dy = player.velocity.dy;
+      if (player.velocity.dx < 0) {
+        this.velocity.dx = Math.min(player.velocity.dx * 1.05, -JUNK_MINBUMP);
+      } else {
+        this.velocity.dx = Math.max(player.velocity.dx * 1.05, JUNK_MINBUMP);
+      }
+      if (player.velocity.dy < 0) {
+        this.velocity.dy = Math.min(player.velocity.dy * 1.05, -JUNK_MINBUMP);
+      } else {
+        this.velocity.dy = Math.max(player.velocity.dy * 1.05, JUNK_MINBUMP);
+      }
     }
   }, {
     key: 'updatePosition',
@@ -8350,6 +8373,9 @@ var Junk = function () {
       if (this.position.y + this.velocity.dy > this.canvas.height - r || this.position.y + this.velocity.dy < r) {
         this.velocity.dy = -this.velocity.dy;
       }
+
+      this.velocity.dy *= JUNK_FRICTION;
+      this.velocity.dx *= JUNK_FRICTION;
 
       this.position.x += this.velocity.dx;
       this.position.y += this.velocity.dy;

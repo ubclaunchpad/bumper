@@ -95,7 +95,7 @@ export default class App extends React.Component {
 		newJunk.push(junk);
 	});
     this.setState({ 
-		junkCoords: newCoords,
+		junkCoords: newJunk,
 	});
   }
 

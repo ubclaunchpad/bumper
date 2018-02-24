@@ -95,7 +95,7 @@ export default class App extends React.Component {
 		newJunk.push(junk);
 	});
     this.setState({ 
-		junkCoords: newCoords,
+		junkCoords: newJunk,
 	});
   }
 
@@ -166,19 +166,13 @@ export default class App extends React.Component {
     this.drawHoles();
   }
 
-  drawJunk() {
-    for (const j of this.state.junkCoords) {
-      j.drawJunk();
-    }
-  }
-
   drawHoles() {
-    for (const h of this.state.holes) {
-      h.drawHole();
-    }
+    this.state.holes.forEach(h => h.drawHole());
   }
 
-
+  drawJunk() {
+	this.state.junkCoords.forEach(j => j.drawJunk());
+  }
 
   resizeCanvas() {
     const ctx = document.getElementById('ctx');

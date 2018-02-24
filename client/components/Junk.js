@@ -1,5 +1,9 @@
+const JUNK_SIZE = 15;
+const HOLE_COUNT = 10;
+
 export default class Junk {
   constructor(props) {
+	this.canvas = props.canvas;
     this.mass = props.mass || 10;
 	this.pointVal = props.pointVal || 50;
 	this.position = props.position;
@@ -11,13 +15,11 @@ export default class Junk {
   }
   
   drawJunk() {
-	const ctx = this.canvas.getContext('2d');    
-    for (const p of this.state.junkCoords) {
-      ctx.beginPath();
-      ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
-      ctx.fillStyle = 'white';
-      ctx.fill();
-      ctx.closePath();
-	}
+	const ctx = this.canvas.getContext('2d');   
+    ctx.beginPath();
+    ctx.rect(this.position.x, this.position.y, JUNK_SIZE, JUNK_SIZE);
+    ctx.fillStyle = 'white';
+    ctx.fill();
+    ctx.closePath();
   }
 }

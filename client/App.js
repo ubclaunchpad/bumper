@@ -1,5 +1,7 @@
 import React from 'react';
+import Player from './components/Player';
 import Hole from './components/Hole';
+import Junk from './components/Junk';
 
 const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
@@ -11,39 +13,17 @@ const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
 
-function drawPlayer(props) {
-  const {
-    ctx, x, y, ballRadius, theta,
-  } = props;
-  ctx.beginPath();
-  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = '#00FFFF';
-  ctx.fill();
-  ctx.closePath();
-
-  // Draw the flag
-  ctx.beginPath();
-  ctx.moveTo(x + (ballRadius * Math.sin(theta)), y + (ballRadius * Math.cos(theta)));
-  ctx.lineTo(x - (ballRadius * Math.sin(theta)), y - (ballRadius * Math.cos(theta)));
-  ctx.strokeStyle = '#000000';
-  ctx.strokeWidth = 5;
-  ctx.stroke();
-
-  const backCenterX = x - ((ballRadius * Math.sin(theta)) / 2);
-  const backCenterY = y - ((ballRadius * Math.cos(theta)) / 2);
-  const backLength = (2.5 * ((ballRadius / 2) / Math.tan(45)));
-  ctx.beginPath();
-  ctx.moveTo(backCenterX - (backLength * Math.cos(theta)), backCenterY + (backLength * Math.sin(theta)));
-  ctx.lineTo(backCenterX + (backLength * Math.cos(theta)), backCenterY - (backLength * Math.sin(theta)));
-  ctx.strokeStyle = '#0000000';
-  ctx.strokeWidth = 5;
-  ctx.stroke();
+// detect collision
+// (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
+function areCirclesColliding(p, r1, q, r2) {
+  return (((p.x - q.x) ** 2) + ((p.y - q.y) ** 2)) <= ((r1 + r2) ** 2);
 }
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     if (window.WebSocket) {
+      console.log('websocket available');
       this.socket = new WebSocket(address);
       this.socket.onmessage = event => console.log(event.data);
     } else {
@@ -51,40 +31,36 @@ export default class App extends React.Component {
     }
 
     this.state = {
-      playerX: 200,
-      playerY: 200,
-      playerTheta: 0,
-      rightPressed: false,
-      leftPressed: false,
-      upPressed: false,
-      downPressed: false,
       allCoords: [], // might need to change this
-      junkCoords: [],
+      junk: [],
       holes: [],
+      player: null,
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
-    this.keyDownHandler = this.keyDownHandler.bind(this);
-    this.keyUpHandler = this.keyUpHandler.bind(this);
-    this.drawObjects = this.drawObjects.bind(this);
     this.tick = this.tick.bind(this);
   }
 
   componentDidMount() {
     this.canvas = document.getElementById('ctx');
-    this.generateJunkCoordinates();
-    this.generateHoles();
+    this.generateJunk();
     this.generatePlayerCoordinates();
+    this.generateHoles();
 
     window.addEventListener('resize', this.resizeCanvas);
-    window.addEventListener('keydown', this.keyDownHandler);
-    window.addEventListener('keyup', this.keyUpHandler);
     this.tick();
   }
 
-  generateJunkCoordinates() {
+  generateJunk() {
     const newCoords = this.generateCoords(JUNK_COUNT);
-    this.setState({ junkCoords: newCoords });
+    newCoords.forEach((coord) => {
+      const props = {
+        position: { x: coord.x, y: coord.y },
+        canvas: this.canvas,
+      };
+      this.state.junk.push(new Junk(props));
+    });
+    this.setState(this.state);
   }
 
   generateHoles() {
@@ -111,9 +87,17 @@ export default class App extends React.Component {
     const minHeight = height / 3;
     const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
     const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
-    this.setState({ playerX: x, playerY: y });
+    const props = {
+      x,
+      y,
+      canvas: this.canvas,
+      theta: 0,
+    };
     this.state.allCoords.push({ x, y });
-    this.setState({ allCoords: this.state.allCoords });
+    this.setState({
+      player: new Player(props),
+      allCoords: this.state.allCoords,
+    });
   }
 
   generateCoords(num) {
@@ -130,10 +114,9 @@ export default class App extends React.Component {
       const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
       let placed = true;
 
-      // check whether area is available
       for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
         // could not be placed because of overlap
-        if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
+        if (areCirclesColliding(p, MAX_DISTANCE_BETWEEN, { x, y }, MAX_DISTANCE_BETWEEN)) {
           placed = false;
           break;
         }
@@ -149,48 +132,21 @@ export default class App extends React.Component {
     return coords;
   }
 
-  drawObjects() {
-    this.drawJunk();
-    this.drawHoles();
+  drawHoles() {
+    this.state.holes.forEach(h => h.drawHole());
   }
 
   drawJunk() {
-    const ctx = this.canvas.getContext('2d');    
-    for (const p of this.state.junkCoords) {
-      ctx.beginPath();
-      ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
-      ctx.fillStyle = 'white';
-      ctx.fill();
-      ctx.closePath();
-
-	  const junkRadius = JUNK_SIZE / 2;
-	  var topWall = p.y - junkRadius == 0;
-	  var bottomWall = p.y + junkRadius + 20 == height;
-	  var leftWall = p.x - junkRadius == 0;
-	  var rightWall = p.x + junkRadius + 20 == width;
-	  
-	  // Wall detection for the junk object:
-	  /*
-	  if(topWall) { junk.walls.top = true; }
-	  		else { junk.walls.top = false; }
-	  if(bottomWall) { junk.walls.bottom = true; }
-	 		else { junk.walls.bottom = false; }
-	  if(leftWall) { junk.walls.left = true; }
-	  		else { junk.walls.left = false; }
-	  if(rightWall) { junk.walls.right = true; }
-	  		else { junk.walls.right = false; }
-	  */
-    }
-	  
+    this.state.junk.forEach(j => j.drawJunk());
   }
 
-  drawHoles() {
-    for (const h of this.state.holes) {
-      h.drawHole();
+  drawPlayers() {
+    if (this.state.player) {
+      this.state.player.drawPlayer();
     }
+
+    // TODO: Draw other players
   }
-
-
 
   resizeCanvas() {
     const ctx = document.getElementById('ctx');
@@ -202,73 +158,45 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
+    // check for hole and player collistions
+    // TODO check rest of the possible collisions
+    this.checkForCollisions();
     // eslint-disable-next-line
     requestAnimationFrame(this.tick);
+  }
+
+  checkForCollisions() {
+    this.state.holes.forEach((hole) => {
+      const { position, radius } = hole;
+      if (this.state.player) {
+        if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, radius)) {
+          this.setState({
+            player: null,
+          });
+        }
+      }
+    });
   }
 
   updateCanvas() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
-    drawPlayer({
-      ctx,
-      x: this.state.playerX,
-      y: this.state.playerY,
-      ballRadius: PLAYER_RADIUS,
-      theta: this.state.playerTheta,
-    });
-    this.drawObjects();
-
+    this.drawJunk();
+    this.drawHoles();
+    this.drawPlayers();
     this.calculateNextState();
   }
 
   calculateNextState() {
-    this.setState((prevState) => {
-      const newState = prevState;
-      if (this.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
-      if (this.state.rightPressed) newState.playerTheta = (prevState.playerTheta - 0.25) % 360;
-      if (this.state.downPressed) {
-        newState.playerY = prevState.playerY + (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
-        newState.playerX = prevState.playerX + (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
-      }
-      if (this.state.upPressed) {
-        newState.playerY = prevState.playerY - (0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta)));
-        newState.playerX = prevState.playerX - (0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta)));
-      }
+    // TODO check all players
+    if (!this.state.player) {
+      return;
+    }
 
-      if (newState.playerX + PLAYER_RADIUS > (width - 20)) {
-        newState.playerX = width - 20 - PLAYER_RADIUS;
-      } else if (newState.playerX - PLAYER_RADIUS < 0) {
-        newState.playerX = PLAYER_RADIUS;
-      }
-      if (newState.playerY + PLAYER_RADIUS > (height - 20)) {
-        newState.playerY = height - 20 - PLAYER_RADIUS;
-      } else if (newState.playerY - PLAYER_RADIUS < 0) {
-        newState.playerY = PLAYER_RADIUS;
-      }
-
-	  var topWall = newState.playerY - PLAYER_RADIUS == 0;
-	  var bottomWall = newState.playerY + PLAYER_RADIUS + 20 == height;
-	  var leftWall = newState.playerX - PLAYER_RADIUS == 0;
-	  var rightWall = newState.playerX + PLAYER_RADIUS + 20 == width;
-	  // Wall detection for the player object:
-	  /*
-	  if(topWall) { player.walls.top = true; }
-	  		else { player.walls.top = false; }
-	  if(bottomWall) { player.walls.bottom = true; }
-	 		else { player.walls.bottom = false; }
-	  if(leftWall) { player.walls.left = true; }
-	  		else { player.walls.left = false; }
-	  if(rightWall) { player.walls.right = true; }
-	  		else { player.walls.right = false; }
-	  */
-
-	  // To bounce players off the wall they hit:
-	  if(topWall || bottomWall || leftWall || rightWall) {
-			newState.playerTheta += Math.PI;
-	  }
-
-      return newState;
-    });
+    this.state.player.updatePosition({ width, height });
+	//this.state.junk.forEach((coord) => {
+		//coord.updatePosition({ width, height });
+	//}
   }
 
   keyDownHandler(e) {
@@ -327,11 +255,8 @@ const styles = {
   canvas: {
     background: '#000000',
     textAlign: 'center',
-    
   },
   canvasContainer: {
     textAlign: 'center',
-  }
-
+  },
 };
-

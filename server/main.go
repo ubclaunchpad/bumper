@@ -28,7 +28,7 @@ type Velocity struct {
 // State of an object, position and velocity
 type State struct {
 	position Position
-	velocity Coordinate
+	velocity Velocity
 }
 
 // global variable is fine for now, all we need is reference to connection
@@ -46,7 +46,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func handleConnection(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgit pgrade(w, r, nil)
+	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

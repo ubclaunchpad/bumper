@@ -184,6 +184,15 @@ export default class App extends React.Component {
         }
       }
     });
+    this.state.junk.forEach((junk) => {
+      const { position } = junk;
+      if (this.state.player) {
+        if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
+          junk.hitBy(this.state.player);
+          this.state.player.hitJunk();
+        }
+      }
+    });
   }
 
   updateCanvas() {

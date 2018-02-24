@@ -1,4 +1,11 @@
+import { magnitude, normalize } from '../utils/utils';
+
 const PLAYER_RADIUS = 25;
+const MAX_VELOCITY = 15;
+const PLAYER_ACCELERATION = 0.5;
+const PLAYER_FRICTION = 0.97;
+const WALL_BOUNCE_FACTOR = 1.5;
+const JUNK_BOUNCE_FACTOR = 0.25;
 
 export default class Player {
   constructor(props) {
@@ -65,8 +72,8 @@ export default class Player {
     }
 
     if (this.downPressed) {
-      controlsVector.dy = (0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
-      controlsVector.dx = (0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
+      controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
+      controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
     }
 
     if (this.upPressed) {
@@ -74,22 +81,48 @@ export default class Player {
       controlsVector.dx = (0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
     }
 
-    // Apply resultant vector
-    this.position.x += controlsVector.dx;
-    this.position.y += controlsVector.dy;
+    // Normalize controls vector and apply speed
+    normalize(controlsVector);
+    controlsVector.dx *= PLAYER_ACCELERATION;
+    controlsVector.dy *= PLAYER_ACCELERATION;
 
-    // Validate position result
+    // Apply some friction damping
+    this.velocity.dx = this.velocity.dx * PLAYER_FRICTION;
+    this.velocity.dy = this.velocity.dy * PLAYER_FRICTION;
+
+    this.velocity.dx += controlsVector.dx;
+    this.velocity.dy += controlsVector.dy;
+
+    // console.log("vdx: " + this.velocity.dx + "vdy: " + this.velocity.dy);
+
+    // Ensure it never gets going too fast
+    // if (magnitude(this.velocity) > MAX_VELOCITY) {
+    //   normalize(this.velocity);
+    //   this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
+    //   this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
+    // }
+
+    // Apply player's velocity vector
+    this.position.x += this.velocity.dx;
+    this.position.y += this.velocity.dy;
+
+    // Check wall collisions
     if (this.position.x + PLAYER_RADIUS > this.canvas.width) {
-      this.position.x = this.canvas.width - PLAYER_RADIUS;
+      this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
     } else if (this.position.x - PLAYER_RADIUS < 0) {
-      this.position.x = PLAYER_RADIUS;
+      this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
     }
 
     if (this.position.y + PLAYER_RADIUS > this.canvas.height) {
-      this.position.y = this.canvas.height - PLAYER_RADIUS;
+      this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
     } else if (this.position.y - PLAYER_RADIUS < 0) {
-      this.position.y = PLAYER_RADIUS;
+      this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
     }
+  }
+
+  hitJunk() {
+    this.velocity.dx *= -JUNK_BOUNCE_FACTOR;
+    this.velocity.dy *= -JUNK_BOUNCE_FACTOR;
   }
 
   keyDownHandler(e) {

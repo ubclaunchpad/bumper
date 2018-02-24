@@ -1,5 +1,4 @@
 const JUNK_SIZE = 15;
-const HOLE_COUNT = 10;
 
 export default class Junk {
   constructor(props) {
@@ -21,6 +20,12 @@ export default class Junk {
     ctx.fillStyle = 'white';
     ctx.fill();
     ctx.closePath();
+  }
+
+  hitBy(player) {
+    // LastBumped = player;
+    this.velocity.dx = player.velocity.dx;
+    this.velocity.dy = player.velocity.dy;
   }
 
   updatePosition() {

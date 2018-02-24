@@ -23,7 +23,6 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     if (window.WebSocket) {
-      console.log('websocket available');
       this.socket = new WebSocket(address);
       this.socket.onmessage = event => console.log(event.data);
     } else {
@@ -57,7 +56,7 @@ export default class App extends React.Component {
   }
 
   clientMessage() {
-    if (!this.socket.readyState !== 'OPEN') return;
+    if (this.socket.readyState !== 1) return;
 
     this.socket.send(JSON.stringify({
       message: 'client2',

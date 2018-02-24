@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,6 +13,8 @@ import (
 
 // Message is the schema for client/server communication
 type Message struct {
+	Type    string `json:"type"`
+	Id      int    `json:"id"`
 	Message string `json:"message"`
 }
 
@@ -25,8 +29,12 @@ type Velocity struct {
 	dy float32
 }
 
+type ServerState struct {
+	Players []ObjectState
+}
+
 // State of an object, position and velocity
-type State struct {
+type ObjectState struct {
 	position Position
 	velocity Velocity
 }
@@ -51,16 +59,18 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	defer ws.Close()
-
+	log.Println("accepted client")
 	// record this connection in our map
+	// Todo initialize state struct
 	clients[ws] = true
 
-	var msg Message
 	// infinite loop that receives msgs from clients
 	for {
+		var msg Message
 		// ReadJSON blocks until a message is received
-		log.Printf("%+v\n", msg)
 		err := ws.ReadJSON(&msg)
+		log.Printf("%+v\n", msg)
+
 		// terminate connection if error occurs
 		if err != nil {
 			log.Printf("error: %v", err)
@@ -68,17 +78,41 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		log.Printf("%+v\n", msg.Message)
+		if msg.Type == "initial" {
+			reply := createInitialReply(&msg)
+			ws.WriteJSON(reply)
+		}
+		// else {
+		// 	// todo add player to map
+		// }
+
+		log.Printf("%+v\n", msg.Type)
 		// pass received message to the global channel
 		//broadcast <- msg
 	}
+}
+
+func createInitialReply(msg *Message) *Message {
+	fmt.Println("Creating initial id")
+	id := generateUniqueId()
+	return &Message{
+		Type: "initial",
+		Id:   id,
+	}
+
+}
+
+func generateUniqueId() int {
+	return rand.Intn(1000)
 }
 
 func tick() {
 	tickCount := 0
 	for {
 		time.Sleep(time.Second * 5)
-		msg := Message{"tick" + strconv.Itoa(tickCount)}
+		msg := Message{
+			Message: "tick" + strconv.Itoa(tickCount),
+		}
 		// update every client
 		for client := range clients {
 			err := client.WriteJSON(&msg)

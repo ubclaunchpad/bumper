@@ -24,43 +24,75 @@ export default class App extends React.Component {
     super(props);
     if (window.WebSocket) {
       this.socket = new WebSocket(address);
-      this.socket.onmessage = event => console.log(event.data);
+      this.socket.onopen = () => this.initialClientMessage();
+      this.socket.onmessage = event => this.handleServerMessage(JSON.parse(event.data));
     } else {
-      console.log('websocket not available');
+      console.log('websocket not available')
     }
 
     this.state = {
       allCoords: [], // might need to change this
       junk: [],
       holes: [],
+      players: [],
       player: null,
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
     this.tick = this.tick.bind(this);
+    this.initialClientMessage = this.initialClientMessage.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.canvas = document.getElementById('ctx');
     this.generateJunk();
-    this.generatePlayerCoordinates();
+    this.generatePlayer();
     this.generateHoles();
-
-    this.timerID2 = setInterval(
-      () => this.clientMessage(),
-      1000,
-    );
 
     window.addEventListener('resize', this.resizeCanvas);
     this.tick();
   }
 
-  clientMessage() {
+
+  handleServerMessage(msg) {
+    console.log("handling server message");
+    console.log(msg);
+    if (msg.type === 'initial') {
+      // add id to player
+      // start update interval
+      console.log('RECEIVED INITIAL ID');
+      this.state.player.id = msg.id;
+      this.setState({ player: this.state.player });
+
+      this.timerID2 = setInterval(
+        () => this.updateClientMessage(),
+        1000,
+      );
+    } else if (msg.type === 'update') {
+
+      // TODO find my own player in players
+    }
+  }
+
+  initialClientMessage() {
+    console.log(this.socket);
+    
+    if (this.socket.readyState !== 1) return;
+    console.log("SENDING INITIAL MESSAGE");
+    this.socket.send(JSON.stringify({
+      type: 'initial',
+      id: 1,
+      message: 'hello',
+    }));
+  }
+
+  updateClientMessage() {
+    console.log("SENDING update");
     if (this.socket.readyState !== 1) return;
 
     this.socket.send(JSON.stringify({
-      message: 'client2',
-      data: 'foo',
+      type: 'update',
+      id: this.state.player.id,
     }));
   }
 
@@ -92,23 +124,31 @@ export default class App extends React.Component {
     });
   }
 
-  // should appear somewhere in the centre
-  generatePlayerCoordinates() {
+  // TODO check for collisions
+  generatePlayerCoords() {
     const maxWidth = (2 * width) / 3;
     const minWidth = width / 3;
     const maxHeight = (2 * height) / 3;
     const minHeight = height / 3;
     const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
     const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
+    return {x, y};
+  }
+
+  // should appear somewhere in the centre
+  generatePlayer() {
+    const coords = this.generatePlayerCoords();
+    console.log(coords);
     const props = {
-      x,
-      y,
+      x: coords.x,
+      y: coords.y,
       canvas: this.canvas,
       theta: 0,
     };
-    this.state.allCoords.push({ x, y });
+    this.state.allCoords.push({ x: coords.x, y: coords.y });
+    const player = new Player(props);
     this.setState({
-      player: new Player(props),
+      player,
       allCoords: this.state.allCoords,
     });
   }

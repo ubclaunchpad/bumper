@@ -1,7 +1,7 @@
 import { magnitude, normalize } from '../utils/utils';
 
 const PLAYER_RADIUS = 25;
-const MAX_VELOCITY = 10;
+const MAX_VELOCITY = 15;
 const PLAYER_SPEED = 5;
 const PLAYER_FRICTION = 0.6;
 
@@ -92,27 +92,27 @@ export default class Player {
     this.velocity.dy += controlsVector.dy;
 
     // Ensure it never gets going too fast
-    if (magnitude(this.velocity) > MAX_VELOCITY) {
-      normalize(this.velocity);
-      this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
-      this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
-    }
+    // if (magnitude(this.velocity) > MAX_VELOCITY) {
+    //   normalize(this.velocity);
+    //   this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
+    //   this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
+    // }
 
     // Apply player's velocity vector
     this.position.x += this.velocity.dx;
     this.position.y += this.velocity.dy;
 
-    // Validate position result
+    // Check wall collisions
     if (this.position.x + PLAYER_RADIUS > (screen.width - 20)) {
-      this.position.x = screen.width - 20 - PLAYER_RADIUS;
+      this.velocity.dx = -this.velocity.dx * 10;
     } else if (this.position.x - PLAYER_RADIUS < 0) {
-      this.position.x = PLAYER_RADIUS;
+      this.velocity.dx = -this.velocity.dx * 10;
     }
 
     if (this.position.y + PLAYER_RADIUS > (screen.height - 20)) {
-      this.position.y = screen.height - 20 - PLAYER_RADIUS;
+      this.velocity.dy = -this.velocity.dy * 10;
     } else if (this.position.y - PLAYER_RADIUS < 0) {
-      this.position.y = PLAYER_RADIUS;
+      this.velocity.dy = -this.velocity.dy * 10;
     }
   }
 

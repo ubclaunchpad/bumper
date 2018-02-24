@@ -201,47 +201,8 @@ export default class App extends React.Component {
       return;
     }
 
-    this.state.player.updatePosition({ width, height });
-  }
-
-  keyDownHandler(e) {
-    if (e.keyCode === 39) {
-      this.setState({
-        rightPressed: true,
-      });
-    } else if (e.keyCode === 37) {
-      this.setState({
-        leftPressed: true,
-      });
-    } else if (e.keyCode === 38) {
-      this.setState({
-        upPressed: true,
-      });
-    } else if (e.keyCode === 40) {
-      this.setState({
-        downPressed: true,
-      });
-    }
-  }
-
-  keyUpHandler(e) {
-    if (e.keyCode === 39) {
-      this.setState({
-        rightPressed: false,
-      });
-    } else if (e.keyCode === 37) {
-      this.setState({
-        leftPressed: false,
-      });
-    } else if (e.keyCode === 38) {
-      this.setState({
-        upPressed: false,
-      });
-    } else if (e.keyCode === 40) {
-      this.setState({
-        downPressed: false,
-      });
-    }
+    this.state.player.updatePosition();
+    this.state.junk.forEach(j => j.updatePosition());
   }
 
   render() {

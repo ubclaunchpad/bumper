@@ -47,10 +47,6 @@ export default class App extends React.Component {
     this.generatePlayerCoordinates();
     this.generateHoles();
 
-    this.timerID = setInterval(
-      () => this.tick(),
-      50,
-    );
     this.timerID2 = setInterval(
       () => this.clientMessage(),
       1000,

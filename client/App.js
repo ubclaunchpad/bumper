@@ -24,7 +24,8 @@ export default class App extends React.Component {
     super(props);
     if (window.WebSocket) {
       this.socket = new WebSocket(address);
-      this.socket.onmessage = event => this.handleServerMessage(event.data);
+      this.socket.onopen = () => this.initialClientMessage();
+      this.socket.onmessage = event => this.handleServerMessage(JSON.parse(event.data));
     } else {
       console.log('websocket not available')
     }
@@ -34,23 +35,19 @@ export default class App extends React.Component {
       junk: [],
       holes: [],
       players: [],
+      player: null,
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
     this.tick = this.tick.bind(this);
+    this.initialClientMessage = this.initialClientMessage.bind(this);
   }
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
     this.generateJunk();
+    this.generatePlayer();
     this.generateHoles();
-
-    //this.initialClientMessage();
-
-    this.timerID2 = setInterval(
-      () => this.updateClientMessage(),
-      1000,
-    );
 
     window.addEventListener('resize', this.resizeCanvas);
     this.tick();
@@ -58,32 +55,44 @@ export default class App extends React.Component {
 
 
   handleServerMessage(msg) {
+    console.log("handling server message");
+    console.log(msg);
     if (msg.type === 'initial') {
-      // generate new player
-      this.generatePlayer(msg.id);
+      // add id to player
+      // start update interval
       console.log('RECEIVED INITIAL ID');
-      // TODO update state
+      this.state.player.id = msg.id;
+      this.setState({ player: this.state.player });
+
+      this.timerID2 = setInterval(
+        () => this.updateClientMessage(),
+        1000,
+      );
     } else if (msg.type === 'update') {
 
-      // TODO send rest of update
+      // TODO find my own player in players
     }
   }
 
   initialClientMessage() {
+    console.log(this.socket);
+    
+    if (this.socket.readyState !== 1) return;
     console.log("SENDING INITIAL MESSAGE");
-    if (this.socket.readyState !== 'OPEN') return;
     this.socket.send(JSON.stringify({
       type: 'initial',
       id: 1,
-      message: "null",
+      message: 'hello',
     }));
   }
 
   updateClientMessage() {
-    if (this.socket.readyState !== 'OPEN') return;
+    console.log("SENDING update");
+    if (this.socket.readyState !== 1) return;
 
     this.socket.send(JSON.stringify({
-      message: 'update',
+      type: 'update',
+      id: this.state.player.id,
     }));
   }
 
@@ -127,10 +136,10 @@ export default class App extends React.Component {
   }
 
   // should appear somewhere in the centre
-  generatePlayer(id) {
+  generatePlayer() {
     const coords = this.generatePlayerCoords();
+    console.log(coords);
     const props = {
-      id,
       x: coords.x,
       y: coords.y,
       canvas: this.canvas,
@@ -138,12 +147,10 @@ export default class App extends React.Component {
     };
     this.state.allCoords.push({ x: coords.x, y: coords.y });
     const player = new Player(props);
-    const newPlayers = this.state.players.push(player);
     this.setState({
-      players: newPlayers,
+      player,
       allCoords: this.state.allCoords,
     });
-    return player;
   }
 
   generateCoords(num) {

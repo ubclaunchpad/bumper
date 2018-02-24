@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -12,10 +13,6 @@ import (
 
 // Message is the schema for client/server communication
 type Message struct {
-	Message string `json:"message"`
-}
-
-type InitialMessage struct {
 	Type    string `json:"type"`
 	Id      int    `json:"id"`
 	Message string `json:"message"`
@@ -64,33 +61,15 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	defer ws.Close()
 	log.Println("accepted client")
 	// record this connection in our map
+	// Todo initialize state struct
 	clients[ws] = true
-	// var initialMsg Message
-	// err = ws.ReadJSON(&initialMsg)
 
-	// log.Printf("InitialMessage: %v", initialMsg.Type)
-	// // terminate connection if error occurs
-	// if err != nil {
-	// 	log.Printf("error: initial message %v", err)
-	// 	delete(clients, ws)
-	// 	return
-	// }
-
-	// reply := createInitialReply(&initialMsg)
-
-	// err = ws.WriteJSON(&reply)
-	// if err != nil {
-	// 	log.Printf("error: %v", err)
-	// 	ws.Close()
-	// 	delete(clients, ws)
-	// }
-
-	var msg Message
 	// infinite loop that receives msgs from clients
 	for {
+		var msg Message
 		// ReadJSON blocks until a message is received
-		log.Printf("%+v\n", msg)
 		err := ws.ReadJSON(&msg)
+		log.Printf("%+v\n", msg)
 
 		// terminate connection if error occurs
 		if err != nil {
@@ -99,21 +78,29 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		log.Printf("%+v\n", msg.Message)
+		if msg.Type == "initial" {
+			reply := createInitialReply(&msg)
+			ws.WriteJSON(reply)
+		}
+		// else {
+		// 	// todo add player to map
+		// }
+
+		log.Printf("%+v\n", msg.Type)
 		// pass received message to the global channel
 		//broadcast <- msg
 	}
 }
 
-// func createInitialReply(msg *Message) *Message {
-// 	fmt.Println("Creating initial id")
-// 	id := generateUniqueId()
-// 	return &Message{
-// 		Type: "initial",
-// 		Id:   id,
-// 	}
+func createInitialReply(msg *Message) *Message {
+	fmt.Println("Creating initial id")
+	id := generateUniqueId()
+	return &Message{
+		Type: "initial",
+		Id:   id,
+	}
 
-// }
+}
 
 func generateUniqueId() int {
 	return rand.Intn(1000)

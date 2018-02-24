@@ -73,7 +73,7 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.canvas = document.getElementById('ctx');
-    this.generateJunkCoordinates();
+    this.generateJunk();
     this.generateHoles();
     this.generatePlayerCoordinates();
 
@@ -166,17 +166,13 @@ export default class App extends React.Component {
     this.drawHoles();
   }
 
-  drawJunk() {
-    this.state.junkCoords.forEach(h => h.drawJunk());
-  }
-
   drawHoles() {
-    for (const h of this.state.holes) {
-      h.drawHole();
-    }
+    this.state.holes.forEach(h => h.drawHole());
   }
 
-
+  drawJunk() {
+	this.state.junkCoords.forEach(j => j.drawJunk());
+  }
 
   resizeCanvas() {
     const ctx = document.getElementById('ctx');

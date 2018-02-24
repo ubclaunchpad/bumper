@@ -1,4 +1,6 @@
 const PLAYER_RADIUS = 25;
+const MAX_VELOCITY = 10;
+const PLAYER_SPEED = 5;
 
 export default class Player {
   constructor(props) {
@@ -65,8 +67,8 @@ export default class Player {
     }
 
     if (this.downPressed) {
-      controlsVector.dy = (0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
-      controlsVector.dx = (0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
+      controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
+      controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
     }
 
     if (this.upPressed) {
@@ -74,9 +76,33 @@ export default class Player {
       controlsVector.dx = (0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
     }
 
-    // Apply resultant vector
-    this.position.x += controlsVector.dx;
-    this.position.y += controlsVector.dy;
+    //normalize vectory and apply speed
+    this.normalize(controlsVector);
+    controlsVector.dx *= PLAYER_SPEED;
+    controlsVector.dy *= PLAYER_SPEED;
+
+    //Apply some friction damping
+    this.velocity.dx = this.velocity.dx * 0.6;
+    this.velocity.dy = this.velocity.dy * 0.6;
+
+    this.velocity.dx += controlsVector.dx;
+    this.velocity.dy += controlsVector.dy;
+
+    if (this.velocity.dy > MAX_VELOCITY) {
+      this.velocity.dy = MAX_VELOCITY;
+    } else if (this.velocity.dy < -MAX_VELOCITY) {
+      this.velocity.dy = -MAX_VELOCITY;
+    }
+
+    if (this.velocity.dx > MAX_VELOCITY) {
+      this.velocity.dx = MAX_VELOCITY;
+    } else if (this.velocity.dx < -MAX_VELOCITY) {
+      this.velocity.dx = -MAX_VELOCITY;
+    }
+
+    // Apply velocity vector
+    this.position.x += this.velocity.dx;
+    this.position.y += this.velocity.dy;
 
     // Validate position result
     if (this.position.x + PLAYER_RADIUS > (screen.width - 20)) {
@@ -113,6 +139,14 @@ export default class Player {
       this.upPressed = false;
     } else if (e.keyCode === 40) {
       this.downPressed = false;
+    }
+  }
+
+  normalize(vector) {
+    const magnitude = Math.sqrt((vector.dx * vector.dx) + (vector.dy * vector.dy));
+    if (magnitude > 0) {
+      vector.dx /= magnitude;
+      vector.dy /= magnitude;
     }
   }
 }

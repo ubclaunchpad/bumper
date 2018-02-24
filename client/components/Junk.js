@@ -26,8 +26,17 @@ export default class Junk {
 
   hitBy(player) {
     // LastBumped = player;
-    this.velocity.dx = Math.max(player.velocity.dx * 1.05, JUNK_MINBUMP);
-    this.velocity.dy = Math.max(player.velocity.dy * 1.05, JUNK_MINBUMP);
+
+    if (player.velocity.dx < 0) {
+      this.velocity.dx = Math.min(player.velocity.dx * 1.05, -JUNK_MINBUMP);
+    } else {
+      this.velocity.dx = Math.max(player.velocity.dx * 1.05, JUNK_MINBUMP);
+    }
+    if (player.velocity.dy < 0) {
+      this.velocity.dy = Math.min(player.velocity.dy * 1.05, -JUNK_MINBUMP);
+    } else {
+      this.velocity.dy = Math.max(player.velocity.dy * 1.05, JUNK_MINBUMP);
+    }
   }
 
   updatePosition() {

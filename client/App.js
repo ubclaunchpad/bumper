@@ -83,6 +83,8 @@ export default class App extends React.Component {
     newCoords.forEach((coord) => {
       const props = {
         position: { x: coord.x, y: coord.y },
+        radius: Math.floor(Math.random() * ((25 - 15) + 1)) + 15,
+        lifespan: Math.floor(Math.random() * ((45 - 15) + 1)) + 15,
         canvas: this.canvas,
       };
       const hole = new Hole(props);
@@ -141,7 +143,12 @@ export default class App extends React.Component {
   }
 
   drawHoles() {
-    this.state.holes.forEach(h => h.drawHole());
+    this.state.holes.forEach((hole) => {
+      if (hole.drawHole() === false) {
+        this.state.holes = this.state.holes.filter(h => h !== hole);
+        this.setState(this.state);
+      }
+    });
   }
 
   drawJunk() {
@@ -189,9 +196,7 @@ export default class App extends React.Component {
       this.state.junk.forEach((junk) => {
         if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
           // Add points for the last bumper player here
-          this.state.junk = this.state.junk.filter((j) => {
-            return j !== junk;
-          });
+          this.state.junk = this.state.junk.filter(j => j !== junk);
           this.setState(this.state);
         }
       });

@@ -116,7 +116,7 @@ export default class App extends React.Component {
 
       for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
         // could not be placed because of overlap
-        if (areCirclesColliding(p.x, p.y, MAX_DISTANCE_BETWEEN, x, y, MAX_DISTANCE_BETWEEN)) {
+        if (areCirclesColliding(p, MAX_DISTANCE_BETWEEN, { x, y }, MAX_DISTANCE_BETWEEN)) {
           placed = false;
           break;
         }

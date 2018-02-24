@@ -4,7 +4,7 @@ const HOLE_COUNT = 10;
 export default class Junk {
   constructor(props) {
 	this.canvas = props.canvas;
-    this.mass = props.mass || 10;
+  	this.mass = props.mass || 10;
 	this.pointVal = props.pointVal || 50;
 	this.position = props.position;
 	this.velocity = { dx: 0, dy: 0 };
@@ -15,7 +15,7 @@ export default class Junk {
   }
   
   drawJunk() {
-	const ctx = this.canvas.getContext('2d');   
+    const ctx = this.canvas.getContext('2d');   
     ctx.beginPath();
     ctx.rect(this.position.x, this.position.y, JUNK_SIZE, JUNK_SIZE);
     ctx.fillStyle = 'white';

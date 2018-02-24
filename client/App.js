@@ -56,8 +56,8 @@ export default class App extends React.Component {
   }
 
   clientMessage() {
-    if (this.socket.readyState !== 1) return;
-
+    if (this.socket.readyState !== 1) return; //1 === OPEN
+    console.log("CLIENT SENDING")
     this.socket.send(JSON.stringify({
       message: 'client2',
       data: 'foo',

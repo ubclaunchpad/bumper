@@ -7727,9 +7727,13 @@ var _Player = __webpack_require__(28);
 
 var _Player2 = _interopRequireDefault(_Player);
 
-var _Hole = __webpack_require__(29);
+var _Hole = __webpack_require__(30);
 
 var _Hole2 = _interopRequireDefault(_Hole);
+
+var _Junk = __webpack_require__(31);
+
+var _Junk2 = _interopRequireDefault(_Junk);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7739,6 +7743,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var PLAYER_RADIUS = 25;
 var JUNK_COUNT = 10;
 var JUNK_SIZE = 15;
 var HOLE_COUNT = 10;
@@ -7747,6 +7752,12 @@ var MAX_DISTANCE_BETWEEN = 50;
 var width = window.innerWidth;
 var height = window.innerHeight;
 var address = 'ws://localhost:9090/connect';
+
+// detect collision
+// (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
+function areCirclesColliding(p, r1, q, r2) {
+  return (p.x - q.x) ** 2 + (p.y - q.y) ** 2 <= (r1 + r2) ** 2;
+}
 
 var App = function (_React$Component) {
   _inherits(App, _React$Component);
@@ -7767,18 +7778,13 @@ var App = function (_React$Component) {
     }
 
     _this.state = {
-      rightPressed: false,
-      leftPressed: false,
-      upPressed: false,
-      downPressed: false,
       allCoords: [], // might need to change this
-      junkCoords: [],
-      holes: []
+      junk: [],
+      holes: [],
+      player: null
     };
 
     _this.resizeCanvas = _this.resizeCanvas.bind(_this);
-    _this.keyDownHandler = _this.keyDownHandler.bind(_this);
-    _this.keyUpHandler = _this.keyUpHandler.bind(_this);
     _this.tick = _this.tick.bind(_this);
     return _this;
   }
@@ -7786,33 +7792,56 @@ var App = function (_React$Component) {
   _createClass(App, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
+      var _this2 = this;
+
       this.canvas = document.getElementById('ctx');
+      this.generateJunk();
       this.generatePlayerCoordinates();
-      this.generateJunkCoordinates();
       this.generateHoles();
 
+      this.timerID2 = setInterval(function () {
+        return _this2.clientMessage();
+      }, 1000);
+
       window.addEventListener('resize', this.resizeCanvas);
-      window.addEventListener('keydown', this.keyDownHandler);
-      window.addEventListener('keyup', this.keyUpHandler);
       this.tick();
     }
   }, {
-    key: 'generateJunkCoordinates',
-    value: function generateJunkCoordinates() {
+    key: 'clientMessage',
+    value: function clientMessage() {
+      if (!this.socket.readyState !== 'OPEN') return;
+
+      this.socket.send(JSON.stringify({
+        message: 'client2',
+        data: 'foo'
+      }));
+    }
+  }, {
+    key: 'generateJunk',
+    value: function generateJunk() {
+      var _this3 = this;
+
       var newCoords = this.generateCoords(JUNK_COUNT);
-      this.setState({ junkCoords: newCoords });
+      newCoords.forEach(function (coord) {
+        var props = {
+          position: { x: coord.x, y: coord.y },
+          canvas: _this3.canvas
+        };
+        _this3.state.junk.push(new _Junk2.default(props));
+      });
+      this.setState(this.state);
     }
   }, {
     key: 'generateHoles',
     value: function generateHoles() {
-      var _this2 = this;
+      var _this4 = this;
 
       var newCoords = this.generateCoords(HOLE_COUNT);
       var newHoles = [];
       newCoords.forEach(function (coord) {
         var props = {
           position: { x: coord.x, y: coord.y },
-          canvas: _this2.canvas
+          canvas: _this4.canvas
         };
         var hole = new _Hole2.default(props);
         newHoles.push(hole);
@@ -7848,6 +7877,8 @@ var App = function (_React$Component) {
   }, {
     key: 'generateCoords',
     value: function generateCoords(num) {
+      var _this5 = this;
+
       // make sure object radius isn't outside of canvas
       var maxWidth = width - MAX_DISTANCE_BETWEEN;
       var minWidth = MAX_DISTANCE_BETWEEN;
@@ -7856,87 +7887,39 @@ var App = function (_React$Component) {
 
       var count = num;
       var coords = [];
-      while (count > 0) {
+
+      var _loop = function _loop() {
         var x = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
         var y = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-        var placed = true;
+        var isColliding = _this5.state.allCoords.some(function (p) {
+          return areCirclesColliding(p.x, p.y, MAX_DISTANCE_BETWEEN, x, y, MAX_DISTANCE_BETWEEN);
+        });
 
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = this.state.allCoords[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var p = _step.value;
-            //es-lint-disable no-restricted-syntax 
-            // could not be placed because of overlap
-            if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
-              placed = false;
-              break;
-            }
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-
-        if (placed) {
-          var newAllCoords = this.state.allCoords.push({ x: x, y: y });
-          this.setState({ allCoords: newAllCoords });
+        if (!isColliding) {
+          var newAllCoords = _this5.state.allCoords.push({ x: x, y: y });
+          _this5.setState({ allCoords: newAllCoords });
           coords.push({ x: x, y: y });
           count -= 1;
         }
+      };
+
+      while (count > 0) {
+        _loop();
       }
       return coords;
-    }
-  }, {
-    key: 'drawJunk',
-    value: function drawJunk() {
-      var ctx = this.canvas.getContext('2d');
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = this.state.junkCoords[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var p = _step2.value;
-
-          ctx.beginPath();
-          ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
-          ctx.fillStyle = 'white';
-          ctx.fill();
-          ctx.closePath();
-        }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
     }
   }, {
     key: 'drawHoles',
     value: function drawHoles() {
       this.state.holes.forEach(function (h) {
         return h.drawHole();
+      });
+    }
+  }, {
+    key: 'drawJunk',
+    value: function drawJunk() {
+      this.state.junk.forEach(function (j) {
+        return j.drawJunk();
       });
     }
   }, {
@@ -7961,93 +7944,62 @@ var App = function (_React$Component) {
     key: 'tick',
     value: function tick() {
       this.updateCanvas();
+      // check for hole and player collistions
+      // TODO check rest of the possible collisions
+      this.checkForCollisions();
       // eslint-disable-next-line
       requestAnimationFrame(this.tick);
+    }
+  }, {
+    key: 'checkForCollisions',
+    value: function checkForCollisions() {
+      var _this6 = this;
+
+      this.state.holes.forEach(function (hole) {
+        var position = hole.position,
+            radius = hole.radius;
+
+        if (_this6.state.player) {
+          if (areCirclesColliding(_this6.state.player.position, PLAYER_RADIUS, position, radius)) {
+            _this6.setState({
+              player: null
+            });
+          }
+        }
+      });
+      this.state.junk.forEach(function (junk) {
+        var position = junk.position;
+
+        if (_this6.state.player) {
+          if (areCirclesColliding(_this6.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
+            junk.hitBy(_this6.state.player);
+            _this6.state.player.hitJunk();
+          }
+        }
+      });
     }
   }, {
     key: 'updateCanvas',
     value: function updateCanvas() {
       var ctx = this.canvas.getContext('2d');
       ctx.clearRect(0, 0, width, height);
-      this.drawPlayers();
       this.drawJunk();
       this.drawHoles();
+      this.drawPlayers();
       this.calculateNextState();
     }
   }, {
     key: 'calculateNextState',
     value: function calculateNextState() {
-      var _this3 = this;
+      // TODO check all players
+      if (!this.state.player) {
+        return;
+      }
 
-      var PLAYER_RADIUS = 25;
-      this.setState(function (prevState) {
-        var newState = prevState;
-        if (_this3.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
-        if (_this3.state.rightPressed) newState.playerTheta = (prevState.playerTheta - 0.25) % 360;
-        if (_this3.state.downPressed) {
-          newState.playerY = prevState.playerY + 0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta));
-          newState.playerX = prevState.playerX + 0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta));
-        }
-        if (_this3.state.upPressed) {
-          newState.playerY = prevState.playerY - 0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta));
-          newState.playerX = prevState.playerX - 0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta));
-        }
-
-        if (newState.playerX + PLAYER_RADIUS > width - 20) {
-          newState.playerX = width - 20 - PLAYER_RADIUS;
-        } else if (newState.playerX - PLAYER_RADIUS < 0) {
-          newState.playerX = PLAYER_RADIUS;
-        }
-        if (newState.playerY + PLAYER_RADIUS > height - 20) {
-          newState.playerY = height - 20 - PLAYER_RADIUS;
-        } else if (newState.playerY - PLAYER_RADIUS < 0) {
-          newState.playerY = PLAYER_RADIUS;
-        }
-
-        return newState;
+      this.state.player.updatePosition();
+      this.state.junk.forEach(function (j) {
+        return j.updatePosition();
       });
-    }
-  }, {
-    key: 'keyDownHandler',
-    value: function keyDownHandler(e) {
-      if (e.keyCode === 39) {
-        this.setState({
-          rightPressed: true
-        });
-      } else if (e.keyCode === 37) {
-        this.setState({
-          leftPressed: true
-        });
-      } else if (e.keyCode === 38) {
-        this.setState({
-          upPressed: true
-        });
-      } else if (e.keyCode === 40) {
-        this.setState({
-          downPressed: true
-        });
-      }
-    }
-  }, {
-    key: 'keyUpHandler',
-    value: function keyUpHandler(e) {
-      if (e.keyCode === 39) {
-        this.setState({
-          rightPressed: false
-        });
-      } else if (e.keyCode === 37) {
-        this.setState({
-          leftPressed: false
-        });
-      } else if (e.keyCode === 38) {
-        this.setState({
-          upPressed: false
-        });
-      } else if (e.keyCode === 40) {
-        this.setState({
-          downPressed: false
-        });
-      }
     }
   }, {
     key: 'render',
@@ -8087,40 +8039,210 @@ var styles = {
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _utils = __webpack_require__(29);
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var PLAYER_RADIUS = 25;
+var MAX_VELOCITY = 15;
+var PLAYER_ACCELERATION = 0.5;
+var PLAYER_FRICTION = 0.97;
+var WALL_BOUNCE_FACTOR = 1.5;
+var JUNK_BOUNCE_FACTOR = 0.25;
+
 var Player = function () {
-	function Player(props) {
-		_classCallCheck(this, Player);
+  function Player(props) {
+    _classCallCheck(this, Player);
 
-		this.mass = props.mass || 10;
-		this.color = props.color || '#FF0000'; // Red 
-		this.name = props.name || 'Default name';
-		this.canvas = props.canvas;
-		this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-		this.velocity = { dx: 0, dy: 0 };
-		this.alive = true;
+    this.canvas = props.canvas;
+    this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    this.velocity = { dx: 0, dy: 0 };
+    this.theta = props.theta;
+    this.mass = props.mass || 10;
 
-		this.drawPlayer = this.drawPlayer.bind(this);
-	}
+    this.alive = true;
+    this.name = props.name || 'Default name';
 
-	_createClass(Player, [{
-		key: 'drawPlayer',
-		value: function drawPlayer() {}
-	}]);
+    var c = '';
+    while (c.length < 6) {
+      c += Math.random().toString(16).substr(-6).substr(-1);
+    }
+    this.color = '#' + c;
 
-	return Player;
+    this.rightPressed = false;
+    this.leftPressed = false;
+    this.upPressed = false;
+    this.downPressed = false;
+
+    this.drawPlayer = this.drawPlayer.bind(this);
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.keyUpHandler = this.keyUpHandler.bind(this);
+    window.addEventListener('keydown', this.keyDownHandler);
+    window.addEventListener('keyup', this.keyUpHandler);
+  }
+
+  _createClass(Player, [{
+    key: 'drawPlayer',
+    value: function drawPlayer() {
+      var ctx = this.canvas.getContext('2d');
+      var _position = this.position,
+          x = _position.x,
+          y = _position.y;
+
+      ctx.beginPath();
+      ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.closePath();
+
+      ctx.beginPath();
+      ctx.moveTo(x + PLAYER_RADIUS * Math.sin(this.theta), y + PLAYER_RADIUS * Math.cos(this.theta));
+      ctx.lineTo(x - PLAYER_RADIUS * Math.sin(this.theta), y - PLAYER_RADIUS * Math.cos(this.theta));
+      ctx.strokeStyle = '#000000';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
+
+      var backCenterX = x - PLAYER_RADIUS * Math.sin(this.theta) / 2;
+      var backCenterY = y - PLAYER_RADIUS * Math.cos(this.theta) / 2;
+      var backLength = 2.5 * (PLAYER_RADIUS / 2 / Math.tan(45));
+      ctx.beginPath();
+      ctx.moveTo(backCenterX - backLength * Math.cos(this.theta), backCenterY + backLength * Math.sin(this.theta));
+      ctx.lineTo(backCenterX + backLength * Math.cos(this.theta), backCenterY - backLength * Math.sin(this.theta));
+      ctx.strokeStyle = '#0000000';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
+    }
+  }, {
+    key: 'updatePosition',
+    value: function updatePosition() {
+      var controlsVector = { dx: 0, dy: 0 };
+
+      if (this.leftPressed) {
+        this.theta = (this.theta + 0.1) % 360;
+      }
+
+      if (this.rightPressed) {
+        this.theta = (this.theta - 0.1) % 360;
+      }
+
+      if (this.downPressed) {
+        controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
+        controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
+      }
+
+      if (this.upPressed) {
+        controlsVector.dy = 0.5 * (PLAYER_RADIUS * Math.cos(this.theta));
+        controlsVector.dx = 0.5 * (PLAYER_RADIUS * Math.sin(this.theta));
+      }
+
+      // Normalize controls vector and apply speed
+      (0, _utils.normalize)(controlsVector);
+      controlsVector.dx *= PLAYER_ACCELERATION;
+      controlsVector.dy *= PLAYER_ACCELERATION;
+
+      // Apply some friction damping
+      this.velocity.dx = this.velocity.dx * PLAYER_FRICTION;
+      this.velocity.dy = this.velocity.dy * PLAYER_FRICTION;
+
+      this.velocity.dx += controlsVector.dx;
+      this.velocity.dy += controlsVector.dy;
+
+      // console.log("vdx: " + this.velocity.dx + "vdy: " + this.velocity.dy);
+
+      // Ensure it never gets going too fast
+      // if (magnitude(this.velocity) > MAX_VELOCITY) {
+      //   normalize(this.velocity);
+      //   this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
+      //   this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
+      // }
+
+      // Apply player's velocity vector
+      this.position.x += this.velocity.dx;
+      this.position.y += this.velocity.dy;
+
+      // Check wall collisions
+      if (this.position.x + PLAYER_RADIUS > this.canvas.width) {
+        this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
+      } else if (this.position.x - PLAYER_RADIUS < 0) {
+        this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
+      }
+
+      if (this.position.y + PLAYER_RADIUS > this.canvas.height) {
+        this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
+      } else if (this.position.y - PLAYER_RADIUS < 0) {
+        this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
+      }
+    }
+  }, {
+    key: 'hitJunk',
+    value: function hitJunk() {
+      this.velocity.dx *= -JUNK_BOUNCE_FACTOR;
+      this.velocity.dy *= -JUNK_BOUNCE_FACTOR;
+    }
+  }, {
+    key: 'keyDownHandler',
+    value: function keyDownHandler(e) {
+      if (e.keyCode === 39) {
+        this.rightPressed = true;
+      } else if (e.keyCode === 37) {
+        this.leftPressed = true;
+      } else if (e.keyCode === 38) {
+        this.upPressed = true;
+      } else if (e.keyCode === 40) {
+        this.downPressed = true;
+      }
+    }
+  }, {
+    key: 'keyUpHandler',
+    value: function keyUpHandler(e) {
+      if (e.keyCode === 39) {
+        this.rightPressed = false;
+      } else if (e.keyCode === 37) {
+        this.leftPressed = false;
+      } else if (e.keyCode === 38) {
+        this.upPressed = false;
+      } else if (e.keyCode === 40) {
+        this.downPressed = false;
+      }
+    }
+  }]);
+
+  return Player;
 }();
 
 exports.default = Player;
 
 /***/ }),
 /* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.magnitude = magnitude;
+exports.normalize = normalize;
+function magnitude(vector) {
+  return Math.sqrt(vector.dx * vector.dx + vector.dy * vector.dy);
+}
+
+function normalize(vector) {
+  var mag = magnitude(vector);
+  if (mag > 0) {
+    vector.dx /= mag;
+    vector.dy /= mag;
+  }
+}
+
+/***/ }),
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8167,6 +8289,77 @@ var Hole = function () {
 }();
 
 exports.default = Hole;
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var JUNK_SIZE = 15;
+
+var Junk = function () {
+  function Junk(props) {
+    _classCallCheck(this, Junk);
+
+    this.canvas = props.canvas;
+    this.position = props.position;
+    this.velocity = { dx: 0, dy: 0 };
+    this.lastBumped = null;
+    this.color = 'white';
+
+    this.mass = props.mass || 10;
+    this.pointVal = props.pointVal || 50;
+    this.alive = true;
+    this.drawJunk = this.drawJunk.bind(this);
+  }
+
+  _createClass(Junk, [{
+    key: 'drawJunk',
+    value: function drawJunk() {
+      var ctx = this.canvas.getContext('2d');
+      ctx.beginPath();
+      ctx.rect(this.position.x, this.position.y, JUNK_SIZE, JUNK_SIZE);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }, {
+    key: 'hitBy',
+    value: function hitBy(player) {
+      this.color = player.color;
+      this.velocity.dx = player.velocity.dx;
+      this.velocity.dy = player.velocity.dy;
+    }
+  }, {
+    key: 'updatePosition',
+    value: function updatePosition() {
+      var r = JUNK_SIZE / 2;
+      if (this.position.x + this.velocity.dx > this.canvas.width - r || this.position.x + this.velocity.dx < r) {
+        this.velocity.dx = -this.velocity.dx;
+      }
+      if (this.position.y + this.velocity.dy > this.canvas.height - r || this.position.y + this.velocity.dy < r) {
+        this.velocity.dy = -this.velocity.dy;
+      }
+
+      this.position.x += this.velocity.dx;
+      this.position.y += this.velocity.dy;
+    }
+  }]);
+
+  return Junk;
+}();
+
+exports.default = Junk;
 
 /***/ })
 /******/ ]);

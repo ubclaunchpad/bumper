@@ -3,6 +3,7 @@ import Player from './components/Player';
 import Hole from './components/Hole';
 import Junk from './components/Junk';
 
+const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
@@ -11,6 +12,12 @@ const MAX_DISTANCE_BETWEEN = 50;
 const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
+
+// detect collision
+// (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
+function areCirclesColliding(p, r1, q, r2) {
+  return (((p.x - q.x) ** 2) + ((p.y - q.y) ** 2)) <= ((r1 + r2) ** 2);
+}
 
 export default class App extends React.Component {
   constructor(props) {
@@ -31,6 +38,7 @@ export default class App extends React.Component {
       allCoords: [], // might need to change this
       junk: [],
       holes: [],
+      player: null,
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
@@ -116,7 +124,7 @@ export default class App extends React.Component {
 
       for (const p of this.state.allCoords) { //es-lint-disable no-restricted-syntax 
         // could not be placed because of overlap
-        if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
+        if (areCirclesColliding(p.x, p.y, MAX_DISTANCE_BETWEEN, x, y, MAX_DISTANCE_BETWEEN)) {
           placed = false;
           break;
         }
@@ -158,8 +166,24 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
+    // check for hole and player collistions
+    // TODO check rest of the possible collisions
+    this.checkForCollisions();
     // eslint-disable-next-line
     requestAnimationFrame(this.tick);
+  }
+
+  checkForCollisions() {
+    this.state.holes.forEach((hole) => {
+      const { position, radius } = hole;
+      if (this.state.player) {
+        if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, radius)) {
+          this.setState({
+            player: null,
+          });
+        }
+      }
+    });
   }
 
   updateCanvas() {
@@ -172,7 +196,11 @@ export default class App extends React.Component {
   }
 
   calculateNextState() {
-    const PLAYER_RADIUS = 25;
+    // player is dead don't render
+    // TODO check all players
+    if (!this.state.player) {
+      return;
+    }
     this.setState((prevState) => {
       const { player } = prevState;
       const { position } = player;

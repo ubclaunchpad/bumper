@@ -7,6 +7,7 @@ export default class Player {
 		this.position = props.position || { x: (window.innerWidth / 2), y: (window.innerHeight) / 2) }; 
 		this.velocity = { dx: 0, dy: 0 };
 		this.alive = true;  
+		this.walls = {left: false, right: false, top: false, bottom: false};
 		
 		this.drawPlayer = this.drawPlayer.bind(this);
 	 }

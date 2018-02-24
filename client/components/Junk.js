@@ -6,6 +6,7 @@ export default class Junk {
 	this.velocity = { dx: 0, dy: 0 };
 	this.lastBumped = null;
 	this.alive = true;
+	this.walls = {left: false, right: false, top: false, bottom: false};
 	
 	this.drawJunk = this.drawJunk.bind(this);
   }

@@ -1,6 +1,7 @@
 import React from 'react';
 import Player from './components/Player';
 import Hole from './components/Hole';
+import Junk from './components/Junk';
 
 const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
@@ -28,7 +29,7 @@ export default class App extends React.Component {
       upPressed: false,
       downPressed: false,
       allCoords: [], // might need to change this
-      junkCoords: [],
+      junk: [],
       holes: [],
     };
 
@@ -40,8 +41,8 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.canvas = document.getElementById('ctx');
+    this.generateJunk();
     this.generatePlayerCoordinates();
-    this.generateJunkCoordinates();
     this.generateHoles();
 
     window.addEventListener('resize', this.resizeCanvas);
@@ -50,9 +51,16 @@ export default class App extends React.Component {
     this.tick();
   }
 
-  generateJunkCoordinates() {
+  generateJunk() {
     const newCoords = this.generateCoords(JUNK_COUNT);
-    this.setState({ junkCoords: newCoords });
+    newCoords.forEach((coord) => {
+      const props = {
+        position: { x: coord.x, y: coord.y },
+        canvas: this.canvas,
+      };
+      this.state.junk.push(new Junk(props));
+    });
+    this.setState(this.state);
   }
 
   generateHoles() {
@@ -123,20 +131,13 @@ export default class App extends React.Component {
     }
     return coords;
   }
-  
-  drawJunk() {
-    const ctx = this.canvas.getContext('2d');
-    for (const p of this.state.junkCoords) {
-      ctx.beginPath();
-      ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
-      ctx.fillStyle = 'white';
-      ctx.fill();
-      ctx.closePath();
-    }
-  }
 
   drawHoles() {
     this.state.holes.forEach(h => h.drawHole());
+  }
+
+  drawJunk() {
+    this.state.junk.forEach(j => j.drawJunk());
   }
 
   drawPlayers() {
@@ -164,9 +165,9 @@ export default class App extends React.Component {
   updateCanvas() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, width, height);
-    this.drawPlayers();
     this.drawJunk();
     this.drawHoles();
+    this.drawPlayers();
     this.calculateNextState();
   }
 

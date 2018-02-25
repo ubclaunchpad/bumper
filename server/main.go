@@ -89,7 +89,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			}
 			err := ws.WriteJSON(reply)
 			if err != nil {
-				log.Printf("error initializing id:%d", reply.ID)
+				log.Printf("error sending message: %v", err)
 				ws.Close()
 				delete(clients, ws)
 			}

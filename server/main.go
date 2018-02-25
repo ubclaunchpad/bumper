@@ -34,14 +34,10 @@ type ServerState struct {
 type ObjectState struct {
 	ID       int
 	position Position
-	velocity Velocity
 }
 
 // global variable is fine for now, all we need is reference to connection
 var clients = make(map[*websocket.Conn]ObjectState)
-
-// global channel for message receiving
-var broadcast = make(chan Message)
 
 // this 'upgrades' a normal HTTP connection to a persistent TCP connection (socket)
 var upgrader = websocket.Upgrader{
@@ -69,7 +65,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	clients[ws] = ObjectState{
 		0,
 		Position{0, 0},
-		Velocity{0, 0},
 	}
 
 	// infinite loop that receives msgs from clients
@@ -109,7 +104,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Client %d State: %+v\n", msg.ID, clients[ws])
 		log.Printf("Message Type: %+v\n", msg.Type)
 		// pass received message to the global channel
-		//broadcast <- msg
 	}
 }
 

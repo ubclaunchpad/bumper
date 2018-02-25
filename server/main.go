@@ -35,10 +35,8 @@ type ObjectState struct {
 	position Position
 }
 
-// global variable is fine for now, all we need is reference to connection
 var clients = make(map[*websocket.Conn]ObjectState)
 
-// this 'upgrades' a normal HTTP connection to a persistent TCP connection (socket)
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		log.Printf("Accepting client from remote address %v\n", r.RemoteAddr)
@@ -69,11 +67,8 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	// infinite loop that receives msgs from clients
 	for {
 		var msg Message
-		// ReadJSON blocks until a message is received
 		err := ws.ReadJSON(&msg)
 		log.Printf("Message Received: %+v\n", msg)
-
-		// terminate connection if error occurs
 		if err != nil {
 			log.Printf("error: %v", err)
 			delete(clients, ws)
@@ -82,11 +77,11 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 		// initial message received
 		if msg.Type == "initial" {
-			// reply with an initial message response establishing id
 			reply := &Message{
 				Type: "initial",
 				ID:   rand.Intn(1000),
 			}
+
 			err := ws.WriteJSON(reply)
 			if err != nil {
 				log.Printf("error sending message: %v", err)
@@ -130,10 +125,7 @@ func tick() {
 }
 
 func main() {
-
-	// main thread that will listen for connections
 	http.HandleFunc("/connect", handleConnection)
-	// separate thread that will handle updates
 	go tick()
 
 	log.Println("Starting server on localhost:9090")

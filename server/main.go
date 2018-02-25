@@ -11,24 +11,18 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Message is the schema for client/server communication
-type Message struct {
-	Type     string   `json:"type"`
-	ID       int      `json:"id"`
-	Position Position `json:"pos"` //Position variable takes Position struct as datatype
-	Message  string   `json:"message"`
-}
-
 // Position x y position
 type Position struct {
 	x int `json:"x"`
 	y int `json:"y"`
 }
 
-// Velocity speed and direction of an object
-type Velocity struct {
-	dx float32
-	dy float32
+// Message is the schema for client/server communication
+type Message struct {
+	Type     string   `json:"type"`
+	ID       int      `json:"id"`
+	Position Position `json:"pos"` //Position variable takes Position struct as datatype
+	Message  string   `json:"message"`
 }
 
 // ServerState map of states for all players

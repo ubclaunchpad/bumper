@@ -13,15 +13,16 @@ import (
 
 // Message is the schema for client/server communication
 type Message struct {
-	Type    string `json:"type"`
-	ID      int    `json:"id"`
-	Message string `json:"message"`
+	Type     string   `json:"type"`
+	ID       int      `json:"id"`
+	Position Position `json:"pos"` //Position variable takes Position struct as datatype
+	Message  string   `json:"message"`
 }
 
 // Position x y position
 type Position struct {
-	x int
-	y int
+	x int `json:"x"`
+	y int `json:"y"`
 }
 
 // Velocity speed and direction of an object
@@ -128,6 +129,7 @@ func createInitialReply(msg *Message) *Message {
 
 }
 
+//TODO: check if the id already exists else generate different id
 func generateUniqueID() int {
 	return rand.Intn(1000)
 }

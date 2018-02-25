@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -83,8 +82,11 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 		// initial message received
 		if msg.Type == "initial" {
-			//reply with an initial message response establishing id
-			reply := createInitialReply(&msg)
+			// reply with an initial message response establishing id
+			reply := &Message{
+				Type: "initial",
+				ID:   rand.Intn(1000),
+			}
 			err := ws.WriteJSON(reply)
 			if err != nil {
 				log.Printf("error initializing id:%d", reply.ID)
@@ -105,21 +107,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Message Type: %+v\n", msg.Type)
 		// pass received message to the global channel
 	}
-}
-
-func createInitialReply(msg *Message) *Message {
-	fmt.Println("Creating initial id")
-	id := generateUniqueID()
-	return &Message{
-		Type: "initial",
-		ID:   id,
-	}
-
-}
-
-//TODO: check if the id already exists else generate different id
-func generateUniqueID() int {
-	return rand.Intn(1000)
 }
 
 func tick() {

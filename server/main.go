@@ -100,7 +100,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("Client %d State: %+v\n", msg.ID, clients[ws])
 		log.Printf("Message Type: %+v\n", msg.Type)
-		// pass received message to the global channel
 	}
 }
 

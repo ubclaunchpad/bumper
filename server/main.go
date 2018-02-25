@@ -12,8 +12,8 @@ import (
 
 // Position x y position
 type Position struct {
-	x int `json:"x"`
-	y int `json:"y"`
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 // Message is the schema for client/server communication

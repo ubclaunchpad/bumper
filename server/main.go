@@ -18,29 +18,31 @@ type Message struct {
 	Message string `json:"message"`
 }
 
-// Coordinate x y position
+// Position x y position
 type Position struct {
 	x int
 	y int
 }
 
+// Velocity speed and direction of an object
 type Velocity struct {
 	dx float32
 	dy float32
 }
 
+// ServerState map of states for all players
 type ServerState struct {
 	Players []ObjectState
 }
 
-// State of an object, position and velocity
+// ObjectState of an object, position and velocity
 type ObjectState struct {
 	position Position
 	velocity Velocity
 }
 
 // global variable is fine for now, all we need is reference to connection
-var clients = make(map[*websocket.Conn]bool)
+var clients = make(map[*websocket.Conn]ObjectState)
 
 // global channel for message receiving
 var broadcast = make(chan Message)
@@ -62,7 +64,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	log.Println("accepted client")
 	// record this connection in our map
 	// Todo initialize state struct
-	clients[ws] = true
+	clients[ws] = ObjectState{Position{0, 0}, Velocity{0, 0}}
 
 	// infinite loop that receives msgs from clients
 	for {

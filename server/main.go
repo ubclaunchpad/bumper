@@ -14,7 +14,7 @@ import (
 // Message is the schema for client/server communication
 type Message struct {
 	Type    string `json:"type"`
-	Id      int    `json:"id"`
+	ID      int    `json:"id"`
 	Message string `json:"message"`
 }
 
@@ -35,8 +35,9 @@ type ServerState struct {
 	Players []ObjectState
 }
 
-// ObjectState of an object, position and velocity
+// ObjectState of an object, position, velocity, id
 type ObjectState struct {
+	ID       int
 	position Position
 	velocity Velocity
 }
@@ -55,6 +56,11 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+/* 	handleConnection handles received messages from a client
+Upgrades the connection to be persistent
+Initializes the client connection to a map of clients
+Listens for messages and acts on different message formats
+*/
 func handleConnection(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -62,16 +68,21 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 	log.Println("accepted client")
+
 	// record this connection in our map
-	// Todo initialize state struct
-	clients[ws] = ObjectState{Position{0, 0}, Velocity{0, 0}}
+	// initialize state struct
+	clients[ws] = ObjectState{
+		0,
+		Position{0, 0},
+		Velocity{0, 0},
+	}
 
 	// infinite loop that receives msgs from clients
 	for {
 		var msg Message
 		// ReadJSON blocks until a message is received
 		err := ws.ReadJSON(&msg)
-		log.Printf("%+v\n", msg)
+		log.Printf("Message Received: %+v\n", msg)
 
 		// terminate connection if error occurs
 		if err != nil {
@@ -80,15 +91,28 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
+		// initial message received
 		if msg.Type == "initial" {
+			//reply with an initial message response establishing id
 			reply := createInitialReply(&msg)
-			ws.WriteJSON(reply)
+			err := ws.WriteJSON(reply)
+			if err != nil {
+				log.Printf("error initializing id:%d", reply.ID)
+				ws.Close()
+				delete(clients, ws)
+			}
+			//add player to map
+			clients[ws] = ObjectState{reply.ID, Position{}, Velocity{}}
+		} else { //update player in map
+			clients[ws] = ObjectState{msg.ID, Position{5, 5}, Velocity{6, 6}}
+			// for client := range clients {
+			// 	if clients[client].ID == msg.ID {
+			// 		clients[client] = ObjectState{msg.ID, Position{5, 5}, Velocity{6, 6}}
+			// 	}
+			// }
 		}
-		// else {
-		// 	// todo add player to map
-		// }
-
-		log.Printf("%+v\n", msg.Type)
+		log.Printf("Client %d State: %+v\n", msg.ID, clients[ws])
+		log.Printf("Message Type: %+v\n", msg.Type)
 		// pass received message to the global channel
 		//broadcast <- msg
 	}
@@ -96,15 +120,15 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 func createInitialReply(msg *Message) *Message {
 	fmt.Println("Creating initial id")
-	id := generateUniqueId()
+	id := generateUniqueID()
 	return &Message{
 		Type: "initial",
-		Id:   id,
+		ID:   id,
 	}
 
 }
 
-func generateUniqueId() int {
+func generateUniqueID() int {
 	return rand.Intn(1000)
 }
 

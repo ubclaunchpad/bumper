@@ -92,12 +92,12 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 				delete(clients, ws)
 			}
 			//add player to map
-			clients[ws] = ObjectState{reply.ID, Position{}, Velocity{}}
+			clients[ws] = ObjectState{reply.ID, Position{}}
 		} else { //update player in map
-			clients[ws] = ObjectState{msg.ID, Position{5, 5}, Velocity{6, 6}}
+			clients[ws] = ObjectState{msg.ID, Position{5, 5}}
 			// for client := range clients {
 			// 	if clients[client].ID == msg.ID {
-			// 		clients[client] = ObjectState{msg.ID, Position{5, 5}, Velocity{6, 6}}
+			// 		clients[client] = ObjectState{msg.ID, Position{5, 5}}}
 			// 	}
 			// }
 		}

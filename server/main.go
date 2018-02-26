@@ -12,8 +12,8 @@ import (
 
 // Position x y position
 type Position struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X float32 `json:"x"`
+	Y float32 `json:"y"`
 }
 
 // Message is the schema for client/server communication
@@ -91,13 +91,8 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			//add player to map
 			clients[ws] = &ObjectState{reply.ID, Position{}}
 		} else { //update player in map
-			//clients[ws] = ObjectState{msg.ID, Position{5, 5}}
 			clients[ws].Position.X = msg.Position.X
-			// for client := range clients {
-			// 	if clients[client].ID == msg.ID {
-			// 		clients[client] = ObjectState{msg.ID, Position{5, 5}}}
-			// 	}
-			// }
+			clients[ws].Position.Y = msg.Position.Y
 		}
 		log.Printf("Client %d State: %+v\n", msg.ID, *clients[ws])
 		log.Printf("Message Type: %+v\n", msg.Type)
@@ -105,6 +100,13 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 }
 
 func tick() {
+
+	// for client := range clients {
+	// 	if clients[client].ID == msg.ID {
+	// 		clients[client] = ObjectState{msg.ID, Position{5, 5}}}
+	// 	}
+	// }
+
 	tickCount := 0
 	for {
 		time.Sleep(time.Second * 5)

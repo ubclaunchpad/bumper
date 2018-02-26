@@ -4,7 +4,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -101,18 +100,16 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 func tick() {
 
-	// for client := range clients {
-	// 	if clients[client].ID == msg.ID {
-	// 		clients[client] = ObjectState{msg.ID, Position{5, 5}}}
-	// 	}
-	// }
-
-	tickCount := 0
 	for {
 		time.Sleep(time.Second * 5)
-		msg := Message{
-			Message: "tick" + strconv.Itoa(tickCount),
+		var objectarray []ObjectState
+		var msg ServerState
+
+		for client := range clients {
+			objectarray = append(objectarray, *clients[client])
 		}
+
+		msg.Players = objectarray
 		// update every client
 		for client := range clients {
 			err := client.WriteJSON(&msg)
@@ -122,8 +119,25 @@ func tick() {
 				delete(clients, client)
 			}
 		}
-		tickCount++
 	}
+
+	// tickCount := 0
+	// for {
+	// 	time.Sleep(time.Second * 5)
+	// 	msg := Message{
+	// 		Message: "tick" + strconv.Itoa(tickCount),
+	// 	}
+	// 	// update every client
+	// 	for client := range clients {
+	// 		err := client.WriteJSON(&msg)
+	// 		if err != nil {
+	// 			log.Printf("error: %v", err)
+	// 			client.Close()
+	// 			delete(clients, client)
+	// 		}
+	// 	}
+	// 	tickCount++
+	// }
 }
 
 func main() {

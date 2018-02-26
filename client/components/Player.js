@@ -66,10 +66,10 @@ export default class Player {
       this.theta = (this.theta - 0.1) % 360;
     }
 
-    if (this.downPressed) {
-      controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
-      controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
-    }
+    // if (this.downPressed) {
+    //   controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
+    //   controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
+    // }
 
     if (this.upPressed) {
       controlsVector.dy = (0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));

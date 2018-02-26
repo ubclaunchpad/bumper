@@ -54,7 +54,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	defer ws.Close()
-	log.Println("accepted client")
 
 	// record this connection in our map
 	// initialize state struct
@@ -99,7 +98,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 }
 
 func tick() {
-
 	for {
 		time.Sleep(time.Second * 5)
 		var objectarray []ObjectState
@@ -120,24 +118,6 @@ func tick() {
 			}
 		}
 	}
-
-	// tickCount := 0
-	// for {
-	// 	time.Sleep(time.Second * 5)
-	// 	msg := Message{
-	// 		Message: "tick" + strconv.Itoa(tickCount),
-	// 	}
-	// 	// update every client
-	// 	for client := range clients {
-	// 		err := client.WriteJSON(&msg)
-	// 		if err != nil {
-	// 			log.Printf("error: %v", err)
-	// 			client.Close()
-	// 			delete(clients, client)
-	// 		}
-	// 	}
-	// 	tickCount++
-	// }
 }
 
 func main() {

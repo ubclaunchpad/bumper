@@ -2,6 +2,7 @@ import React from 'react';
 import Player from './components/Player';
 import Hole from './components/Hole';
 import Junk from './components/Junk';
+import { generateRandomColor } from './utils/color';
 
 const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
@@ -62,11 +63,12 @@ export default class App extends React.Component {
 
       this.timerID = setInterval(
         () => this.updateClientMessage(),
-        1000,
+        17,
       );
     } else if (msg.type === 'update') {
-
-      // TODO find my own player in players
+      this.setState({
+        players: msg.players,
+      });
     }
   }
 
@@ -86,6 +88,7 @@ export default class App extends React.Component {
     this.socket.send(JSON.stringify({
       type: 'update',
       id: this.state.player.id,
+      position: this.state.player.position,
     }));
   }
 
@@ -184,7 +187,19 @@ export default class App extends React.Component {
       this.state.player.drawPlayer();
     }
 
-    // TODO: Draw other players
+    if (!this.state.players) return;
+
+    this.state.players.forEach((p) => {
+      if (p.id === this.state.player.id) return;
+
+      const ctx = this.canvas.getContext('2d');
+      const { x, y } = p.position;
+      ctx.beginPath();
+      ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = generateRandomColor();
+      ctx.fill();
+      ctx.closePath();
+    });
   }
 
   resizeCanvas() {

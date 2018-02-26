@@ -13,11 +13,7 @@ export default class Player {
     this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     this.velocity = { dx: 0, dy: 0 };
     this.theta = props.theta;
-    this.mass = props.mass || 10;
-
-    this.alive = true;
-    this.name = props.name || 'Default name';
-
+    
     let c = '';
     while (c.length < 6) {
       c += (Math.random()).toString(16).substr(-6).substr(-1);

@@ -7,12 +7,8 @@ export default class Junk {
     this.canvas = props.canvas;
     this.position = props.position;
     this.velocity = { dx: 0, dy: 0 };
-    this.lastBumped = null;
     this.color = 'white';
 
-    this.mass = props.mass || 10;
-    this.pointVal = props.pointVal || 50;
-    this.alive = true;
     this.drawJunk = this.drawJunk.bind(this);
   }
 

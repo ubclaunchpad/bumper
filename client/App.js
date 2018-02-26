@@ -34,7 +34,6 @@ export default class App extends React.Component {
       allCoords: [], // might need to change this
       junk: [],
       holes: [],
-      players: [],
       player: null,
     };
 

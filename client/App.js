@@ -63,7 +63,7 @@ export default class App extends React.Component {
 
       this.timerID = setInterval(
         () => this.updateClientMessage(),
-        17,
+        17, // 60 Hz
       );
     } else if (msg.type === 'update') {
       this.setState({

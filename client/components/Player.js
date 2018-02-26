@@ -64,7 +64,7 @@ export default class Player {
   }
 
   updatePosition() {
-    const controlsVector = { dx: 0, dy: 0 };
+    let controlsVector = { dx: 0, dy: 0 };
 
     if (this.leftPressed) {
       this.theta = (this.theta + 0.1) % 360;
@@ -85,7 +85,7 @@ export default class Player {
     }
 
     // Normalize controls vector and apply speed
-    normalize(controlsVector);
+    controlsVector = normalize(controlsVector);
     controlsVector.dx *= PLAYER_ACCELERATION;
     controlsVector.dy *= PLAYER_ACCELERATION;
 
@@ -100,7 +100,7 @@ export default class Player {
 
     // Ensure it never gets going too fast
     if (magnitude(this.velocity) > MAX_VELOCITY) {
-      normalize(this.velocity);
+      this.velocity = normalize(this.velocity);
       this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
       this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
     }

@@ -5,7 +5,11 @@ export function magnitude(vector) {
 export function normalize(vector) {
   const mag = magnitude(vector);
   if (mag > 0) {
-    vector.dx /= mag;
-    vector.dy /= mag;
+    return {
+      dx: vector.dx / mag,
+      dy: vector.dy / mag,
+    };
   }
+
+  return vector;
 }

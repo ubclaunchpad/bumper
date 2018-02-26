@@ -61,7 +61,7 @@ export default class App extends React.Component {
       this.state.player.id = msg.id;
       this.setState({ player: this.state.player });
 
-      this.timerID2 = setInterval(
+      this.timerID = setInterval(
         () => this.updateClientMessage(),
         1000,
       );

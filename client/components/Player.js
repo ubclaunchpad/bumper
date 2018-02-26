@@ -1,4 +1,4 @@
-import { magnitude, normalize } from '../utils/utils';
+import { magnitude, normalize } from '../utils/vector';
 
 const PLAYER_RADIUS = 25;
 const MAX_VELOCITY = 15;

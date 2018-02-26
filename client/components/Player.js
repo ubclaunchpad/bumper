@@ -5,8 +5,8 @@ const PLAYER_RADIUS = 25;
 const MAX_VELOCITY = 15;
 const PLAYER_ACCELERATION = 0.5;
 const PLAYER_FRICTION = 0.97;
-const WALL_BOUNCE_FACTOR = 1.5;
-const JUNK_BOUNCE_FACTOR = 0.25;
+const WALL_BOUNCE_FACTOR = -1.5;
+const JUNK_BOUNCE_FACTOR = -0.25;
 
 export default class Player {
   constructor(props) {
@@ -82,19 +82,17 @@ export default class Player {
     controlsVector.dy *= PLAYER_ACCELERATION;
 
     // Apply some friction damping
-    this.velocity.dx = this.velocity.dx * PLAYER_FRICTION;
-    this.velocity.dy = this.velocity.dy * PLAYER_FRICTION;
+    this.velocity.dx *= PLAYER_FRICTION;
+    this.velocity.dy *= PLAYER_FRICTION;
 
     this.velocity.dx += controlsVector.dx;
     this.velocity.dy += controlsVector.dy;
 
-    // console.log("vdx: " + this.velocity.dx + "vdy: " + this.velocity.dy);
-
     // Ensure it never gets going too fast
     if (magnitude(this.velocity) > MAX_VELOCITY) {
       this.velocity = normalize(this.velocity);
-      this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
-      this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
+      this.velocity.dx *= MAX_VELOCITY;
+      this.velocity.dy *= MAX_VELOCITY;
     }
 
     // Apply player's velocity vector
@@ -103,21 +101,21 @@ export default class Player {
 
     // Check wall collisions
     if (this.position.x + PLAYER_RADIUS > this.canvas.width) {
-      this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
+      this.velocity.dx *= WALL_BOUNCE_FACTOR;
     } else if (this.position.x - PLAYER_RADIUS < 0) {
-      this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
+      this.velocity.dx *= WALL_BOUNCE_FACTOR;
     }
 
     if (this.position.y + PLAYER_RADIUS > this.canvas.height) {
-      this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
+      this.velocity.dy *= WALL_BOUNCE_FACTOR;
     } else if (this.position.y - PLAYER_RADIUS < 0) {
-      this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
+      this.velocity.dy *= WALL_BOUNCE_FACTOR;
     }
   }
 
   hitJunk() {
-    this.velocity.dx *= -JUNK_BOUNCE_FACTOR;
-    this.velocity.dy *= -JUNK_BOUNCE_FACTOR;
+    this.velocity.dx *= JUNK_BOUNCE_FACTOR;
+    this.velocity.dy *= JUNK_BOUNCE_FACTOR;
   }
 
   keyDownHandler(e) {

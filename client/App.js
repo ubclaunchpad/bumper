@@ -12,7 +12,8 @@ const MAX_DISTANCE_BETWEEN = 50;
 
 const width = window.innerWidth;
 const height = window.innerHeight;
-const address = 'ws://localhost:9090/connect';
+// const address = 'ws://localhost:9090/connect';
+const address = 'wss://ertmyxmmjk.localtunnel.me/connect';
 
 // detect collision
 // (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2

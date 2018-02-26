@@ -87,7 +87,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 				delete(clients, ws)
 			}
 			//add player to map
-			clients[ws] = &ObjectState{reply.ID, Position{}}
+			clients[ws].ID = reply.ID
 		} else { //update player in map
 			clients[ws].Position.X = msg.Position.X
 			clients[ws].Position.Y = msg.Position.Y

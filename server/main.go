@@ -4,7 +4,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -12,30 +11,31 @@ import (
 
 // Position x y position
 type Position struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X float32 `json:"x"`
+	Y float32 `json:"y"`
 }
 
 // Message is the schema for client/server communication
 type Message struct {
 	Type     string   `json:"type"`
 	ID       int      `json:"id"`
-	Position Position `json:"pos"` //Position variable takes Position struct as datatype
+	Position Position `json:"position"` //Position variable takes Position struct as datatype
 	Message  string   `json:"message"`
 }
 
 // ServerState map of states for all players
 type ServerState struct {
-	Players []ObjectState
+	Type    string        `json:"type"`
+	Players []ObjectState `json:"players"`
 }
 
 // ObjectState of an object, position, velocity, id
 type ObjectState struct {
-	ID       int
-	position Position
+	ID       int      `json:"id"`
+	Position Position `json:"position"`
 }
 
-var clients = make(map[*websocket.Conn]ObjectState)
+var clients = make(map[*websocket.Conn]*ObjectState)
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -55,11 +55,10 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	defer ws.Close()
-	log.Println("accepted client")
 
 	// record this connection in our map
 	// initialize state struct
-	clients[ws] = ObjectState{
+	clients[ws] = &ObjectState{
 		0,
 		Position{0, 0},
 	}
@@ -89,27 +88,27 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 				delete(clients, ws)
 			}
 			//add player to map
-			clients[ws] = ObjectState{reply.ID, Position{}}
-		} else { //update player in map
-			clients[ws] = ObjectState{msg.ID, Position{5, 5}}
-			// for client := range clients {
-			// 	if clients[client].ID == msg.ID {
-			// 		clients[client] = ObjectState{msg.ID, Position{5, 5}}}
-			// 	}
-			// }
+			clients[ws].ID = reply.ID
+		} else {
+			//update player in map
+			clients[ws].Position.X = msg.Position.X
+			clients[ws].Position.Y = msg.Position.Y
 		}
-		log.Printf("Client %d State: %+v\n", msg.ID, clients[ws])
-		log.Printf("Message Type: %+v\n", msg.Type)
+		log.Printf("Client %d State: %+v\n", msg.ID, *clients[ws])
 	}
 }
 
 func tick() {
-	tickCount := 0
 	for {
 		time.Sleep(time.Second * 5)
-		msg := Message{
-			Message: "tick" + strconv.Itoa(tickCount),
+		var objectarray []ObjectState
+		msg := ServerState{Type: "update"}
+
+		for client := range clients {
+			objectarray = append(objectarray, *clients[client])
 		}
+
+		msg.Players = objectarray
 		// update every client
 		for client := range clients {
 			err := client.WriteJSON(&msg)
@@ -119,7 +118,6 @@ func tick() {
 				delete(clients, client)
 			}
 		}
-		tickCount++
 	}
 }
 

@@ -32,10 +32,10 @@ type ServerState struct {
 // ObjectState of an object, position, velocity, id
 type ObjectState struct {
 	ID       int
-	position Position
+	Position Position
 }
 
-var clients = make(map[*websocket.Conn]ObjectState)
+var clients = make(map[*websocket.Conn]*ObjectState)
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -59,7 +59,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 	// record this connection in our map
 	// initialize state struct
-	clients[ws] = ObjectState{
+	clients[ws] = &ObjectState{
 		0,
 		Position{0, 0},
 	}
@@ -89,16 +89,17 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 				delete(clients, ws)
 			}
 			//add player to map
-			clients[ws] = ObjectState{reply.ID, Position{}}
+			clients[ws] = &ObjectState{reply.ID, Position{}}
 		} else { //update player in map
-			clients[ws] = ObjectState{msg.ID, Position{5, 5}}
+			//clients[ws] = ObjectState{msg.ID, Position{5, 5}}
+			clients[ws].Position.X = msg.Position.X
 			// for client := range clients {
 			// 	if clients[client].ID == msg.ID {
 			// 		clients[client] = ObjectState{msg.ID, Position{5, 5}}}
 			// 	}
 			// }
 		}
-		log.Printf("Client %d State: %+v\n", msg.ID, clients[ws])
+		log.Printf("Client %d State: %+v\n", msg.ID, *clients[ws])
 		log.Printf("Message Type: %+v\n", msg.Type)
 	}
 }

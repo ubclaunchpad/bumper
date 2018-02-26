@@ -1,6 +1,6 @@
 const JUNK_SIZE = 15;
 const JUNK_FRICTION = 0.99;
-const JUNK_MINBUMP = 0.5;
+const JUNK_MINBUMP = 1.5;
 
 export default class Junk {
   constructor(props) {

@@ -1,4 +1,5 @@
 import { magnitude, normalize } from '../utils/vector';
+import { generateRandomColor } from '../utils/color';
 
 const PLAYER_RADIUS = 25;
 const MAX_VELOCITY = 15;
@@ -13,12 +14,7 @@ export default class Player {
     this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     this.velocity = { dx: 0, dy: 0 };
     this.theta = props.theta;
-    
-    let c = '';
-    while (c.length < 6) {
-      c += (Math.random()).toString(16).substr(-6).substr(-1);
-    }
-    this.color = `#${c}`;
+    this.color = generateRandomColor();
 
     this.rightPressed = false;
     this.leftPressed = false;

@@ -2,3 +2,5 @@
 **npm-debug.log
 
 /client/node_modules/
+/server/server
+/server/server.exe

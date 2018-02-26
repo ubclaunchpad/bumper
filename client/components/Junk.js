@@ -37,6 +37,8 @@ export default class Junk {
     } else {
       this.velocity.dy = Math.max(player.velocity.dy * 1.05, JUNK_MINBUMP);
     }
+
+    player.hitJunk();
   }
 
   updatePosition() {

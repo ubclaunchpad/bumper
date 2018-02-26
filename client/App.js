@@ -55,12 +55,9 @@ export default class App extends React.Component {
 
 
   handleServerMessage(msg) {
-    console.log("handling server message");
-    console.log(msg);
     if (msg.type === 'initial') {
       // add id to player
       // start update interval
-      console.log('RECEIVED INITIAL ID');
       this.state.player.id = msg.id;
       this.setState({ player: this.state.player });
 
@@ -75,10 +72,8 @@ export default class App extends React.Component {
   }
 
   initialClientMessage() {
-    console.log(this.socket);
-    
     if (this.socket.readyState !== 1) return;
-    console.log("SENDING INITIAL MESSAGE");
+
     this.socket.send(JSON.stringify({
       type: 'initial',
       id: 1,
@@ -87,7 +82,6 @@ export default class App extends React.Component {
   }
 
   updateClientMessage() {
-    console.log("SENDING update");
     if (this.socket.readyState !== 1) return;
 
     this.socket.send(JSON.stringify({
@@ -138,7 +132,6 @@ export default class App extends React.Component {
   // should appear somewhere in the centre
   generatePlayer() {
     const coords = this.generatePlayerCoords();
-    console.log(coords);
     const props = {
       x: coords.x,
       y: coords.y,
@@ -242,7 +235,6 @@ export default class App extends React.Component {
       if (this.state.player) {
         if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
           junk.hitBy(this.state.player);
-          this.state.player.hitJunk();
         }
       }
     });

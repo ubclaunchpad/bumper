@@ -100,7 +100,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 func tick() {
 	for {
-		time.Sleep(time.Millisecond * 17)
+		time.Sleep(time.Millisecond * 17) // 60 Hz
 		var objectarray []ObjectState
 		msg := ServerState{Type: "update"}
 

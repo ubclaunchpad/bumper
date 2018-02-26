@@ -19,7 +19,7 @@ type Position struct {
 type Message struct {
 	Type     string   `json:"type"`
 	ID       int      `json:"id"`
-	Position Position `json:"pos"` //Position variable takes Position struct as datatype
+	Position Position `json:"position"` //Position variable takes Position struct as datatype
 	Message  string   `json:"message"`
 }
 

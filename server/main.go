@@ -25,13 +25,14 @@ type Message struct {
 
 // ServerState map of states for all players
 type ServerState struct {
-	Players []ObjectState
+	Type    string        `json:"type"`
+	Players []ObjectState `json:"players"`
 }
 
 // ObjectState of an object, position, velocity, id
 type ObjectState struct {
-	ID       int
-	Position Position
+	ID       int      `json:"id"`
+	Position Position `json:"position"`
 }
 
 var clients = make(map[*websocket.Conn]*ObjectState)
@@ -101,7 +102,7 @@ func tick() {
 	for {
 		time.Sleep(time.Second * 5)
 		var objectarray []ObjectState
-		var msg ServerState
+		msg := ServerState{Type: "update"}
 
 		for client := range clients {
 			objectarray = append(objectarray, *clients[client])

@@ -7769,8 +7769,11 @@ var App = function (_React$Component) {
 
     if (window.WebSocket) {
       _this.socket = new WebSocket(address);
+      _this.socket.onopen = function () {
+        return _this.initialClientMessage();
+      };
       _this.socket.onmessage = function (event) {
-        return console.log(event.data);
+        return _this.handleServerMessage(JSON.parse(event.data));
       };
     } else {
       console.log('websocket not available');
@@ -7780,39 +7783,71 @@ var App = function (_React$Component) {
       allCoords: [], // might need to change this
       junk: [],
       holes: [],
+      players: [],
       player: null
     };
 
     _this.resizeCanvas = _this.resizeCanvas.bind(_this);
     _this.tick = _this.tick.bind(_this);
+    _this.initialClientMessage = _this.initialClientMessage.bind(_this);
     return _this;
   }
 
   _createClass(App, [{
     key: 'componentDidMount',
-    value: function componentDidMount() {
-      var _this2 = this;
-
+    value: async function componentDidMount() {
       this.canvas = document.getElementById('ctx');
       this.generateJunk();
-      this.generatePlayerCoordinates();
+      this.generatePlayer();
       this.generateHoles();
-
-      this.timerID2 = setInterval(function () {
-        return _this2.clientMessage();
-      }, 1000);
 
       window.addEventListener('resize', this.resizeCanvas);
       this.tick();
     }
   }, {
-    key: 'clientMessage',
-    value: function clientMessage() {
+    key: 'handleServerMessage',
+    value: function handleServerMessage(msg) {
+      var _this2 = this;
+
+      console.log("handling server message");
+      console.log(msg);
+      if (msg.type === 'initial') {
+        // add id to player
+        // start update interval
+        console.log('RECEIVED INITIAL ID');
+        this.state.player.id = msg.id;
+        this.setState({ player: this.state.player });
+
+        this.timerID2 = setInterval(function () {
+          return _this2.updateClientMessage();
+        }, 1000);
+      } else if (msg.type === 'update') {
+
+        // TODO find my own player in players
+      }
+    }
+  }, {
+    key: 'initialClientMessage',
+    value: function initialClientMessage() {
+      console.log(this.socket);
+
+      if (this.socket.readyState !== 1) return;
+      console.log("SENDING INITIAL MESSAGE");
+      this.socket.send(JSON.stringify({
+        type: 'initial',
+        id: 1,
+        message: 'hello'
+      }));
+    }
+  }, {
+    key: 'updateClientMessage',
+    value: function updateClientMessage() {
+      console.log("SENDING update");
       if (this.socket.readyState !== 1) return;
 
       this.socket.send(JSON.stringify({
-        message: 'client2',
-        data: 'foo'
+        type: 'update',
+        id: this.state.player.id
       }));
     }
   }, {
@@ -7850,26 +7885,37 @@ var App = function (_React$Component) {
       });
     }
 
-    // should appear somewhere in the centre
+    // TODO check for collisions
 
   }, {
-    key: 'generatePlayerCoordinates',
-    value: function generatePlayerCoordinates() {
+    key: 'generatePlayerCoords',
+    value: function generatePlayerCoords() {
       var maxWidth = 2 * width / 3;
       var minWidth = width / 3;
       var maxHeight = 2 * height / 3;
       var minHeight = height / 3;
       var x = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
       var y = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+      return { x: x, y: y };
+    }
+
+    // should appear somewhere in the centre
+
+  }, {
+    key: 'generatePlayer',
+    value: function generatePlayer() {
+      var coords = this.generatePlayerCoords();
+      console.log(coords);
       var props = {
-        x: x,
-        y: y,
+        x: coords.x,
+        y: coords.y,
         canvas: this.canvas,
         theta: 0
       };
-      this.state.allCoords.push({ x: x, y: y });
+      this.state.allCoords.push({ x: coords.x, y: coords.y });
+      var player = new _Player2.default(props);
       this.setState({
-        player: new _Player2.default(props),
+        player: player,
         allCoords: this.state.allCoords
       });
     }

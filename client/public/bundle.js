@@ -7727,11 +7727,11 @@ var _Player = __webpack_require__(28);
 
 var _Player2 = _interopRequireDefault(_Player);
 
-var _Hole = __webpack_require__(30);
+var _Hole = __webpack_require__(31);
 
 var _Hole2 = _interopRequireDefault(_Hole);
 
-var _Junk = __webpack_require__(31);
+var _Junk = __webpack_require__(32);
 
 var _Junk2 = _interopRequireDefault(_Junk);
 
@@ -7783,7 +7783,6 @@ var App = function (_React$Component) {
       allCoords: [], // might need to change this
       junk: [],
       holes: [],
-      players: [],
       player: null
     };
 
@@ -7809,16 +7808,13 @@ var App = function (_React$Component) {
     value: function handleServerMessage(msg) {
       var _this2 = this;
 
-      console.log("handling server message");
-      console.log(msg);
       if (msg.type === 'initial') {
         // add id to player
         // start update interval
-        console.log('RECEIVED INITIAL ID');
         this.state.player.id = msg.id;
         this.setState({ player: this.state.player });
 
-        this.timerID2 = setInterval(function () {
+        this.timerID = setInterval(function () {
           return _this2.updateClientMessage();
         }, 1000);
       } else if (msg.type === 'update') {
@@ -7829,10 +7825,8 @@ var App = function (_React$Component) {
   }, {
     key: 'initialClientMessage',
     value: function initialClientMessage() {
-      console.log(this.socket);
-
       if (this.socket.readyState !== 1) return;
-      console.log("SENDING INITIAL MESSAGE");
+
       this.socket.send(JSON.stringify({
         type: 'initial',
         id: 1,
@@ -7842,7 +7836,6 @@ var App = function (_React$Component) {
   }, {
     key: 'updateClientMessage',
     value: function updateClientMessage() {
-      console.log("SENDING update");
       if (this.socket.readyState !== 1) return;
 
       this.socket.send(JSON.stringify({
@@ -7905,7 +7898,6 @@ var App = function (_React$Component) {
     key: 'generatePlayer',
     value: function generatePlayer() {
       var coords = this.generatePlayerCoords();
-      console.log(coords);
       var props = {
         x: coords.x,
         y: coords.y,
@@ -8032,7 +8024,6 @@ var App = function (_React$Component) {
         if (_this6.state.player) {
           if (areCirclesColliding(_this6.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
             junk.hitBy(_this6.state.player);
-            _this6.state.player.hitJunk();
           }
         }
       });
@@ -8103,7 +8094,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = __webpack_require__(29);
+var _vector = __webpack_require__(29);
+
+var _color = __webpack_require__(30);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -8111,8 +8104,8 @@ var PLAYER_RADIUS = 25;
 var MAX_VELOCITY = 15;
 var PLAYER_ACCELERATION = 0.5;
 var PLAYER_FRICTION = 0.97;
-var WALL_BOUNCE_FACTOR = 1.5;
-var JUNK_BOUNCE_FACTOR = 0.25;
+var WALL_BOUNCE_FACTOR = -1.5;
+var JUNK_BOUNCE_FACTOR = -0.25;
 
 var Player = function () {
   function Player(props) {
@@ -8122,16 +8115,7 @@ var Player = function () {
     this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     this.velocity = { dx: 0, dy: 0 };
     this.theta = props.theta;
-    this.mass = props.mass || 10;
-
-    this.alive = true;
-    this.name = props.name || 'Default name';
-
-    var c = '';
-    while (c.length < 6) {
-      c += Math.random().toString(16).substr(-6).substr(-1);
-    }
-    this.color = '#' + c;
+    this.color = (0, _color.generateRandomColor)();
 
     this.rightPressed = false;
     this.leftPressed = false;
@@ -8189,10 +8173,10 @@ var Player = function () {
         this.theta = (this.theta - 0.1) % 360;
       }
 
-      if (this.downPressed) {
-        controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
-        controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
-      }
+      // if (this.downPressed) {
+      //   controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
+      //   controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
+      // }
 
       if (this.upPressed) {
         controlsVector.dy = 0.5 * (PLAYER_RADIUS * Math.cos(this.theta));
@@ -8200,24 +8184,22 @@ var Player = function () {
       }
 
       // Normalize controls vector and apply speed
-      (0, _utils.normalize)(controlsVector);
+      controlsVector = (0, _vector.normalize)(controlsVector);
       controlsVector.dx *= PLAYER_ACCELERATION;
       controlsVector.dy *= PLAYER_ACCELERATION;
 
       // Apply some friction damping
-      this.velocity.dx = this.velocity.dx * PLAYER_FRICTION;
-      this.velocity.dy = this.velocity.dy * PLAYER_FRICTION;
+      this.velocity.dx *= PLAYER_FRICTION;
+      this.velocity.dy *= PLAYER_FRICTION;
 
       this.velocity.dx += controlsVector.dx;
       this.velocity.dy += controlsVector.dy;
 
-      // console.log("vdx: " + this.velocity.dx + "vdy: " + this.velocity.dy);
-
       // Ensure it never gets going too fast
-      if ((0, _utils.magnitude)(this.velocity) > MAX_VELOCITY) {
-        (0, _utils.normalize)(this.velocity);
-        this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
-        this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
+      if ((0, _vector.magnitude)(this.velocity) > MAX_VELOCITY) {
+        this.velocity = (0, _vector.normalize)(this.velocity);
+        this.velocity.dx *= MAX_VELOCITY;
+        this.velocity.dy *= MAX_VELOCITY;
       }
 
       // Apply player's velocity vector
@@ -8226,22 +8208,22 @@ var Player = function () {
 
       // Check wall collisions
       if (this.position.x + PLAYER_RADIUS > this.canvas.width) {
-        this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
+        this.velocity.dx *= WALL_BOUNCE_FACTOR;
       } else if (this.position.x - PLAYER_RADIUS < 0) {
-        this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
+        this.velocity.dx *= WALL_BOUNCE_FACTOR;
       }
 
       if (this.position.y + PLAYER_RADIUS > this.canvas.height) {
-        this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
+        this.velocity.dy *= WALL_BOUNCE_FACTOR;
       } else if (this.position.y - PLAYER_RADIUS < 0) {
-        this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
+        this.velocity.dy *= WALL_BOUNCE_FACTOR;
       }
     }
   }, {
     key: 'hitJunk',
     value: function hitJunk() {
-      this.velocity.dx *= -JUNK_BOUNCE_FACTOR;
-      this.velocity.dy *= -JUNK_BOUNCE_FACTOR;
+      this.velocity.dx *= JUNK_BOUNCE_FACTOR;
+      this.velocity.dy *= JUNK_BOUNCE_FACTOR;
     }
   }, {
     key: 'keyDownHandler',
@@ -8295,13 +8277,37 @@ function magnitude(vector) {
 function normalize(vector) {
   var mag = magnitude(vector);
   if (mag > 0) {
-    vector.dx /= mag;
-    vector.dy /= mag;
+    return {
+      dx: vector.dx / mag,
+      dy: vector.dy / mag
+    };
   }
+
+  return vector;
 }
 
 /***/ }),
 /* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.generateRandomColor = generateRandomColor;
+// eslint-disable-next-line
+function generateRandomColor() {
+  var c = '';
+  while (c.length < 6) {
+    c += Math.random().toString(16).substr(-6).substr(-1);
+  }
+  return '#' + c;
+}
+
+/***/ }),
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8350,7 +8356,7 @@ var Hole = function () {
 exports.default = Hole;
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8375,12 +8381,8 @@ var Junk = function () {
     this.canvas = props.canvas;
     this.position = props.position;
     this.velocity = { dx: 0, dy: 0 };
-    this.lastBumped = null;
     this.color = 'white';
 
-    this.mass = props.mass || 10;
-    this.pointVal = props.pointVal || 50;
-    this.alive = true;
     this.drawJunk = this.drawJunk.bind(this);
   }
 
@@ -8408,6 +8410,8 @@ var Junk = function () {
       } else {
         this.velocity.dy = Math.max(player.velocity.dy * 1.05, JUNK_MINBUMP);
       }
+
+      player.hitJunk();
     }
   }, {
     key: 'updatePosition',

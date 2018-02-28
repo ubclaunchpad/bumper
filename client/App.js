@@ -168,6 +168,13 @@ export default class App extends React.Component {
           isColliding = true;
         }
       });
+      this.state.junk.forEach((junk) => {
+        const { position } = junk;
+        // Check every junk so we don't swallow them up
+        if (areCirclesColliding(position, JUNK_SIZE, coords, MAX_HOLE_RADIUS)) {
+          isColliding = true;
+        }
+      });
       // Check player to junk collisions
       if (this.state.player && !isColliding) {
         if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS * 3, coords, MAX_HOLE_RADIUS)) {

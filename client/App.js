@@ -9,6 +9,7 @@ const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
 const MAX_DISTANCE_BETWEEN = 50;
+const POINTS_PER_JUNK = 100;
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -36,6 +37,8 @@ export default class App extends React.Component {
       junk: [],
       holes: [],
       player: null,
+	  points: 0,
+	  playerColor: null,
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
@@ -185,6 +188,7 @@ export default class App extends React.Component {
   drawPlayers() {
     if (this.state.player) {
       this.state.player.drawPlayer();
+	  this.state.playerColor = this.state.player.color;
     }
 
     if (!this.state.players) return;
@@ -212,11 +216,29 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
-    // check for hole and player collistions
+    // check for hole and player collisions
     // TODO check rest of the possible collisions
     this.checkForCollisions();
     // eslint-disable-next-line
     requestAnimationFrame(this.tick);
+  }
+  
+  drawPlayerPoints() {
+	const ctx = this.canvas.getContext('2d');
+    ctx.beginPath();
+	var rectHeight = 40;
+	var rectWidth = 150;
+	var rectX = window.innerWidth - 150;
+	var rectY = 0;
+	ctx.rect(rectX, rectY, rectWidth, rectHeight);
+	ctx.fillStyle = this.state.playerColor;
+	ctx.fill();
+	ctx.font = "16px Lucida Sans Unicode";
+	ctx.textAlign="center"; 
+	ctx.textBaseline = "middle";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText("Points: " + this.state.points,rectX+(rectWidth/2)-10,rectY+(rectHeight/2)+2);
+	ctx.closePath();
   }
 
   checkForCollisions() {
@@ -226,17 +248,22 @@ export default class App extends React.Component {
       // Check the player
       if (this.state.player) {
         if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, radius)) {
-          this.setState({
+		  this.setState({
             player: null,
           });
+		  
         }
       }
       // Check each junk
       this.state.junk.forEach((junk) => {
         if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
           // Add points for the last bumper player here
+		  if(junk.lastHitBy !== null) {
+			junk.lastHitBy.points += POINTS_PER_JUNK;
+			this.state.points = junk.lastHitBy.points;
+		  }
           this.state.junk = this.state.junk.filter((j) => {
-            return j !== junk;
+			return j !== junk;
           });
           this.setState(this.state);
         }
@@ -260,6 +287,7 @@ export default class App extends React.Component {
     this.drawJunk();
     this.drawHoles();
     this.drawPlayers();
+	this.drawPlayerPoints();
     this.calculateNextState();
   }
 

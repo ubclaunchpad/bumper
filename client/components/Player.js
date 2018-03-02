@@ -15,7 +15,7 @@ export default class Player {
     this.velocity = { dx: 0, dy: 0 };
     this.theta = props.theta;
     this.color = generateRandomColor();
-	this.points = 0;
+    this.points = 0;
 
     this.rightPressed = false;
     this.leftPressed = false;
@@ -55,7 +55,6 @@ export default class Player {
     ctx.strokeWidth = 5;
     ctx.stroke();
   }
-  
 
   updatePosition() {
     let controlsVector = { dx: 0, dy: 0 };

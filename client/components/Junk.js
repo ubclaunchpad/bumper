@@ -1,7 +1,6 @@
 const JUNK_SIZE = 15;
 const JUNK_FRICTION = 0.99;
 const JUNK_MINBUMP = 0.5;
-const POINTS_PER_JUNK = 100;
 
 export default class Junk {
   constructor(props) {
@@ -9,7 +8,7 @@ export default class Junk {
     this.position = props.position;
     this.velocity = { dx: 0, dy: 0 };
     this.color = 'white';
-	this.lastHitBy = null;
+    this.lastHitBy = null;
 
     this.drawJunk = this.drawJunk.bind(this);
   }
@@ -25,7 +24,7 @@ export default class Junk {
 
   hitBy(player) {
     this.color = player.color;
-	this.lastHitBy = player;
+    this.lastHitBy = player;
     if (player.velocity.dx < 0) {
       this.velocity.dx = Math.min(player.velocity.dx * 1.05, -JUNK_MINBUMP);
     } else {

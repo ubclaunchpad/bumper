@@ -9,6 +9,7 @@ const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
 const MAX_DISTANCE_BETWEEN = 50;
+const POINTS_PER_JUNK = 100;
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -36,6 +37,7 @@ export default class App extends React.Component {
       junk: [],
       holes: [],
       player: null,
+      points: 0,
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
@@ -212,11 +214,31 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
-    // check for hole and player collistions
+    // check for hole and player collisions
     // TODO check rest of the possible collisions
     this.checkForCollisions();
     // eslint-disable-next-line
     requestAnimationFrame(this.tick);
+  }
+
+  drawPlayerPoints() {
+    if (!this.state.player) return;
+
+    const ctx = this.canvas.getContext('2d');
+    ctx.beginPath();
+    const rectHeight = 40;
+    const rectWidth = 150;
+    const rectX = window.innerWidth - 150;
+    const rectY = 0;
+    ctx.rect(rectX, rectY, rectWidth, rectHeight);
+    ctx.fillStyle = this.state.player.color;
+    ctx.fill();
+    ctx.font = '16px Lucida Sans Unicode';
+    ctx.textAlign = 'center'; 
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(`Points: ${this.state.player.points}`, rectX + (rectWidth / 2) - 10, rectY + (rectHeight / 2) + 2);
+    ctx.closePath();
   }
 
   checkForCollisions() {
@@ -231,10 +253,14 @@ export default class App extends React.Component {
           });
         }
       }
+
       // Check each junk
       this.state.junk.forEach((junk) => {
         if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
-          // Add points for the last bumper player here
+          if (junk.lastHitBy !== null) {
+            this.state.player.points += POINTS_PER_JUNK;
+          }
+
           this.state.junk = this.state.junk.filter((j) => {
             return j !== junk;
           });
@@ -260,6 +286,7 @@ export default class App extends React.Component {
     this.drawJunk();
     this.drawHoles();
     this.drawPlayers();
+    this.drawPlayerPoints();
     this.calculateNextState();
   }
 

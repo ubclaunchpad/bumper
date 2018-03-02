@@ -8,6 +8,7 @@ export default class Junk {
     this.position = props.position;
     this.velocity = { dx: 0, dy: 0 };
     this.color = 'white';
+    this.lastHitBy = null;
 
     this.drawJunk = this.drawJunk.bind(this);
   }
@@ -23,6 +24,7 @@ export default class Junk {
 
   hitBy(player) {
     this.color = player.color;
+    this.lastHitBy = player;
     if (player.velocity.dx < 0) {
       this.velocity.dx = Math.min(player.velocity.dx * 1.05, -JUNK_MINBUMP);
     } else {

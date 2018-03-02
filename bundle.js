@@ -2867,10 +2867,7 @@ var MAX_HOLE_LIFE = 75;
 
 var width = window.innerWidth;
 var height = window.innerHeight;
-
-console.log("production");
 var address =  true ? 'ws://ec2-18-218-38-25.us-east-2.compute.amazonaws.com:9090/connect' : 'ws://localhost:9090/connect';
-console.log(address);
 
 // detect collision
 // (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2

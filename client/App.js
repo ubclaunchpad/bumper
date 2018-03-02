@@ -11,6 +11,12 @@ const HOLE_COUNT = 10;
 const MAX_DISTANCE_BETWEEN = 50;
 const POINTS_PER_JUNK = 100;
 
+const MIN_HOLE_RADIUS = 15;
+const MAX_HOLE_RADIUS = 30;
+const MIN_HOLE_LIFE = 25;
+const MAX_HOLE_LIFE = 75;
+
+
 const width = window.innerWidth;
 const height = window.innerHeight;
 const address = 'ws://localhost:9090/connect';
@@ -112,6 +118,8 @@ export default class App extends React.Component {
     newCoords.forEach((coord) => {
       const props = {
         position: { x: coord.x, y: coord.y },
+        radius: Math.floor(Math.random() * ((MAX_HOLE_RADIUS - MIN_HOLE_RADIUS) + 1)) + MIN_HOLE_RADIUS,
+        lifespan: Math.floor(Math.random() * ((MAX_HOLE_LIFE - MIN_HOLE_LIFE) + 1)) + MIN_HOLE_LIFE,
         canvas: this.canvas,
       };
       const hole = new Hole(props);
@@ -176,8 +184,59 @@ export default class App extends React.Component {
     return coords;
   }
 
+  generateNewHoleCoords() {
+    // make sure object radius isn't outside of canvas
+    const maxWidth = width - MAX_DISTANCE_BETWEEN;
+    const minWidth = MAX_DISTANCE_BETWEEN;
+    const maxHeight = height - MAX_DISTANCE_BETWEEN;
+    const minHeight = MAX_DISTANCE_BETWEEN;
+
+    const coords = { x: 0, y: 0 };
+    while (true) {
+      coords.x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
+      coords.y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
+
+      let isColliding = false;
+      this.state.holes.forEach((hole) => {
+        const { position } = hole;
+        // Check every other
+        if (areCirclesColliding(position, MAX_HOLE_RADIUS, coords, MAX_HOLE_RADIUS)) {
+          isColliding = true;
+        }
+      });
+      this.state.junk.forEach((junk) => {
+        const { position } = junk;
+        // Check every junk so we don't swallow them up
+        if (areCirclesColliding(position, JUNK_SIZE, coords, MAX_HOLE_RADIUS)) {
+          isColliding = true;
+        }
+      });
+      // Check player to junk collisions
+      if (this.state.player && !isColliding) {
+        if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS * 3, coords, MAX_HOLE_RADIUS)) {
+          isColliding = true;
+        }
+      }
+
+      // Dangerous infite loop?
+      if (!isColliding) {
+        break;
+      }
+    }
+    return coords;
+  }
+
   drawHoles() {
-    this.state.holes.forEach(h => h.drawHole());
+    this.state.holes.forEach((hole) => {
+      if (hole.drawHole() === false) {
+        const newCoords = this.generateNewHoleCoords();
+        const newRadius = Math.floor(Math.random() * ((MAX_HOLE_RADIUS - MIN_HOLE_RADIUS) + 1)) + MIN_HOLE_RADIUS;
+        const newLifespan = Math.floor(Math.random() * ((MAX_HOLE_LIFE - MIN_HOLE_LIFE) + 1)) + MIN_HOLE_LIFE;
+        hole.startNewLife(newCoords, newRadius, newLifespan);
+        // this.state.holes = this.state.holes.filter(h => h !== hole);
+        // this.setState(this.state);
+      }
+    });
   }
 
   drawJunk() {
@@ -257,13 +316,12 @@ export default class App extends React.Component {
       // Check each junk
       this.state.junk.forEach((junk) => {
         if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
+          // Add points for the last bumper player here
           if (junk.lastHitBy !== null) {
             this.state.player.points += POINTS_PER_JUNK;
           }
 
-          this.state.junk = this.state.junk.filter((j) => {
-            return j !== junk;
-          });
+          this.state.junk = this.state.junk.filter(j => j !== junk);
           this.setState(this.state);
         }
       });

@@ -7772,6 +7772,11 @@ var HOLE_COUNT = 10;
 var MAX_DISTANCE_BETWEEN = 50;
 var POINTS_PER_JUNK = 100;
 
+var MIN_HOLE_RADIUS = 15;
+var MAX_HOLE_RADIUS = 30;
+var MIN_HOLE_LIFE = 25;
+var MAX_HOLE_LIFE = 75;
+
 var width = window.innerWidth;
 var height = window.innerHeight;
 var address = 'ws://localhost:9090/connect';
@@ -7895,6 +7900,8 @@ var App = function (_React$Component) {
       newCoords.forEach(function (coord) {
         var props = {
           position: { x: coord.x, y: coord.y },
+          radius: Math.floor(Math.random() * (MAX_HOLE_RADIUS - MIN_HOLE_RADIUS + 1)) + MIN_HOLE_RADIUS,
+          lifespan: Math.floor(Math.random() * (MAX_HOLE_LIFE - MIN_HOLE_LIFE + 1)) + MIN_HOLE_LIFE,
           canvas: _this4.canvas
         };
         var hole = new _Hole2.default(props);
@@ -7973,10 +7980,64 @@ var App = function (_React$Component) {
       return coords;
     }
   }, {
+    key: 'generateNewHoleCoords',
+    value: function generateNewHoleCoords() {
+      // make sure object radius isn't outside of canvas
+      var maxWidth = width - MAX_DISTANCE_BETWEEN;
+      var minWidth = MAX_DISTANCE_BETWEEN;
+      var maxHeight = height - MAX_DISTANCE_BETWEEN;
+      var minHeight = MAX_DISTANCE_BETWEEN;
+
+      var coords = { x: 0, y: 0 };
+      while (true) {
+        coords.x = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
+        coords.y = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+        var isColliding = false;
+        this.state.holes.forEach(function (hole) {
+          var position = hole.position;
+          // Check every other
+
+          if (areCirclesColliding(position, MAX_HOLE_RADIUS, coords, MAX_HOLE_RADIUS)) {
+            isColliding = true;
+          }
+        });
+        this.state.junk.forEach(function (junk) {
+          var position = junk.position;
+          // Check every junk so we don't swallow them up
+
+          if (areCirclesColliding(position, JUNK_SIZE, coords, MAX_HOLE_RADIUS)) {
+            isColliding = true;
+          }
+        });
+        // Check player to junk collisions
+        if (this.state.player && !isColliding) {
+          if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS * 3, coords, MAX_HOLE_RADIUS)) {
+            isColliding = true;
+          }
+        }
+
+        // Dangerous infite loop?
+        if (!isColliding) {
+          break;
+        }
+      }
+      return coords;
+    }
+  }, {
     key: 'drawHoles',
     value: function drawHoles() {
-      this.state.holes.forEach(function (h) {
-        return h.drawHole();
+      var _this6 = this;
+
+      this.state.holes.forEach(function (hole) {
+        if (hole.drawHole() === false) {
+          var newCoords = _this6.generateNewHoleCoords();
+          var newRadius = Math.floor(Math.random() * (MAX_HOLE_RADIUS - MIN_HOLE_RADIUS + 1)) + MIN_HOLE_RADIUS;
+          var newLifespan = Math.floor(Math.random() * (MAX_HOLE_LIFE - MIN_HOLE_LIFE + 1)) + MIN_HOLE_LIFE;
+          hole.startNewLife(newCoords, newRadius, newLifespan);
+          // this.state.holes = this.state.holes.filter(h => h !== hole);
+          // this.setState(this.state);
+        }
       });
     }
   }, {
@@ -7989,7 +8050,7 @@ var App = function (_React$Component) {
   }, {
     key: 'drawPlayers',
     value: function drawPlayers() {
-      var _this6 = this;
+      var _this7 = this;
 
       if (this.state.player) {
         this.state.player.drawPlayer();
@@ -7998,9 +8059,9 @@ var App = function (_React$Component) {
       if (!this.state.players) return;
 
       this.state.players.forEach(function (p) {
-        if (p.id === _this6.state.player.id) return;
+        if (p.id === _this7.state.player.id) return;
 
-        var ctx = _this6.canvas.getContext('2d');
+        var ctx = _this7.canvas.getContext('2d');
         var _p$position = p.position,
             x = _p$position.x,
             y = _p$position.y;
@@ -8055,7 +8116,7 @@ var App = function (_React$Component) {
   }, {
     key: 'checkForCollisions',
     value: function checkForCollisions() {
-      var _this7 = this;
+      var _this8 = this;
 
       // Check hole to player/junk collisions
       this.state.holes.forEach(function (hole) {
@@ -8063,25 +8124,26 @@ var App = function (_React$Component) {
             radius = hole.radius;
         // Check the player
 
-        if (_this7.state.player) {
-          if (areCirclesColliding(_this7.state.player.position, PLAYER_RADIUS, position, radius)) {
-            _this7.setState({
+        if (_this8.state.player) {
+          if (areCirclesColliding(_this8.state.player.position, PLAYER_RADIUS, position, radius)) {
+            _this8.setState({
               player: null
             });
           }
         }
 
         // Check each junk
-        _this7.state.junk.forEach(function (junk) {
+        _this8.state.junk.forEach(function (junk) {
           if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
+            // Add points for the last bumper player here
             if (junk.lastHitBy !== null) {
-              _this7.state.player.points += POINTS_PER_JUNK;
+              _this8.state.player.points += POINTS_PER_JUNK;
             }
 
-            _this7.state.junk = _this7.state.junk.filter(function (j) {
+            _this8.state.junk = _this8.state.junk.filter(function (j) {
               return j !== junk;
             });
-            _this7.setState(_this7.state);
+            _this8.setState(_this8.state);
           }
         });
       });
@@ -8090,9 +8152,9 @@ var App = function (_React$Component) {
       this.state.junk.forEach(function (junk) {
         var position = junk.position;
 
-        if (_this7.state.player) {
-          if (areCirclesColliding(_this7.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
-            junk.hitBy(_this7.state.player);
+        if (_this8.state.player) {
+          if (areCirclesColliding(_this8.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
+            junk.hitBy(_this8.state.player);
           }
         }
       });
@@ -8372,19 +8434,35 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var MAX_RADIUS = 45;
+
 var Hole = function () {
   function Hole(props) {
+    var _this = this;
+
     _classCallCheck(this, Hole);
 
     this.canvas = props.canvas;
     this.position = props.position;
-    this.radius = 25;
-    this.lifespan = 20000;
+    this.radius = props.radius;
+    this.lifespan = props.lifespan;
     this.getPositionAndRadius = this.getPositionAndRadius.bind(this);
     this.drawHole = this.drawHole.bind(this);
+
+    this.lifeTimer = setInterval(function () {
+      _this.lifespan -= 1;
+      if (_this.radius < MAX_RADIUS) _this.radius += 0.25;
+    }, 250);
   }
 
   _createClass(Hole, [{
+    key: 'startNewLife',
+    value: function startNewLife(newCoords, newRadius, newLifespan) {
+      this.position = newCoords;
+      this.radius = newRadius;
+      this.lifespan = newLifespan;
+    }
+  }, {
     key: 'getPositionAndRadius',
     value: function getPositionAndRadius() {
       return { position: this.position, radius: this.radius };
@@ -8392,12 +8470,17 @@ var Hole = function () {
   }, {
     key: 'drawHole',
     value: function drawHole() {
-      var ctx = this.canvas.getContext('2d');
-      ctx.beginPath();
-      ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-      ctx.fillStyle = 'white';
-      ctx.fill();
-      ctx.closePath();
+      if (this.lifespan > 0) {
+        var ctx = this.canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.closePath();
+        return true;
+      }
+
+      return false;
     }
   }]);
 
@@ -8423,7 +8506,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var JUNK_SIZE = 15;
 var JUNK_FRICTION = 0.99;
-var JUNK_MINBUMP = 0.5;
+var JUNK_MINBUMP = 1.5;
 
 var Junk = function () {
   function Junk(props) {

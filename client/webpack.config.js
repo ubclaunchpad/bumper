@@ -1,4 +1,6 @@
 /* eslint-disable */
+const webpack = require('webpack');
+
 const config = {
   entry: './index.js',
   output: {
@@ -22,6 +24,9 @@ const config = {
       },
     ],
   },
+  plugins: [
+    new webpack.EnvironmentPlugin(['NODE_ENV'])
+  ]
 };
 
-module.exports = config;
+module.exports = env => config;

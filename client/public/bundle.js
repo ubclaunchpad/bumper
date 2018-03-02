@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 14);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -306,9 +306,9 @@ module.exports = emptyFunction;
 /* WEBPACK VAR INJECTION */(function(process) {
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports = __webpack_require__(15);
-} else {
   module.exports = __webpack_require__(16);
+} else {
+  module.exports = __webpack_require__(17);
 }
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
@@ -580,7 +580,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 if (process.env.NODE_ENV !== 'production') {
   var invariant = __webpack_require__(5);
   var warning = __webpack_require__(6);
-  var ReactPropTypesSecret = __webpack_require__(17);
+  var ReactPropTypesSecret = __webpack_require__(18);
   var loggedTypeFailures = {};
 }
 
@@ -881,7 +881,7 @@ module.exports = shallowEqual;
  * 
  */
 
-var isTextNode = __webpack_require__(20);
+var isTextNode = __webpack_require__(21);
 
 /*eslint-disable no-bitwise */
 
@@ -945,15 +945,35 @@ module.exports = focusNode;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.generateRandomColor = generateRandomColor;
+// eslint-disable-next-line
+function generateRandomColor() {
+  var c = '';
+  while (c.length < 6) {
+    c += Math.random().toString(16).substr(-6).substr(-1);
+  }
+  return '#' + c;
+}
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var _react = __webpack_require__(2);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(18);
+var _reactDom = __webpack_require__(19);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _App = __webpack_require__(27);
+var _App = __webpack_require__(28);
 
 var _App2 = _interopRequireDefault(_App);
 
@@ -962,7 +982,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _reactDom2.default.render(_react2.default.createElement(_App2.default, null), document.getElementById('app'));
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1091,7 +1111,7 @@ var U = { Children: { map: function map(a, b, e) {
     W = V && U || V;module.exports = W["default"] ? W["default"] : W;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2451,7 +2471,7 @@ if (process.env.NODE_ENV !== "production") {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2469,7 +2489,7 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 module.exports = ReactPropTypesSecret;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2504,14 +2524,14 @@ if (process.env.NODE_ENV === 'production') {
   // DCE check should happen before ReactDOM bundle executes so that
   // DevTools can report bad minification during injection.
   checkDCE();
-  module.exports = __webpack_require__(19);
+  module.exports = __webpack_require__(20);
 } else {
-  module.exports = __webpack_require__(22);
+  module.exports = __webpack_require__(23);
 }
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4508,7 +4528,7 @@ Z.injectIntoDevTools({ findFiberByHostInstance: pb, bundleType: 0, version: "16.
     Ug = Tg && Sg || Tg;module.exports = Ug["default"] ? Ug["default"] : Ug;
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4523,7 +4543,7 @@ Z.injectIntoDevTools({ findFiberByHostInstance: pb, bundleType: 0, version: "16.
  * @typechecks
  */
 
-var isNode = __webpack_require__(21);
+var isNode = __webpack_require__(22);
 
 /**
  * @param {*} object The object to check.
@@ -4536,7 +4556,7 @@ function isTextNode(object) {
 module.exports = isTextNode;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4567,7 +4587,7 @@ function isNode(object) {
 module.exports = isNode;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4578,7 +4598,7 @@ module.exports = isNode;
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- */var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj;};if(process.env.NODE_ENV!=="production"){(function(){'use strict';var React=__webpack_require__(2);var invariant=__webpack_require__(5);var warning=__webpack_require__(6);var ExecutionEnvironment=__webpack_require__(8);var _assign=__webpack_require__(3);var emptyFunction=__webpack_require__(1);var EventListener=__webpack_require__(9);var getActiveElement=__webpack_require__(10);var shallowEqual=__webpack_require__(11);var containsNode=__webpack_require__(12);var focusNode=__webpack_require__(13);var emptyObject=__webpack_require__(4);var checkPropTypes=__webpack_require__(7);var hyphenateStyleName=__webpack_require__(23);var camelizeStyleName=__webpack_require__(25);/**
+ */var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj;};if(process.env.NODE_ENV!=="production"){(function(){'use strict';var React=__webpack_require__(2);var invariant=__webpack_require__(5);var warning=__webpack_require__(6);var ExecutionEnvironment=__webpack_require__(8);var _assign=__webpack_require__(3);var emptyFunction=__webpack_require__(1);var EventListener=__webpack_require__(9);var getActiveElement=__webpack_require__(10);var shallowEqual=__webpack_require__(11);var containsNode=__webpack_require__(12);var focusNode=__webpack_require__(13);var emptyObject=__webpack_require__(4);var checkPropTypes=__webpack_require__(7);var hyphenateStyleName=__webpack_require__(24);var camelizeStyleName=__webpack_require__(26);/**
  * WARNING: DO NOT manually require this module.
  * This is a replacement for `invariant(...)` used by the error code system
  * and will _only_ be required by the corresponding babel pass.
@@ -7551,7 +7571,7 @@ var reactDom=ReactDOM$3['default']?ReactDOM$3['default']:ReactDOM$3;module.expor
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7566,7 +7586,7 @@ var reactDom=ReactDOM$3['default']?ReactDOM$3['default']:ReactDOM$3;module.expor
 
 
 
-var hyphenate = __webpack_require__(24);
+var hyphenate = __webpack_require__(25);
 
 var msPattern = /^ms-/;
 
@@ -7593,7 +7613,7 @@ function hyphenateStyleName(string) {
 module.exports = hyphenateStyleName;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7629,7 +7649,7 @@ function hyphenate(string) {
 module.exports = hyphenate;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7644,7 +7664,7 @@ module.exports = hyphenate;
 
 
 
-var camelize = __webpack_require__(26);
+var camelize = __webpack_require__(27);
 
 var msPattern = /^-ms-/;
 
@@ -7672,7 +7692,7 @@ function camelizeStyleName(string) {
 module.exports = camelizeStyleName;
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7707,7 +7727,7 @@ function camelize(string) {
 module.exports = camelize;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7723,7 +7743,7 @@ var _react = __webpack_require__(2);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Player = __webpack_require__(28);
+var _Player = __webpack_require__(29);
 
 var _Player2 = _interopRequireDefault(_Player);
 
@@ -7734,6 +7754,8 @@ var _Hole2 = _interopRequireDefault(_Hole);
 var _Junk = __webpack_require__(32);
 
 var _Junk2 = _interopRequireDefault(_Junk);
+
+var _color = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7748,6 +7770,7 @@ var JUNK_COUNT = 10;
 var JUNK_SIZE = 15;
 var HOLE_COUNT = 10;
 var MAX_DISTANCE_BETWEEN = 50;
+var POINTS_PER_JUNK = 100;
 
 var width = window.innerWidth;
 var height = window.innerHeight;
@@ -7783,7 +7806,8 @@ var App = function (_React$Component) {
       allCoords: [], // might need to change this
       junk: [],
       holes: [],
-      player: null
+      player: null,
+      points: 0
     };
 
     _this.resizeCanvas = _this.resizeCanvas.bind(_this);
@@ -7816,10 +7840,12 @@ var App = function (_React$Component) {
 
         this.timerID = setInterval(function () {
           return _this2.updateClientMessage();
-        }, 1000);
+        }, 17 // 60 Hz
+        );
       } else if (msg.type === 'update') {
-
-        // TODO find my own player in players
+        this.setState({
+          players: msg.players
+        });
       }
     }
   }, {
@@ -7840,7 +7866,8 @@ var App = function (_React$Component) {
 
       this.socket.send(JSON.stringify({
         type: 'update',
-        id: this.state.player.id
+        id: this.state.player.id,
+        position: this.state.player.position
       }));
     }
   }, {
@@ -7962,11 +7989,28 @@ var App = function (_React$Component) {
   }, {
     key: 'drawPlayers',
     value: function drawPlayers() {
+      var _this6 = this;
+
       if (this.state.player) {
         this.state.player.drawPlayer();
       }
 
-      // TODO: Draw other players
+      if (!this.state.players) return;
+
+      this.state.players.forEach(function (p) {
+        if (p.id === _this6.state.player.id) return;
+
+        var ctx = _this6.canvas.getContext('2d');
+        var _p$position = p.position,
+            x = _p$position.x,
+            y = _p$position.y;
+
+        ctx.beginPath();
+        ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = (0, _color.generateRandomColor)();
+        ctx.fill();
+        ctx.closePath();
+      });
     }
   }, {
     key: 'resizeCanvas',
@@ -7981,16 +8025,37 @@ var App = function (_React$Component) {
     key: 'tick',
     value: function tick() {
       this.updateCanvas();
-      // check for hole and player collistions
+      // check for hole and player collisions
       // TODO check rest of the possible collisions
       this.checkForCollisions();
       // eslint-disable-next-line
       requestAnimationFrame(this.tick);
     }
   }, {
+    key: 'drawPlayerPoints',
+    value: function drawPlayerPoints() {
+      if (!this.state.player) return;
+
+      var ctx = this.canvas.getContext('2d');
+      ctx.beginPath();
+      var rectHeight = 40;
+      var rectWidth = 150;
+      var rectX = window.innerWidth - 150;
+      var rectY = 0;
+      ctx.rect(rectX, rectY, rectWidth, rectHeight);
+      ctx.fillStyle = this.state.player.color;
+      ctx.fill();
+      ctx.font = '16px Lucida Sans Unicode';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText('Points: ' + this.state.player.points, rectX + rectWidth / 2 - 10, rectY + rectHeight / 2 + 2);
+      ctx.closePath();
+    }
+  }, {
     key: 'checkForCollisions',
     value: function checkForCollisions() {
-      var _this6 = this;
+      var _this7 = this;
 
       // Check hole to player/junk collisions
       this.state.holes.forEach(function (hole) {
@@ -7998,21 +8063,25 @@ var App = function (_React$Component) {
             radius = hole.radius;
         // Check the player
 
-        if (_this6.state.player) {
-          if (areCirclesColliding(_this6.state.player.position, PLAYER_RADIUS, position, radius)) {
-            _this6.setState({
+        if (_this7.state.player) {
+          if (areCirclesColliding(_this7.state.player.position, PLAYER_RADIUS, position, radius)) {
+            _this7.setState({
               player: null
             });
           }
         }
+
         // Check each junk
-        _this6.state.junk.forEach(function (junk) {
+        _this7.state.junk.forEach(function (junk) {
           if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
-            // Add points for the last bumper player here
-            _this6.state.junk = _this6.state.junk.filter(function (j) {
+            if (junk.lastHitBy !== null) {
+              _this7.state.player.points += POINTS_PER_JUNK;
+            }
+
+            _this7.state.junk = _this7.state.junk.filter(function (j) {
               return j !== junk;
             });
-            _this6.setState(_this6.state);
+            _this7.setState(_this7.state);
           }
         });
       });
@@ -8021,9 +8090,9 @@ var App = function (_React$Component) {
       this.state.junk.forEach(function (junk) {
         var position = junk.position;
 
-        if (_this6.state.player) {
-          if (areCirclesColliding(_this6.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
-            junk.hitBy(_this6.state.player);
+        if (_this7.state.player) {
+          if (areCirclesColliding(_this7.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
+            junk.hitBy(_this7.state.player);
           }
         }
       });
@@ -8036,6 +8105,7 @@ var App = function (_React$Component) {
       this.drawJunk();
       this.drawHoles();
       this.drawPlayers();
+      this.drawPlayerPoints();
       this.calculateNextState();
     }
   }, {
@@ -8082,7 +8152,7 @@ var styles = {
 };
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8094,9 +8164,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _vector = __webpack_require__(29);
+var _vector = __webpack_require__(30);
 
-var _color = __webpack_require__(30);
+var _color = __webpack_require__(14);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -8116,6 +8186,7 @@ var Player = function () {
     this.velocity = { dx: 0, dy: 0 };
     this.theta = props.theta;
     this.color = (0, _color.generateRandomColor)();
+    this.points = 0;
 
     this.rightPressed = false;
     this.leftPressed = false;
@@ -8259,7 +8330,7 @@ var Player = function () {
 exports.default = Player;
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8284,26 +8355,6 @@ function normalize(vector) {
   }
 
   return vector;
-}
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.generateRandomColor = generateRandomColor;
-// eslint-disable-next-line
-function generateRandomColor() {
-  var c = '';
-  while (c.length < 6) {
-    c += Math.random().toString(16).substr(-6).substr(-1);
-  }
-  return '#' + c;
 }
 
 /***/ }),
@@ -8382,6 +8433,7 @@ var Junk = function () {
     this.position = props.position;
     this.velocity = { dx: 0, dy: 0 };
     this.color = 'white';
+    this.lastHitBy = null;
 
     this.drawJunk = this.drawJunk.bind(this);
   }
@@ -8400,6 +8452,7 @@ var Junk = function () {
     key: 'hitBy',
     value: function hitBy(player) {
       this.color = player.color;
+      this.lastHitBy = player;
       if (player.velocity.dx < 0) {
         this.velocity.dx = Math.min(player.velocity.dx * 1.05, -JUNK_MINBUMP);
       } else {

@@ -122,6 +122,9 @@ func tick() {
 }
 
 func main() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 	http.HandleFunc("/connect", handleConnection)
 	go tick()
 

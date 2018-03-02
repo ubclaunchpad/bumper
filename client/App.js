@@ -16,10 +16,11 @@ const MAX_HOLE_RADIUS = 30;
 const MIN_HOLE_LIFE = 25;
 const MAX_HOLE_LIFE = 75;
 
-
 const width = window.innerWidth;
 const height = window.innerHeight;
-const address = 'ws://localhost:9090/connect';
+const address = process.env.NODE_ENV === 'production'
+  ? 'ws://ec2-18-218-38-25.us-east-2.compute.amazonaws.com:9090/connect'
+  : 'ws://localhost:9090/connect';
 
 // detect collision
 // (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
@@ -91,7 +92,7 @@ export default class App extends React.Component {
   }
 
   updateClientMessage() {
-    if (this.socket.readyState !== 1) return;
+    if (this.socket.readyState !== 1 || !this.state.player) return;
 
     this.socket.send(JSON.stringify({
       type: 'update',

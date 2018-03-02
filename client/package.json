@@ -4,8 +4,8 @@
   "description": "bump other players off to stay alive",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --hot",
-    "build": "webpack",
+    "start": "NODE_ENV=development webpack-dev-server --hot",
+    "build": "NODE_ENV=production webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "cd .. && git subtree push --prefix client/public origin gh-pages"
   },

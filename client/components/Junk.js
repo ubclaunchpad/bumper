@@ -7,12 +7,9 @@ export default class Junk {
     this.canvas = props.canvas;
     this.position = props.position;
     this.velocity = { dx: 0, dy: 0 };
-    this.lastBumped = null;
     this.color = 'white';
+    this.lastHitBy = null;
 
-    this.mass = props.mass || 10;
-    this.pointVal = props.pointVal || 50;
-    this.alive = true;
     this.drawJunk = this.drawJunk.bind(this);
   }
 
@@ -27,6 +24,7 @@ export default class Junk {
 
   hitBy(player) {
     this.color = player.color;
+    this.lastHitBy = player;
     if (player.velocity.dx < 0) {
       this.velocity.dx = Math.min(player.velocity.dx * 1.05, -JUNK_MINBUMP);
     } else {
@@ -37,6 +35,8 @@ export default class Junk {
     } else {
       this.velocity.dy = Math.max(player.velocity.dy * 1.05, JUNK_MINBUMP);
     }
+
+    player.hitJunk();
   }
 
   updatePosition() {

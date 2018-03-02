@@ -1,11 +1,12 @@
-import { magnitude, normalize } from '../utils/utils';
+import { magnitude, normalize } from '../utils/vector';
+import { generateRandomColor } from '../utils/color';
 
 const PLAYER_RADIUS = 25;
 const MAX_VELOCITY = 15;
 const PLAYER_ACCELERATION = 0.5;
 const PLAYER_FRICTION = 0.97;
-const WALL_BOUNCE_FACTOR = 1.5;
-const JUNK_BOUNCE_FACTOR = 0.25;
+const WALL_BOUNCE_FACTOR = -1.5;
+const JUNK_BOUNCE_FACTOR = -0.25;
 
 export default class Player {
   constructor(props) {
@@ -13,16 +14,8 @@ export default class Player {
     this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     this.velocity = { dx: 0, dy: 0 };
     this.theta = props.theta;
-    this.mass = props.mass || 10;
-
-    this.alive = true;
-    this.name = props.name || 'Default name';
-
-    let c = '';
-    while (c.length < 6) {
-      c += (Math.random()).toString(16).substr(-6).substr(-1);
-    }
-    this.color = `#${c}`;
+    this.color = generateRandomColor();
+    this.points = 0;
 
     this.rightPressed = false;
     this.leftPressed = false;
@@ -64,7 +57,7 @@ export default class Player {
   }
 
   updatePosition() {
-    const controlsVector = { dx: 0, dy: 0 };
+    let controlsVector = { dx: 0, dy: 0 };
 
     if (this.leftPressed) {
       this.theta = (this.theta + 0.1) % 360;
@@ -74,10 +67,10 @@ export default class Player {
       this.theta = (this.theta - 0.1) % 360;
     }
 
-    if (this.downPressed) {
-      controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
-      controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
-    }
+    // if (this.downPressed) {
+    //   controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
+    //   controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
+    // }
 
     if (this.upPressed) {
       controlsVector.dy = (0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
@@ -85,24 +78,22 @@ export default class Player {
     }
 
     // Normalize controls vector and apply speed
-    normalize(controlsVector);
+    controlsVector = normalize(controlsVector);
     controlsVector.dx *= PLAYER_ACCELERATION;
     controlsVector.dy *= PLAYER_ACCELERATION;
 
     // Apply some friction damping
-    this.velocity.dx = this.velocity.dx * PLAYER_FRICTION;
-    this.velocity.dy = this.velocity.dy * PLAYER_FRICTION;
+    this.velocity.dx *= PLAYER_FRICTION;
+    this.velocity.dy *= PLAYER_FRICTION;
 
     this.velocity.dx += controlsVector.dx;
     this.velocity.dy += controlsVector.dy;
 
-    // console.log("vdx: " + this.velocity.dx + "vdy: " + this.velocity.dy);
-
     // Ensure it never gets going too fast
     if (magnitude(this.velocity) > MAX_VELOCITY) {
-      normalize(this.velocity);
-      this.velocity.dx = this.velocity.dx * MAX_VELOCITY;
-      this.velocity.dy = this.velocity.dy * MAX_VELOCITY;
+      this.velocity = normalize(this.velocity);
+      this.velocity.dx *= MAX_VELOCITY;
+      this.velocity.dy *= MAX_VELOCITY;
     }
 
     // Apply player's velocity vector
@@ -111,21 +102,21 @@ export default class Player {
 
     // Check wall collisions
     if (this.position.x + PLAYER_RADIUS > this.canvas.width) {
-      this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
+      this.velocity.dx *= WALL_BOUNCE_FACTOR;
     } else if (this.position.x - PLAYER_RADIUS < 0) {
-      this.velocity.dx = -this.velocity.dx * WALL_BOUNCE_FACTOR;
+      this.velocity.dx *= WALL_BOUNCE_FACTOR;
     }
 
     if (this.position.y + PLAYER_RADIUS > this.canvas.height) {
-      this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
+      this.velocity.dy *= WALL_BOUNCE_FACTOR;
     } else if (this.position.y - PLAYER_RADIUS < 0) {
-      this.velocity.dy = -this.velocity.dy * WALL_BOUNCE_FACTOR;
+      this.velocity.dy *= WALL_BOUNCE_FACTOR;
     }
   }
 
   hitJunk() {
-    this.velocity.dx *= -JUNK_BOUNCE_FACTOR;
-    this.velocity.dy *= -JUNK_BOUNCE_FACTOR;
+    this.velocity.dx *= JUNK_BOUNCE_FACTOR;
+    this.velocity.dy *= JUNK_BOUNCE_FACTOR;
   }
 
   keyDownHandler(e) {

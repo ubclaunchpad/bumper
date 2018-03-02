@@ -2,42 +2,41 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
+// Position x y position
+type Position struct {
+	X float32 `json:"x"`
+	Y float32 `json:"y"`
+}
+
 // Message is the schema for client/server communication
 type Message struct {
-	Message string `json:"message"`
+	Type     string   `json:"type"`
+	ID       int      `json:"id"`
+	Position Position `json:"position"` //Position variable takes Position struct as datatype
+	Message  string   `json:"message"`
 }
 
-// Coordinate x y position
-type Position struct {
-	x int
-	y int
+// ServerState map of states for all players
+type ServerState struct {
+	Type    string        `json:"type"`
+	Players []ObjectState `json:"players"`
 }
 
-type Velocity struct {
-	dx float32
-	dy float32
+// ObjectState of an object, position, velocity, id
+type ObjectState struct {
+	ID       int      `json:"id"`
+	Position Position `json:"position"`
 }
 
-// State of an object, position and velocity
-type State struct {
-	position Position
-	velocity Velocity
-}
+var clients = make(map[*websocket.Conn]*ObjectState)
 
-// global variable is fine for now, all we need is reference to connection
-var clients = make(map[*websocket.Conn]bool)
-
-// global channel for message receiving
-var broadcast = make(chan Message)
-
-// this 'upgrades' a normal HTTP connection to a persistent TCP connection (socket)
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		log.Printf("Accepting client from remote address %v\n", r.RemoteAddr)
@@ -45,6 +44,11 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+/* 	handleConnection handles received messages from a client
+Upgrades the connection to be persistent
+Initializes the client connection to a map of clients
+Listens for messages and acts on different message formats
+*/
 func handleConnection(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -53,32 +57,58 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	defer ws.Close()
 
 	// record this connection in our map
-	clients[ws] = true
+	// initialize state struct
+	clients[ws] = &ObjectState{
+		0,
+		Position{0, 0},
+	}
 
-	var msg Message
 	// infinite loop that receives msgs from clients
 	for {
-		// ReadJSON blocks until a message is received
-		log.Printf("%+v\n", msg)
+		var msg Message
 		err := ws.ReadJSON(&msg)
-		// terminate connection if error occurs
+		log.Printf("Message Received: %+v\n", msg)
 		if err != nil {
 			log.Printf("error: %v", err)
 			delete(clients, ws)
 			break
 		}
 
-		log.Printf("%+v\n", msg.Message)
-		// pass received message to the global channel
-		//broadcast <- msg
+		// initial message received
+		if msg.Type == "initial" {
+			reply := &Message{
+				Type: "initial",
+				ID:   rand.Intn(1000),
+			}
+
+			err := ws.WriteJSON(reply)
+			if err != nil {
+				log.Printf("error sending message: %v", err)
+				ws.Close()
+				delete(clients, ws)
+			}
+			//add player to map
+			clients[ws].ID = reply.ID
+		} else {
+			//update player in map
+			clients[ws].Position.X = msg.Position.X
+			clients[ws].Position.Y = msg.Position.Y
+		}
+		log.Printf("Client %d State: %+v\n", msg.ID, *clients[ws])
 	}
 }
 
 func tick() {
-	tickCount := 0
 	for {
-		time.Sleep(time.Second * 5)
-		msg := Message{"tick" + strconv.Itoa(tickCount)}
+		time.Sleep(time.Millisecond * 17) // 60 Hz
+		var objectarray []ObjectState
+		msg := ServerState{Type: "update"}
+
+		for client := range clients {
+			objectarray = append(objectarray, *clients[client])
+		}
+
+		msg.Players = objectarray
 		// update every client
 		for client := range clients {
 			err := client.WriteJSON(&msg)
@@ -88,15 +118,11 @@ func tick() {
 				delete(clients, client)
 			}
 		}
-		tickCount++
 	}
 }
 
 func main() {
-
-	// main thread that will listen for connections
 	http.HandleFunc("/connect", handleConnection)
-	// separate thread that will handle updates
 	go tick()
 
 	log.Println("Starting server on localhost:9090")

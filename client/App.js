@@ -2,12 +2,14 @@ import React from 'react';
 import Player from './components/Player';
 import Hole from './components/Hole';
 import Junk from './components/Junk';
+import { generateRandomColor } from './utils/color';
 
 const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
 const JUNK_SIZE = 15;
 const HOLE_COUNT = 10;
 const MAX_DISTANCE_BETWEEN = 50;
+const POINTS_PER_JUNK = 100;
 
 const MIN_HOLE_RADIUS = 15;
 const MAX_HOLE_RADIUS = 30;
@@ -29,9 +31,9 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     if (window.WebSocket) {
-      console.log('websocket available');
       this.socket = new WebSocket(address);
-      this.socket.onmessage = event => console.log(event.data);
+      this.socket.onopen = () => this.initialClientMessage();
+      this.socket.onmessage = event => this.handleServerMessage(JSON.parse(event.data));
     } else {
       console.log('websocket not available');
     }
@@ -41,33 +43,60 @@ export default class App extends React.Component {
       junk: [],
       holes: [],
       player: null,
+      points: 0,
     };
 
     this.resizeCanvas = this.resizeCanvas.bind(this);
     this.tick = this.tick.bind(this);
+    this.initialClientMessage = this.initialClientMessage.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.canvas = document.getElementById('ctx');
     this.generateJunk();
-    this.generatePlayerCoordinates();
+    this.generatePlayer();
     this.generateHoles();
-
-    this.timerID2 = setInterval(
-      () => this.clientMessage(),
-      1000,
-    );
 
     window.addEventListener('resize', this.resizeCanvas);
     this.tick();
   }
 
-  clientMessage() {
-    if (!this.socket.readyState !== 'OPEN') return;
+
+  handleServerMessage(msg) {
+    if (msg.type === 'initial') {
+      // add id to player
+      // start update interval
+      this.state.player.id = msg.id;
+      this.setState({ player: this.state.player });
+
+      this.timerID = setInterval(
+        () => this.updateClientMessage(),
+        17, // 60 Hz
+      );
+    } else if (msg.type === 'update') {
+      this.setState({
+        players: msg.players,
+      });
+    }
+  }
+
+  initialClientMessage() {
+    if (this.socket.readyState !== 1) return;
 
     this.socket.send(JSON.stringify({
-      message: 'client2',
-      data: 'foo',
+      type: 'initial',
+      id: 1,
+      message: 'hello',
+    }));
+  }
+
+  updateClientMessage() {
+    if (this.socket.readyState !== 1) return;
+
+    this.socket.send(JSON.stringify({
+      type: 'update',
+      id: this.state.player.id,
+      position: this.state.player.position,
     }));
   }
 
@@ -101,23 +130,30 @@ export default class App extends React.Component {
     });
   }
 
-  // should appear somewhere in the centre
-  generatePlayerCoordinates() {
+  // TODO check for collisions
+  generatePlayerCoords() {
     const maxWidth = (2 * width) / 3;
     const minWidth = width / 3;
     const maxHeight = (2 * height) / 3;
     const minHeight = height / 3;
     const x = Math.floor(Math.random() * ((maxWidth - minWidth) + 1)) + minWidth;
     const y = Math.floor(Math.random() * ((maxHeight - minHeight) + 1)) + minHeight;
+    return {x, y};
+  }
+
+  // should appear somewhere in the centre
+  generatePlayer() {
+    const coords = this.generatePlayerCoords();
     const props = {
-      x,
-      y,
+      x: coords.x,
+      y: coords.y,
       canvas: this.canvas,
       theta: 0,
     };
-    this.state.allCoords.push({ x, y });
+    this.state.allCoords.push({ x: coords.x, y: coords.y });
+    const player = new Player(props);
     this.setState({
-      player: new Player(props),
+      player,
       allCoords: this.state.allCoords,
     });
   }
@@ -212,7 +248,19 @@ export default class App extends React.Component {
       this.state.player.drawPlayer();
     }
 
-    // TODO: Draw other players
+    if (!this.state.players) return;
+
+    this.state.players.forEach((p) => {
+      if (p.id === this.state.player.id) return;
+
+      const ctx = this.canvas.getContext('2d');
+      const { x, y } = p.position;
+      ctx.beginPath();
+      ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = generateRandomColor();
+      ctx.fill();
+      ctx.closePath();
+    });
   }
 
   resizeCanvas() {
@@ -225,11 +273,31 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
-    // check for hole and player collistions
+    // check for hole and player collisions
     // TODO check rest of the possible collisions
     this.checkForCollisions();
     // eslint-disable-next-line
     requestAnimationFrame(this.tick);
+  }
+
+  drawPlayerPoints() {
+    if (!this.state.player) return;
+
+    const ctx = this.canvas.getContext('2d');
+    ctx.beginPath();
+    const rectHeight = 40;
+    const rectWidth = 150;
+    const rectX = window.innerWidth - 150;
+    const rectY = 0;
+    ctx.rect(rectX, rectY, rectWidth, rectHeight);
+    ctx.fillStyle = this.state.player.color;
+    ctx.fill();
+    ctx.font = '16px Lucida Sans Unicode';
+    ctx.textAlign = 'center'; 
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(`Points: ${this.state.player.points}`, rectX + (rectWidth / 2) - 10, rectY + (rectHeight / 2) + 2);
+    ctx.closePath();
   }
 
   checkForCollisions() {
@@ -244,10 +312,15 @@ export default class App extends React.Component {
           });
         }
       }
+
       // Check each junk
       this.state.junk.forEach((junk) => {
         if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
           // Add points for the last bumper player here
+          if (junk.lastHitBy !== null) {
+            this.state.player.points += POINTS_PER_JUNK;
+          }
+
           this.state.junk = this.state.junk.filter(j => j !== junk);
           this.setState(this.state);
         }
@@ -260,7 +333,6 @@ export default class App extends React.Component {
       if (this.state.player) {
         if (areCirclesColliding(this.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
           junk.hitBy(this.state.player);
-          this.state.player.hitJunk();
         }
       }
     });
@@ -272,6 +344,7 @@ export default class App extends React.Component {
     this.drawJunk();
     this.drawHoles();
     this.drawPlayers();
+    this.drawPlayerPoints();
     this.calculateNextState();
   }
 

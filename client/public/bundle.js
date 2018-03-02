@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 14);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -306,9 +306,9 @@ module.exports = emptyFunction;
 /* WEBPACK VAR INJECTION */(function(process) {
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports = __webpack_require__(15);
-} else {
   module.exports = __webpack_require__(16);
+} else {
+  module.exports = __webpack_require__(17);
 }
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
@@ -580,7 +580,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 if (process.env.NODE_ENV !== 'production') {
   var invariant = __webpack_require__(5);
   var warning = __webpack_require__(6);
-  var ReactPropTypesSecret = __webpack_require__(17);
+  var ReactPropTypesSecret = __webpack_require__(18);
   var loggedTypeFailures = {};
 }
 
@@ -881,7 +881,7 @@ module.exports = shallowEqual;
  * 
  */
 
-var isTextNode = __webpack_require__(20);
+var isTextNode = __webpack_require__(21);
 
 /*eslint-disable no-bitwise */
 
@@ -945,15 +945,35 @@ module.exports = focusNode;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.generateRandomColor = generateRandomColor;
+// eslint-disable-next-line
+function generateRandomColor() {
+  var c = '';
+  while (c.length < 6) {
+    c += Math.random().toString(16).substr(-6).substr(-1);
+  }
+  return '#' + c;
+}
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var _react = __webpack_require__(2);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(18);
+var _reactDom = __webpack_require__(19);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _App = __webpack_require__(27);
+var _App = __webpack_require__(28);
 
 var _App2 = _interopRequireDefault(_App);
 
@@ -962,7 +982,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _reactDom2.default.render(_react2.default.createElement(_App2.default, null), document.getElementById('app'));
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1091,7 +1111,7 @@ var U = { Children: { map: function map(a, b, e) {
     W = V && U || V;module.exports = W["default"] ? W["default"] : W;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2451,7 +2471,7 @@ if (process.env.NODE_ENV !== "production") {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2469,7 +2489,7 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 module.exports = ReactPropTypesSecret;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2504,14 +2524,14 @@ if (process.env.NODE_ENV === 'production') {
   // DCE check should happen before ReactDOM bundle executes so that
   // DevTools can report bad minification during injection.
   checkDCE();
-  module.exports = __webpack_require__(19);
+  module.exports = __webpack_require__(20);
 } else {
-  module.exports = __webpack_require__(22);
+  module.exports = __webpack_require__(23);
 }
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4508,7 +4528,7 @@ Z.injectIntoDevTools({ findFiberByHostInstance: pb, bundleType: 0, version: "16.
     Ug = Tg && Sg || Tg;module.exports = Ug["default"] ? Ug["default"] : Ug;
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4523,7 +4543,7 @@ Z.injectIntoDevTools({ findFiberByHostInstance: pb, bundleType: 0, version: "16.
  * @typechecks
  */
 
-var isNode = __webpack_require__(21);
+var isNode = __webpack_require__(22);
 
 /**
  * @param {*} object The object to check.
@@ -4536,7 +4556,7 @@ function isTextNode(object) {
 module.exports = isTextNode;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4567,7 +4587,7 @@ function isNode(object) {
 module.exports = isNode;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4578,7 +4598,7 @@ module.exports = isNode;
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- */var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj;};if(process.env.NODE_ENV!=="production"){(function(){'use strict';var React=__webpack_require__(2);var invariant=__webpack_require__(5);var warning=__webpack_require__(6);var ExecutionEnvironment=__webpack_require__(8);var _assign=__webpack_require__(3);var emptyFunction=__webpack_require__(1);var EventListener=__webpack_require__(9);var getActiveElement=__webpack_require__(10);var shallowEqual=__webpack_require__(11);var containsNode=__webpack_require__(12);var focusNode=__webpack_require__(13);var emptyObject=__webpack_require__(4);var checkPropTypes=__webpack_require__(7);var hyphenateStyleName=__webpack_require__(23);var camelizeStyleName=__webpack_require__(25);/**
+ */var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj;};if(process.env.NODE_ENV!=="production"){(function(){'use strict';var React=__webpack_require__(2);var invariant=__webpack_require__(5);var warning=__webpack_require__(6);var ExecutionEnvironment=__webpack_require__(8);var _assign=__webpack_require__(3);var emptyFunction=__webpack_require__(1);var EventListener=__webpack_require__(9);var getActiveElement=__webpack_require__(10);var shallowEqual=__webpack_require__(11);var containsNode=__webpack_require__(12);var focusNode=__webpack_require__(13);var emptyObject=__webpack_require__(4);var checkPropTypes=__webpack_require__(7);var hyphenateStyleName=__webpack_require__(24);var camelizeStyleName=__webpack_require__(26);/**
  * WARNING: DO NOT manually require this module.
  * This is a replacement for `invariant(...)` used by the error code system
  * and will _only_ be required by the corresponding babel pass.
@@ -7551,7 +7571,7 @@ var reactDom=ReactDOM$3['default']?ReactDOM$3['default']:ReactDOM$3;module.expor
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7566,7 +7586,7 @@ var reactDom=ReactDOM$3['default']?ReactDOM$3['default']:ReactDOM$3;module.expor
 
 
 
-var hyphenate = __webpack_require__(24);
+var hyphenate = __webpack_require__(25);
 
 var msPattern = /^ms-/;
 
@@ -7593,7 +7613,7 @@ function hyphenateStyleName(string) {
 module.exports = hyphenateStyleName;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7629,7 +7649,7 @@ function hyphenate(string) {
 module.exports = hyphenate;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7644,7 +7664,7 @@ module.exports = hyphenate;
 
 
 
-var camelize = __webpack_require__(26);
+var camelize = __webpack_require__(27);
 
 var msPattern = /^-ms-/;
 
@@ -7672,7 +7692,7 @@ function camelizeStyleName(string) {
 module.exports = camelizeStyleName;
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7707,7 +7727,7 @@ function camelize(string) {
 module.exports = camelize;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7723,13 +7743,19 @@ var _react = __webpack_require__(2);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Player = __webpack_require__(28);
+var _Player = __webpack_require__(29);
 
 var _Player2 = _interopRequireDefault(_Player);
 
-var _Hole = __webpack_require__(29);
+var _Hole = __webpack_require__(31);
 
 var _Hole2 = _interopRequireDefault(_Hole);
+
+var _Junk = __webpack_require__(32);
+
+var _Junk2 = _interopRequireDefault(_Junk);
+
+var _color = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -7739,14 +7765,22 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var PLAYER_RADIUS = 25;
 var JUNK_COUNT = 10;
 var JUNK_SIZE = 15;
 var HOLE_COUNT = 10;
 var MAX_DISTANCE_BETWEEN = 50;
+var POINTS_PER_JUNK = 100;
 
 var width = window.innerWidth;
 var height = window.innerHeight;
 var address = 'ws://localhost:9090/connect';
+
+// detect collision
+// (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
+function areCirclesColliding(p, r1, q, r2) {
+  return (p.x - q.x) ** 2 + (p.y - q.y) ** 2 <= (r1 + r2) ** 2;
+}
 
 var App = function (_React$Component) {
   _inherits(App, _React$Component);
@@ -7757,62 +7791,111 @@ var App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
     if (window.WebSocket) {
-      console.log('websocket available');
       _this.socket = new WebSocket(address);
+      _this.socket.onopen = function () {
+        return _this.initialClientMessage();
+      };
       _this.socket.onmessage = function (event) {
-        return console.log(event.data);
+        return _this.handleServerMessage(JSON.parse(event.data));
       };
     } else {
       console.log('websocket not available');
     }
 
     _this.state = {
-      rightPressed: false,
-      leftPressed: false,
-      upPressed: false,
-      downPressed: false,
       allCoords: [], // might need to change this
-      junkCoords: [],
-      holes: []
+      junk: [],
+      holes: [],
+      player: null,
+      points: 0
     };
 
     _this.resizeCanvas = _this.resizeCanvas.bind(_this);
-    _this.keyDownHandler = _this.keyDownHandler.bind(_this);
-    _this.keyUpHandler = _this.keyUpHandler.bind(_this);
     _this.tick = _this.tick.bind(_this);
+    _this.initialClientMessage = _this.initialClientMessage.bind(_this);
     return _this;
   }
 
   _createClass(App, [{
     key: 'componentDidMount',
-    value: function componentDidMount() {
+    value: async function componentDidMount() {
       this.canvas = document.getElementById('ctx');
-      this.generatePlayerCoordinates();
-      this.generateJunkCoordinates();
+      this.generateJunk();
+      this.generatePlayer();
       this.generateHoles();
 
       window.addEventListener('resize', this.resizeCanvas);
-      window.addEventListener('keydown', this.keyDownHandler);
-      window.addEventListener('keyup', this.keyUpHandler);
       this.tick();
     }
   }, {
-    key: 'generateJunkCoordinates',
-    value: function generateJunkCoordinates() {
+    key: 'handleServerMessage',
+    value: function handleServerMessage(msg) {
+      var _this2 = this;
+
+      if (msg.type === 'initial') {
+        // add id to player
+        // start update interval
+        this.state.player.id = msg.id;
+        this.setState({ player: this.state.player });
+
+        this.timerID = setInterval(function () {
+          return _this2.updateClientMessage();
+        }, 17 // 60 Hz
+        );
+      } else if (msg.type === 'update') {
+        this.setState({
+          players: msg.players
+        });
+      }
+    }
+  }, {
+    key: 'initialClientMessage',
+    value: function initialClientMessage() {
+      if (this.socket.readyState !== 1) return;
+
+      this.socket.send(JSON.stringify({
+        type: 'initial',
+        id: 1,
+        message: 'hello'
+      }));
+    }
+  }, {
+    key: 'updateClientMessage',
+    value: function updateClientMessage() {
+      if (this.socket.readyState !== 1) return;
+
+      this.socket.send(JSON.stringify({
+        type: 'update',
+        id: this.state.player.id,
+        position: this.state.player.position
+      }));
+    }
+  }, {
+    key: 'generateJunk',
+    value: function generateJunk() {
+      var _this3 = this;
+
       var newCoords = this.generateCoords(JUNK_COUNT);
-      this.setState({ junkCoords: newCoords });
+      newCoords.forEach(function (coord) {
+        var props = {
+          position: { x: coord.x, y: coord.y },
+          canvas: _this3.canvas
+        };
+        _this3.state.junk.push(new _Junk2.default(props));
+      });
+      this.setState(this.state);
     }
   }, {
     key: 'generateHoles',
     value: function generateHoles() {
-      var _this2 = this;
+      var _this4 = this;
 
       var newCoords = this.generateCoords(HOLE_COUNT);
       var newHoles = [];
       newCoords.forEach(function (coord) {
         var props = {
           position: { x: coord.x, y: coord.y },
-          canvas: _this2.canvas
+          canvas: _this4.canvas
         };
         var hole = new _Hole2.default(props);
         newHoles.push(hole);
@@ -7822,32 +7905,44 @@ var App = function (_React$Component) {
       });
     }
 
-    // should appear somewhere in the centre
+    // TODO check for collisions
 
   }, {
-    key: 'generatePlayerCoordinates',
-    value: function generatePlayerCoordinates() {
+    key: 'generatePlayerCoords',
+    value: function generatePlayerCoords() {
       var maxWidth = 2 * width / 3;
       var minWidth = width / 3;
       var maxHeight = 2 * height / 3;
       var minHeight = height / 3;
       var x = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
       var y = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+      return { x: x, y: y };
+    }
+
+    // should appear somewhere in the centre
+
+  }, {
+    key: 'generatePlayer',
+    value: function generatePlayer() {
+      var coords = this.generatePlayerCoords();
       var props = {
-        x: x,
-        y: y,
+        x: coords.x,
+        y: coords.y,
         canvas: this.canvas,
         theta: 0
       };
-      this.state.allCoords.push({ x: x, y: y });
+      this.state.allCoords.push({ x: coords.x, y: coords.y });
+      var player = new _Player2.default(props);
       this.setState({
-        player: new _Player2.default(props),
+        player: player,
         allCoords: this.state.allCoords
       });
     }
   }, {
     key: 'generateCoords',
     value: function generateCoords(num) {
+      var _this5 = this;
+
       // make sure object radius isn't outside of canvas
       var maxWidth = width - MAX_DISTANCE_BETWEEN;
       var minWidth = MAX_DISTANCE_BETWEEN;
@@ -7856,81 +7951,26 @@ var App = function (_React$Component) {
 
       var count = num;
       var coords = [];
-      while (count > 0) {
+
+      var _loop = function _loop() {
         var x = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
         var y = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-        var placed = true;
+        var isColliding = _this5.state.allCoords.some(function (p) {
+          return areCirclesColliding(p.x, p.y, MAX_DISTANCE_BETWEEN, x, y, MAX_DISTANCE_BETWEEN);
+        });
 
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = this.state.allCoords[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var p = _step.value;
-            //es-lint-disable no-restricted-syntax 
-            // could not be placed because of overlap
-            if (Math.abs(p.x - x) < MAX_DISTANCE_BETWEEN && Math.abs(p.y - y) < MAX_DISTANCE_BETWEEN) {
-              placed = false;
-              break;
-            }
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-
-        if (placed) {
-          var newAllCoords = this.state.allCoords.push({ x: x, y: y });
-          this.setState({ allCoords: newAllCoords });
+        if (!isColliding) {
+          var newAllCoords = _this5.state.allCoords.push({ x: x, y: y });
+          _this5.setState({ allCoords: newAllCoords });
           coords.push({ x: x, y: y });
           count -= 1;
         }
+      };
+
+      while (count > 0) {
+        _loop();
       }
       return coords;
-    }
-  }, {
-    key: 'drawJunk',
-    value: function drawJunk() {
-      var ctx = this.canvas.getContext('2d');
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = this.state.junkCoords[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var p = _step2.value;
-
-          ctx.beginPath();
-          ctx.rect(p.x, p.y, JUNK_SIZE, JUNK_SIZE);
-          ctx.fillStyle = 'white';
-          ctx.fill();
-          ctx.closePath();
-        }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
     }
   }, {
     key: 'drawHoles',
@@ -7940,13 +7980,37 @@ var App = function (_React$Component) {
       });
     }
   }, {
+    key: 'drawJunk',
+    value: function drawJunk() {
+      this.state.junk.forEach(function (j) {
+        return j.drawJunk();
+      });
+    }
+  }, {
     key: 'drawPlayers',
     value: function drawPlayers() {
+      var _this6 = this;
+
       if (this.state.player) {
         this.state.player.drawPlayer();
       }
 
-      // TODO: Draw other players
+      if (!this.state.players) return;
+
+      this.state.players.forEach(function (p) {
+        if (p.id === _this6.state.player.id) return;
+
+        var ctx = _this6.canvas.getContext('2d');
+        var _p$position = p.position,
+            x = _p$position.x,
+            y = _p$position.y;
+
+        ctx.beginPath();
+        ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = (0, _color.generateRandomColor)();
+        ctx.fill();
+        ctx.closePath();
+      });
     }
   }, {
     key: 'resizeCanvas',
@@ -7961,93 +8025,101 @@ var App = function (_React$Component) {
     key: 'tick',
     value: function tick() {
       this.updateCanvas();
+      // check for hole and player collisions
+      // TODO check rest of the possible collisions
+      this.checkForCollisions();
       // eslint-disable-next-line
       requestAnimationFrame(this.tick);
+    }
+  }, {
+    key: 'drawPlayerPoints',
+    value: function drawPlayerPoints() {
+      if (!this.state.player) return;
+
+      var ctx = this.canvas.getContext('2d');
+      ctx.beginPath();
+      var rectHeight = 40;
+      var rectWidth = 150;
+      var rectX = window.innerWidth - 150;
+      var rectY = 0;
+      ctx.rect(rectX, rectY, rectWidth, rectHeight);
+      ctx.fillStyle = this.state.player.color;
+      ctx.fill();
+      ctx.font = '16px Lucida Sans Unicode';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText('Points: ' + this.state.player.points, rectX + rectWidth / 2 - 10, rectY + rectHeight / 2 + 2);
+      ctx.closePath();
+    }
+  }, {
+    key: 'checkForCollisions',
+    value: function checkForCollisions() {
+      var _this7 = this;
+
+      // Check hole to player/junk collisions
+      this.state.holes.forEach(function (hole) {
+        var position = hole.position,
+            radius = hole.radius;
+        // Check the player
+
+        if (_this7.state.player) {
+          if (areCirclesColliding(_this7.state.player.position, PLAYER_RADIUS, position, radius)) {
+            _this7.setState({
+              player: null
+            });
+          }
+        }
+
+        // Check each junk
+        _this7.state.junk.forEach(function (junk) {
+          if (areCirclesColliding(junk.position, JUNK_SIZE, position, radius)) {
+            if (junk.lastHitBy !== null) {
+              _this7.state.player.points += POINTS_PER_JUNK;
+            }
+
+            _this7.state.junk = _this7.state.junk.filter(function (j) {
+              return j !== junk;
+            });
+            _this7.setState(_this7.state);
+          }
+        });
+      });
+
+      // Check player to junk collisions
+      this.state.junk.forEach(function (junk) {
+        var position = junk.position;
+
+        if (_this7.state.player) {
+          if (areCirclesColliding(_this7.state.player.position, PLAYER_RADIUS, position, JUNK_SIZE)) {
+            junk.hitBy(_this7.state.player);
+          }
+        }
+      });
     }
   }, {
     key: 'updateCanvas',
     value: function updateCanvas() {
       var ctx = this.canvas.getContext('2d');
       ctx.clearRect(0, 0, width, height);
-      this.drawPlayers();
       this.drawJunk();
       this.drawHoles();
+      this.drawPlayers();
+      this.drawPlayerPoints();
       this.calculateNextState();
     }
   }, {
     key: 'calculateNextState',
     value: function calculateNextState() {
-      var _this3 = this;
+      // TODO check all players
+      if (!this.state.player) {
+        return;
+      }
 
-      var PLAYER_RADIUS = 25;
-      this.setState(function (prevState) {
-        var newState = prevState;
-        if (_this3.state.leftPressed) newState.playerTheta = (prevState.playerTheta + 0.25) % 360;
-        if (_this3.state.rightPressed) newState.playerTheta = (prevState.playerTheta - 0.25) % 360;
-        if (_this3.state.downPressed) {
-          newState.playerY = prevState.playerY + 0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta));
-          newState.playerX = prevState.playerX + 0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta));
-        }
-        if (_this3.state.upPressed) {
-          newState.playerY = prevState.playerY - 0.5 * (PLAYER_RADIUS * Math.cos(prevState.playerTheta));
-          newState.playerX = prevState.playerX - 0.5 * (PLAYER_RADIUS * Math.sin(prevState.playerTheta));
-        }
-
-        if (newState.playerX + PLAYER_RADIUS > width - 20) {
-          newState.playerX = width - 20 - PLAYER_RADIUS;
-        } else if (newState.playerX - PLAYER_RADIUS < 0) {
-          newState.playerX = PLAYER_RADIUS;
-        }
-        if (newState.playerY + PLAYER_RADIUS > height - 20) {
-          newState.playerY = height - 20 - PLAYER_RADIUS;
-        } else if (newState.playerY - PLAYER_RADIUS < 0) {
-          newState.playerY = PLAYER_RADIUS;
-        }
-
-        return newState;
+      this.state.player.updatePosition();
+      this.state.junk.forEach(function (j) {
+        return j.updatePosition();
       });
-    }
-  }, {
-    key: 'keyDownHandler',
-    value: function keyDownHandler(e) {
-      if (e.keyCode === 39) {
-        this.setState({
-          rightPressed: true
-        });
-      } else if (e.keyCode === 37) {
-        this.setState({
-          leftPressed: true
-        });
-      } else if (e.keyCode === 38) {
-        this.setState({
-          upPressed: true
-        });
-      } else if (e.keyCode === 40) {
-        this.setState({
-          downPressed: true
-        });
-      }
-    }
-  }, {
-    key: 'keyUpHandler',
-    value: function keyUpHandler(e) {
-      if (e.keyCode === 39) {
-        this.setState({
-          rightPressed: false
-        });
-      } else if (e.keyCode === 37) {
-        this.setState({
-          leftPressed: false
-        });
-      } else if (e.keyCode === 38) {
-        this.setState({
-          upPressed: false
-        });
-      } else if (e.keyCode === 40) {
-        this.setState({
-          downPressed: false
-        });
-      }
     }
   }, {
     key: 'render',
@@ -8080,47 +8152,213 @@ var styles = {
 };
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _vector = __webpack_require__(30);
+
+var _color = __webpack_require__(14);
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var PLAYER_RADIUS = 25;
+var MAX_VELOCITY = 15;
+var PLAYER_ACCELERATION = 0.5;
+var PLAYER_FRICTION = 0.97;
+var WALL_BOUNCE_FACTOR = -1.5;
+var JUNK_BOUNCE_FACTOR = -0.25;
+
 var Player = function () {
-	function Player(props) {
-		_classCallCheck(this, Player);
+  function Player(props) {
+    _classCallCheck(this, Player);
 
-		this.mass = props.mass || 10;
-		this.color = props.color || '#FF0000'; // Red 
-		this.name = props.name || 'Default name';
-		this.canvas = props.canvas;
-		this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-		this.velocity = { dx: 0, dy: 0 };
-		this.alive = true;
+    this.canvas = props.canvas;
+    this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    this.velocity = { dx: 0, dy: 0 };
+    this.theta = props.theta;
+    this.color = (0, _color.generateRandomColor)();
+    this.points = 0;
 
-		this.drawPlayer = this.drawPlayer.bind(this);
-	}
+    this.rightPressed = false;
+    this.leftPressed = false;
+    this.upPressed = false;
+    this.downPressed = false;
 
-	_createClass(Player, [{
-		key: 'drawPlayer',
-		value: function drawPlayer() {}
-	}]);
+    this.drawPlayer = this.drawPlayer.bind(this);
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.keyUpHandler = this.keyUpHandler.bind(this);
+    window.addEventListener('keydown', this.keyDownHandler);
+    window.addEventListener('keyup', this.keyUpHandler);
+  }
 
-	return Player;
+  _createClass(Player, [{
+    key: 'drawPlayer',
+    value: function drawPlayer() {
+      var ctx = this.canvas.getContext('2d');
+      var _position = this.position,
+          x = _position.x,
+          y = _position.y;
+
+      ctx.beginPath();
+      ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.closePath();
+
+      ctx.beginPath();
+      ctx.moveTo(x + PLAYER_RADIUS * Math.sin(this.theta), y + PLAYER_RADIUS * Math.cos(this.theta));
+      ctx.lineTo(x - PLAYER_RADIUS * Math.sin(this.theta), y - PLAYER_RADIUS * Math.cos(this.theta));
+      ctx.strokeStyle = '#000000';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
+
+      var backCenterX = x - PLAYER_RADIUS * Math.sin(this.theta) / 2;
+      var backCenterY = y - PLAYER_RADIUS * Math.cos(this.theta) / 2;
+      var backLength = 2.5 * (PLAYER_RADIUS / 2 / Math.tan(45));
+      ctx.beginPath();
+      ctx.moveTo(backCenterX - backLength * Math.cos(this.theta), backCenterY + backLength * Math.sin(this.theta));
+      ctx.lineTo(backCenterX + backLength * Math.cos(this.theta), backCenterY - backLength * Math.sin(this.theta));
+      ctx.strokeStyle = '#0000000';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
+    }
+  }, {
+    key: 'updatePosition',
+    value: function updatePosition() {
+      var controlsVector = { dx: 0, dy: 0 };
+
+      if (this.leftPressed) {
+        this.theta = (this.theta + 0.1) % 360;
+      }
+
+      if (this.rightPressed) {
+        this.theta = (this.theta - 0.1) % 360;
+      }
+
+      // if (this.downPressed) {
+      //   controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
+      //   controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
+      // }
+
+      if (this.upPressed) {
+        controlsVector.dy = 0.5 * (PLAYER_RADIUS * Math.cos(this.theta));
+        controlsVector.dx = 0.5 * (PLAYER_RADIUS * Math.sin(this.theta));
+      }
+
+      // Normalize controls vector and apply speed
+      controlsVector = (0, _vector.normalize)(controlsVector);
+      controlsVector.dx *= PLAYER_ACCELERATION;
+      controlsVector.dy *= PLAYER_ACCELERATION;
+
+      // Apply some friction damping
+      this.velocity.dx *= PLAYER_FRICTION;
+      this.velocity.dy *= PLAYER_FRICTION;
+
+      this.velocity.dx += controlsVector.dx;
+      this.velocity.dy += controlsVector.dy;
+
+      // Ensure it never gets going too fast
+      if ((0, _vector.magnitude)(this.velocity) > MAX_VELOCITY) {
+        this.velocity = (0, _vector.normalize)(this.velocity);
+        this.velocity.dx *= MAX_VELOCITY;
+        this.velocity.dy *= MAX_VELOCITY;
+      }
+
+      // Apply player's velocity vector
+      this.position.x += this.velocity.dx;
+      this.position.y += this.velocity.dy;
+
+      // Check wall collisions
+      if (this.position.x + PLAYER_RADIUS > this.canvas.width) {
+        this.velocity.dx *= WALL_BOUNCE_FACTOR;
+      } else if (this.position.x - PLAYER_RADIUS < 0) {
+        this.velocity.dx *= WALL_BOUNCE_FACTOR;
+      }
+
+      if (this.position.y + PLAYER_RADIUS > this.canvas.height) {
+        this.velocity.dy *= WALL_BOUNCE_FACTOR;
+      } else if (this.position.y - PLAYER_RADIUS < 0) {
+        this.velocity.dy *= WALL_BOUNCE_FACTOR;
+      }
+    }
+  }, {
+    key: 'hitJunk',
+    value: function hitJunk() {
+      this.velocity.dx *= JUNK_BOUNCE_FACTOR;
+      this.velocity.dy *= JUNK_BOUNCE_FACTOR;
+    }
+  }, {
+    key: 'keyDownHandler',
+    value: function keyDownHandler(e) {
+      if (e.keyCode === 39) {
+        this.rightPressed = true;
+      } else if (e.keyCode === 37) {
+        this.leftPressed = true;
+      } else if (e.keyCode === 38) {
+        this.upPressed = true;
+      } else if (e.keyCode === 40) {
+        this.downPressed = true;
+      }
+    }
+  }, {
+    key: 'keyUpHandler',
+    value: function keyUpHandler(e) {
+      if (e.keyCode === 39) {
+        this.rightPressed = false;
+      } else if (e.keyCode === 37) {
+        this.leftPressed = false;
+      } else if (e.keyCode === 38) {
+        this.upPressed = false;
+      } else if (e.keyCode === 40) {
+        this.downPressed = false;
+      }
+    }
+  }]);
+
+  return Player;
 }();
 
 exports.default = Player;
 
 /***/ }),
-/* 29 */
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.magnitude = magnitude;
+exports.normalize = normalize;
+function magnitude(vector) {
+  return Math.sqrt(vector.dx * vector.dx + vector.dy * vector.dy);
+}
+
+function normalize(vector) {
+  var mag = magnitude(vector);
+  if (mag > 0) {
+    return {
+      dx: vector.dx / mag,
+      dy: vector.dy / mag
+    };
+  }
+
+  return vector;
+}
+
+/***/ }),
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8167,6 +8405,90 @@ var Hole = function () {
 }();
 
 exports.default = Hole;
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var JUNK_SIZE = 15;
+var JUNK_FRICTION = 0.99;
+var JUNK_MINBUMP = 0.5;
+
+var Junk = function () {
+  function Junk(props) {
+    _classCallCheck(this, Junk);
+
+    this.canvas = props.canvas;
+    this.position = props.position;
+    this.velocity = { dx: 0, dy: 0 };
+    this.color = 'white';
+    this.lastHitBy = null;
+
+    this.drawJunk = this.drawJunk.bind(this);
+  }
+
+  _createClass(Junk, [{
+    key: 'drawJunk',
+    value: function drawJunk() {
+      var ctx = this.canvas.getContext('2d');
+      ctx.beginPath();
+      ctx.rect(this.position.x, this.position.y, JUNK_SIZE, JUNK_SIZE);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }, {
+    key: 'hitBy',
+    value: function hitBy(player) {
+      this.color = player.color;
+      this.lastHitBy = player;
+      if (player.velocity.dx < 0) {
+        this.velocity.dx = Math.min(player.velocity.dx * 1.05, -JUNK_MINBUMP);
+      } else {
+        this.velocity.dx = Math.max(player.velocity.dx * 1.05, JUNK_MINBUMP);
+      }
+      if (player.velocity.dy < 0) {
+        this.velocity.dy = Math.min(player.velocity.dy * 1.05, -JUNK_MINBUMP);
+      } else {
+        this.velocity.dy = Math.max(player.velocity.dy * 1.05, JUNK_MINBUMP);
+      }
+
+      player.hitJunk();
+    }
+  }, {
+    key: 'updatePosition',
+    value: function updatePosition() {
+      var r = JUNK_SIZE / 2;
+      if (this.position.x + this.velocity.dx > this.canvas.width - r || this.position.x + this.velocity.dx < r) {
+        this.velocity.dx = -this.velocity.dx;
+      }
+      if (this.position.y + this.velocity.dy > this.canvas.height - r || this.position.y + this.velocity.dy < r) {
+        this.velocity.dy = -this.velocity.dy;
+      }
+
+      this.velocity.dy *= JUNK_FRICTION;
+      this.velocity.dx *= JUNK_FRICTION;
+
+      this.position.x += this.velocity.dx;
+      this.position.y += this.velocity.dy;
+    }
+  }]);
+
+  return Junk;
+}();
+
+exports.default = Junk;
 
 /***/ })
 /******/ ]);

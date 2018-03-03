@@ -92,11 +92,11 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			}
 			//add player to map
 			clients[ws].ID = reply.ID
+			clients[ws].Color = msg.Color
 		} else {
 			//update player in map
 			clients[ws].Position.X = msg.Position.X
 			clients[ws].Position.Y = msg.Position.Y
-			clients[ws].Color = msg.Color
 		}
 		log.Printf("Client %d State: %+v\n", msg.ID, *clients[ws])
 	}

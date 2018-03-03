@@ -87,6 +87,7 @@ export default class App extends React.Component {
       type: 'initial',
       id: 1,
       message: 'hello',
+      color: this.state.player.color,
     }));
   }
 
@@ -97,7 +98,6 @@ export default class App extends React.Component {
       type: 'update',
       id: this.state.player.id,
       position: this.state.player.position,
-      color: this.state.player.color,
     }));
   }
 

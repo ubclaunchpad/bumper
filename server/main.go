@@ -98,7 +98,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			clients[ws].Position.X = msg.Position.X
 			clients[ws].Position.Y = msg.Position.Y
 		}
-		log.Printf("Client %d State: %+v\n", msg.ID, *clients[ws])
 	}
 }
 

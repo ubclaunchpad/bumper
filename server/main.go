@@ -70,7 +70,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	for {
 		var msg Message
 		err := ws.ReadJSON(&msg)
-		log.Printf("Message Received: %+v\n", msg)
 		if err != nil {
 			log.Printf("error: %v", err)
 			delete(clients, ws)

@@ -2,7 +2,6 @@ import React from 'react';
 import Player from './components/Player';
 import Hole from './components/Hole';
 import Junk from './components/Junk';
-import { generateRandomColor } from './utils/color';
 
 const PLAYER_RADIUS = 25;
 const JUNK_COUNT = 10;
@@ -98,6 +97,7 @@ export default class App extends React.Component {
       type: 'update',
       id: this.state.player.id,
       position: this.state.player.position,
+      color: this.state.player.color,
     }));
   }
 
@@ -258,7 +258,7 @@ export default class App extends React.Component {
       const { x, y } = p.position;
       ctx.beginPath();
       ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
-      ctx.fillStyle = generateRandomColor();
+      ctx.fillStyle = p.color;
       ctx.fill();
       ctx.closePath();
     });

@@ -21,6 +21,7 @@ type Message struct {
 	ID       int      `json:"id"`
 	Position Position `json:"position"` //Position variable takes Position struct as datatype
 	Message  string   `json:"message"`
+	Color    string   `json:"color"`
 }
 
 // ServerState map of states for all players
@@ -33,6 +34,7 @@ type ServerState struct {
 type ObjectState struct {
 	ID       int      `json:"id"`
 	Position Position `json:"position"`
+	Color    string   `json:"color"`
 }
 
 var clients = make(map[*websocket.Conn]*ObjectState)
@@ -61,6 +63,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	clients[ws] = &ObjectState{
 		0,
 		Position{0, 0},
+		"",
 	}
 
 	// infinite loop that receives msgs from clients
@@ -93,6 +96,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			//update player in map
 			clients[ws].Position.X = msg.Position.X
 			clients[ws].Position.Y = msg.Position.Y
+			clients[ws].Color = msg.Color
 		}
 		log.Printf("Client %d State: %+v\n", msg.ID, *clients[ws])
 	}

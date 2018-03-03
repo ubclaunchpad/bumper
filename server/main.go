@@ -7,22 +7,19 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/ubclaunchpad/bumper/server/models"
 )
-
-// Position x y position
-type Position struct {
-	X float32 `json:"x"`
-	Y float32 `json:"y"`
-}
 
 // Message is the schema for client/server communication
 type Message struct {
-	Type     string   `json:"type"`
-	ID       int      `json:"id"`
-	Position Position `json:"position"` //Position variable takes Position struct as datatype
-	Message  string   `json:"message"`
-	Color    string   `json:"color"`
+	Type     string          `json:"type"`
+	ID       int             `json:"id"`
+	Position models.Position `json:"position"` //Position variable takes Position struct as datatype
+	Message  string          `json:"message"`
+	Color    string          `json:"color"`
 }
+
+var p models.Player //DELETE THIS LATER, USED AS WORKAROUND FOR IMPORTING
 
 // ServerState map of states for all players
 type ServerState struct {
@@ -32,9 +29,9 @@ type ServerState struct {
 
 // ObjectState of an object, position, velocity, id
 type ObjectState struct {
-	ID       int      `json:"id"`
-	Position Position `json:"position"`
-	Color    string   `json:"color"`
+	ID       int             `json:"id"`
+	Position models.Position `json:"position"`
+	Color    string          `json:"color"`
 }
 
 var clients = make(map[*websocket.Conn]*ObjectState)
@@ -62,7 +59,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	// initialize state struct
 	clients[ws] = &ObjectState{
 		0,
-		Position{0, 0},
+		models.Position{0, 0},
 		"",
 	}
 

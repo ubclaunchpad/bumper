@@ -4,12 +4,12 @@ bump other players and objects off to stay alive
 # Getting Started
 How to get started running a server and client on your local machine.
 
-## docker-compose
+## docker-compose Startup
 
 Install Docker and the docker-compose toolsets. Then run:
 
 ```bash
-$ docker-compose up --build
+$ docker-compose -f docker-compose.dev.yml up
 ```
 
 This will start up the server and client.

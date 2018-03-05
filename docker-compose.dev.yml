@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  client:
+    build:
+      context: ./client
+    volumes:
+      - ./client:/client
+    ports:
+      - "8080:8080"
+
+  server:
+    build:
+      context: ./server
+    volumes:
+      - ./server:/server
+    ports:
+      - "9090:9090"

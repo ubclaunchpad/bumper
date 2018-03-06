@@ -5,3 +5,5 @@
 /server/server
 /server/server.exe
 vendor/
+
+.inertia.toml

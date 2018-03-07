@@ -2862,6 +2862,7 @@ var App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
     if (window.WebSocket) {
+      console.log('hi from brian');
       _this.socket = new WebSocket(address);
       _this.socket.onopen = function () {
         return _this.initialClientMessage();

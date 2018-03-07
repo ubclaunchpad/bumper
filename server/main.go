@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -123,6 +124,7 @@ func tick() {
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "Hello from Bumper\n")
 	})
 	http.HandleFunc("/connect", handleConnection)
 	go tick()

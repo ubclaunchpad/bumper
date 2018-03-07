@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --hot --host 0.0.0.0",
-    "build": "NODE_ENV=production webpack && npm run commit && npm run deploy",
-    "commit": "git add public/bundle.js && git commit -m \"Deploying\" && git push",
+    "build": "NODE_ENV=production webpack",
     "deploy": "cd .. && git subtree push --prefix client/public origin gh-pages",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -27,6 +26,7 @@
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.6.0"
+    "eslint-plugin-react": "^7.6.0",
+    "webpack-cli": "^2.0.10"
   }
 }

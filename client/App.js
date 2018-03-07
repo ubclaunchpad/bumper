@@ -35,7 +35,7 @@ export default class App extends React.Component {
       this.socket.onopen = () => this.initialClientMessage();
       this.socket.onmessage = event => this.handleServerMessage(JSON.parse(event.data));
     } else {
-      console.log('websocket not availableeee');
+      console.log('websocket not available');
     }
 
     this.state = {

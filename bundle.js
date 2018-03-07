@@ -2870,7 +2870,7 @@ var App = function (_React$Component) {
         return _this.handleServerMessage(JSON.parse(event.data));
       };
     } else {
-      console.log('websocket not availableeee');
+      console.log('websocket not available');
     }
 
     _this.state = {

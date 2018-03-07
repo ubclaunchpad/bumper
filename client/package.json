@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --hot --host 0.0.0.0",
-    "build": "NODE_ENV=production webpack",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "cd .. && git subtree push --prefix client/public origin gh-pages"
+    "build": "NODE_ENV=production webpack && npm run commit && npm run deploy",
+    "commit": "git add public/bundle.js && git commit -m \"Deploying\" && git push",
+    "deploy": "cd .. && git subtree push --prefix client/public origin gh-pages",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",

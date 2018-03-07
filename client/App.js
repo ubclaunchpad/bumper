@@ -18,7 +18,7 @@ const MAX_HOLE_LIFE = 75;
 const width = window.innerWidth;
 const height = window.innerHeight;
 const address = process.env.NODE_ENV === 'production'
-  ? 'ws://ec2-18-218-38-25.us-east-2.compute.amazonaws.com:9090/connect'
+  ? 'ws://ec2-18-188-53-231.us-east-2.compute.amazonaws.com:9090/connect'
   : 'ws://localhost:9090/connect';
 
 // detect collision

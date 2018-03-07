@@ -31,6 +31,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     if (window.WebSocket) {
+      console.log('hi from brian');
       this.socket = new WebSocket(address);
       this.socket.onopen = () => this.initialClientMessage();
       this.socket.onmessage = event => this.handleServerMessage(JSON.parse(event.data));

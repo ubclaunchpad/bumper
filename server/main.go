@@ -124,7 +124,7 @@ func tick() {
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "Helloooooooo is Inertia working yet?\n")
+		fmt.Fprint(w, "is Inertia working yet?\n")
 	})
 	http.HandleFunc("/connect", handleConnection)
 	go tick()

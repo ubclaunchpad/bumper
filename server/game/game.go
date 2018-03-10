@@ -26,7 +26,6 @@ type Arena struct {
 	Players []models.Player
 }
 
-<<<<<<< HEAD
 // createArena constructor for arena
 // initializes holes and junk
 func createArena(height float64, width float64) *Arena {
@@ -97,12 +96,6 @@ func (a *Arena) isPositionValid(position models.Position) bool {
 // (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
 func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 float64) bool {
 	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
-=======
-// createArena constructor for arena to initialize a width/height
-// returns an Arena struct with width and height
-func createArena(height int, width int) *Arena {
-	return &Arena{height, width, nil, nil, nil}
->>>>>>> player collision logic
 }
 
 func (a *Arena) checkForCollisions() {

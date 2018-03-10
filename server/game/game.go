@@ -34,29 +34,29 @@ func createArena(height float64, width float64) *Arena {
 	// create holes
 	for i := 0; i < holeCount; i++ {
 		position := a.generateCoord(minHoleRadius)
-		hole := models.Hole{*position, minHoleRadius}
+		hole := models.Hole{position, minHoleRadius}
 		a.Holes = append(a.Holes, hole)
 	}
 
 	// create junk
 	for i := 0; i < junkCount; i++ {
 		position := a.generateCoord(junkRadius)
-		junk := models.Junk{*position, models.Velocity{0, 0}, 0}
+		junk := models.Junk{position, models.Velocity{0, 0}, 0}
 		a.Junk = append(a.Junk, junk)
 	}
 
-	return &Arena{height, width, nil, nil, nil}
+	return &a
 }
 
 // TODO does this need to be a function on arena?
 // generateCoord creates a position coordinate
 // coordinates are constrained within the Arena's width/height and spacing
-func (a *Arena) generateCoord(objectRadius float64) *models.Position {
+func (a *Arena) generateCoord(objectRadius float64) models.Position {
 	maxWidth := a.Width - objectRadius
 	maxHeight := a.Height - objectRadius
 
 	x := math.Floor(rand.Float64()*(maxWidth)) + objectRadius
 	y := math.Floor(rand.Float64()*(maxHeight)) + objectRadius
 
-	return &models.Position{x, y}
+	return models.Position{x, y}
 }

@@ -153,7 +153,6 @@ export default class App extends React.Component {
   }
 
   draw() {
-    if (!this.state.isInitialized);
     this.drawHoles();
     this.drawJunk();
     this.drawPlayers();

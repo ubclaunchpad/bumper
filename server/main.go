@@ -60,8 +60,8 @@ func tick() {
 		models.Player{ID: 3, Position: models.Position{X: 300, Y: 300}, Velocity: models.Velocity{Dx: 0, Dy: 0}, Color: "green"},
 	}
 	holes := []models.Hole{
-		models.Hole{Position: models.Position{X: 150, Y: 150}, Radius: 10},
-		models.Hole{Position: models.Position{X: 100, Y: 100}, Radius: 10},
+		models.Hole{Position: models.Position{X: 150, Y: 150}, Radius: 15},
+		models.Hole{Position: models.Position{X: 100, Y: 100}, Radius: 15},
 	}
 	junk := []models.Junk{
 		models.Junk{Position: models.Position{X: 50, Y: 50}, Velocity: models.Velocity{Dx: 0, Dy: 0}},

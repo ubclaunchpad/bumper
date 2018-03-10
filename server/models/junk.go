@@ -21,7 +21,7 @@ type Junk struct {
 	Position Position `json:"position"`
 	Velocity Velocity `json:"velocity"`
 	Color    string   `json:"color"`
-	Player   Player   `json:"player"`
+	ID       int      `json:"int"` // player id who last hit the junk
 }
 
 //Update Junk's position based on calculations of position/velocity

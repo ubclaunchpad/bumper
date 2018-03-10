@@ -28,6 +28,5 @@ func (v *Velocity) normalize() *Velocity {
 			Dy: v.Dy / mag,
 		}
 	}
-
 	return v
 }

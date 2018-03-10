@@ -4,3 +4,6 @@
 /client/node_modules/
 /server/server
 /server/server.exe
+vendor/
+
+.inertia.toml

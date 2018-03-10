@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  server:
+    build:
+      context: ./server
+    volumes:
+      - ./server:/server
+    ports:
+      - "9090:9090"

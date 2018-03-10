@@ -2845,7 +2845,7 @@ var MAX_HOLE_LIFE = 75;
 
 var width = window.innerWidth;
 var height = window.innerHeight;
-var address =  true ? 'ws://ec2-18-218-38-25.us-east-2.compute.amazonaws.com:9090/connect' : 'ws://localhost:9090/connect';
+var address =  true ? 'ws://ec2-18-188-53-231.us-east-2.compute.amazonaws.com:9090/connect' : 'ws://localhost:9090/connect';
 
 // detect collision
 // (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
@@ -2862,6 +2862,7 @@ var App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
     if (window.WebSocket) {
+      console.log('hi from brian');
       _this.socket = new WebSocket(address);
       _this.socket.onopen = function () {
         return _this.initialClientMessage();
@@ -2914,9 +2915,7 @@ var App = function (_React$Component) {
         }, 17 // 60 Hz
         );
       } else if (msg.type === 'update') {
-        this.setState({
-          players: msg.players
-        });
+        console.log(msg);
       }
     }
   }, {

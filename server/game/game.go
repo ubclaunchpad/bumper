@@ -102,6 +102,46 @@ func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 fl
 	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
 }
 
+func (a *Arena) checkForCollisions() {
+	collisionPlayerToPlayer()
+	collisionPlayerToJunk()
+	collisionPlayerToHole()
+	collisionJunkToHole()
+}
+
+func (a *Arena) collisionPlayerToPlayer() {
+	//Check player collisions
+	//Player A collides with Player B
+	for _, playerA := range a.Players {
+		//Player B collides with Player A
+		for _, playerB := range a.Players {
+
+			//Player checks for collision on it's self
+			//if true, skip the collision calculation
+			if playerA == playerB {
+				continue
+			}
+
+			//TODO: Add logic to only calculate player-player collisions once
+			if areCirclesColliding(playerA.Position, playerRadius, playerB.Position, playerRadius) {
+				playerA.hitPlayer()
+				playerB.hitPlayer()
+			}
+
+		}
+	}
+}
+
+func (a *Arena) collisionPlayerToHole() {
+
+}
+
+func (a *Arena) collisionPlayerToJunk() {
+
+}
+
+func (a *Arena) collisionJunkToHole() {
+
 // Hello test
 func (a *Arena) Hello() {
 }

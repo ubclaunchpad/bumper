@@ -108,6 +108,12 @@ func (p *Player) hitJunk() {
 	p.Velocity.Dy *= JunkBounceFactor
 }
 
+//Update Player's position based on calculation of hitting another player
+func (p *Player) hitPlayer() {
+	p.Velocity.Dx *= JunkBounceFactor
+	p.Velocity.Dy *= JunkBounceFactor
+}
+
 //Handle a key press
 func (p *Player) keyDownHandler(key int) {
 	if key == RightKey {

@@ -25,9 +25,8 @@ type Arena struct {
 	Players []models.Player
 }
 
-// createArena constructor for arena to initialize a width/height
-// TODO add initial junk and holes
-// returns an Arena struct with width and height
+// createArena constructor for arena
+// initializes holes and junk
 func createArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
 
@@ -48,7 +47,6 @@ func createArena(height float64, width float64) *Arena {
 	return &a
 }
 
-// TODO does this need to be a function on arena?
 // generateCoord creates a position coordinate
 // coordinates are constrained within the Arena's width/height and spacing
 func (a *Arena) generateCoord(objectRadius float64) models.Position {

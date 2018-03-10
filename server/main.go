@@ -60,6 +60,10 @@ func runGame() {
 	// 	// RUN GAME HERE
 	// 	a.hello()
 	// }
+	for {
+		// RUN GAME HERE
+		a.Hello()
+	}
 }
 
 func tick() {

@@ -55,10 +55,11 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 }
 
 func runGame() {
-	a := game.createArena()
+	a := game.CreateArena(400, 400)
 
 	for {
 		// RUN GAME HERE
+		a.hello()
 	}
 }
 

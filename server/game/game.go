@@ -18,3 +18,7 @@ type Arena struct {
 func CreateArena(height int, width int) *Arena {
 	return &Arena{height, width, nil, nil, nil}
 }
+
+func (a *Arena) hello() {
+
+}

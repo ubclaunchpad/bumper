@@ -56,6 +56,10 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 func runGame() {
 	a := game.createArena()
+
+	for {
+		// RUN GAME HERE
+	}
 }
 
 func tick() {

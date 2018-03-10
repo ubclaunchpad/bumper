@@ -21,14 +21,17 @@ type Player struct {
 	Angle    float32  `json:"angle"`
 }
 
+//Update Player's position based on calculations of position/velocity
 func (p *Player) updatePosition() {
 
 }
 
+//Update Player's position based on calculations of hitting junk
 func (p *Player) hitJunk() {
 
 }
 
+//Handle the effect of a key press
 func (p *Player) keyHandler(key int) {
 
 }

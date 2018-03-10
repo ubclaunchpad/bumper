@@ -28,8 +28,19 @@ type Arena struct {
 	Players []models.Player
 }
 
-// CreateArena constructor for arena
-// initializes holes and junk
+func (a *Arena) UpdatePositions() {
+	// for _, hole := range a.Holes {
+
+	// }
+	// for _, junk := range a.Junk {
+
+	// }
+	// for _, player := range a.Players {
+
+	// }
+}
+
+// CreateArena constructor for arena initializes holes and junk
 func CreateArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
 
@@ -103,10 +114,10 @@ func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 fl
 }
 
 func (a *Arena) checkForCollisions() {
-	collisionPlayerToPlayer()
-	collisionPlayerToJunk()
-	collisionPlayerToHole()
-	collisionJunkToHole()
+	a.collisionPlayerToPlayer()
+	a.collisionPlayerToJunk()
+	a.collisionPlayerToHole()
+	a.collisionJunkToHole()
 }
 
 func (a *Arena) collisionPlayerToPlayer() {
@@ -124,8 +135,8 @@ func (a *Arena) collisionPlayerToPlayer() {
 
 			//TODO: Add logic to only calculate player-player collisions once
 			if areCirclesColliding(playerA.Position, playerRadius, playerB.Position, playerRadius) {
-				playerA.hitPlayer()
-				playerB.hitPlayer()
+				// playerA.hitPlayer()
+				// playerB.hitPlayer()
 			}
 
 		}
@@ -142,6 +153,4 @@ func (a *Arena) collisionPlayerToJunk() {
 
 func (a *Arena) collisionJunkToHole() {
 
-// Hello test
-func (a *Arena) Hello() {
 }

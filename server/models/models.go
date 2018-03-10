@@ -12,14 +12,6 @@ type Velocity struct {
 	Dy float32
 }
 
-// Player contains data and state about a player's object
-type Player struct {
-	ID       int
-	Position Position
-	Velocity Velocity
-	Color    string
-}
-
 // Hole contains the data for a hole's position and size
 type Hole struct {
 	Position Position

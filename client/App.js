@@ -37,16 +37,21 @@ export default class App extends React.Component {
       };
     } else {
       console.log('websocket not available');
+      return;
     }
 
     this.state = {
-      allCoords: [], // might need to change this
-      junk: [],
-      holes: [],
+      allCoords: [],
+      junk: null,
+      holes: null,
+      players: null,
       player: null,
       points: 0,
     };
 
+    this.handleMessage = this.handleMessage.bind(this);
+    this.initializeGame = this.initializeGame.bind(this);
+    this.update = this.update.bind(this);
     this.tick = this.tick.bind(this);
   }
 
@@ -57,23 +62,25 @@ export default class App extends React.Component {
 
   handleMessage(msg) {
     switch (msg.type) {
-      case 'initial':
-        console.log('initial msg received');
       case 'update':
-        console.log('update msg received');        
+        this.update(msg.data);
+        break;  
       default:
-        console.log('unknown msg type');
+        console.log(`unknown msg type ${msg.type}`);
+        break;
     }
   }
 
-  updateClientMessage() {
-    if (this.socket.readyState !== 1 || !this.state.player) return;
+  initializeGame(data) {
+    // TODO: create arrays
+  }
 
-    this.socket.send(JSON.stringify({
-      type: 'update',
-      id: this.state.player.id,
-      position: this.state.player.position,
-    }));
+  update(data) {
+    if (!junk || !holes || !players || !player) {
+      this.initializeGame(data);
+    }
+
+    // TODO: update objects accordingly
   }
 
   generateJunk() {
@@ -249,9 +256,6 @@ export default class App extends React.Component {
 
   tick() {
     this.updateCanvas();
-    // check for hole and player collisions
-    // TODO check rest of the possible collisions
-    this.checkForCollisions();
     // eslint-disable-next-line
     requestAnimationFrame(this.tick);
   }
@@ -321,7 +325,6 @@ export default class App extends React.Component {
     this.drawHoles();
     this.drawPlayers();
     this.drawPlayerPoints();
-    this.calculateNextState();
   }
 
   calculateNextState() {

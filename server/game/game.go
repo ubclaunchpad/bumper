@@ -18,8 +18,8 @@ const maxHoleLife = 75
 
 // Arena container for play area information including all objects
 type Arena struct {
-	Height  float32 // Height of play area in pixels
-	Width   float32 // Width of play area in pixels
+	Height  float64 // Height of play area in pixels
+	Width   float64 // Width of play area in pixels
 	Holes   []models.Hole
 	Junk    []models.Junk
 	Players []models.Player
@@ -28,7 +28,7 @@ type Arena struct {
 // createArena constructor for arena to initialize a width/height
 // TODO add initial junk and holes
 // returns an Arena struct with width and height
-func createArena(height float32, width float32) *Arena {
+func createArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
 
 	// create holes
@@ -52,10 +52,8 @@ func createArena(height float32, width float32) *Arena {
 // generateCoord creates a position coordinate
 // coordinates are constrained within the Arena's width/height and spacing
 func (a *Arena) generateCoord(objectRadius float64) *models.Position {
-	maxWidth := float64(a.Width - objectRadius)
-	minWidth := float64(minDistanceBetween)
-	maxHeight := float64(a.Height - objectRadius)
-	minHeight := float64(minDistanceBetween)
+	maxWidth := a.Width - objectRadius
+	maxHeight := a.Height - objectRadius
 
 	x := math.Floor(rand.Float64()*(maxWidth)) + objectRadius
 	y := math.Floor(rand.Float64()*(maxHeight)) + objectRadius

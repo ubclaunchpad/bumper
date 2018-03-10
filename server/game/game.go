@@ -100,6 +100,7 @@ func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 fl
 
 func (a *Arena) checkForCollisions() {
 
+	//Check player collisions
 	//Player A collides with Player B
 	for _, playerA := range a.Players {
 		//Player B collides with Player A
@@ -110,6 +111,7 @@ func (a *Arena) checkForCollisions() {
 				continue
 			}
 
+			//TODO: Add logic to only calculate player-player collisions once
 			if areCirclesColliding(playerA.Position, playerRadius, playerB.Position, playerRadius) {
 				playerA.hitPlayer()
 				playerB.hitPlayer()

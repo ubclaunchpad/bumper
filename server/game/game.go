@@ -97,3 +97,7 @@ func (a *Arena) isPositionValid(position models.Position) bool {
 func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 float64) bool {
 	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
 }
+
+func (a *Arena) hello() {
+
+}

@@ -7,15 +7,17 @@ import (
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
-const playerRadius = 25
-const junkCount = 10
-const holeCount = 10
-const junkRadius = 8
-const minHoleRadius = 15
-const maxHoleRadius = 30
-const minDistanceBetween = maxHoleRadius
-const minHoleLife = 25
-const maxHoleLife = 75
+const (
+	playerRadius       = 25
+	junkCount          = 10
+	holeCount          = 10
+	junkRadius         = 8
+	minHoleRadius      = 15
+	maxHoleRadius      = 30
+	minDistanceBetween = maxHoleRadius
+	minHoleLife        = 25
+	maxHoleLife        = 75
+)
 
 // Arena container for play area information including all objects
 type Arena struct {
@@ -102,7 +104,6 @@ func (a *Arena) isPositionValid(position models.Position) bool {
 func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 float64) bool {
 	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
 }
-
 
 func (a *Arena) Hello() {
 }

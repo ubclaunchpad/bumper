@@ -14,11 +14,11 @@ const DownKey = 40
 
 // Player contains data and state about a player's object
 type Player struct {
-	ID       int
-	Position Position
-	Velocity Velocity
-	Color    string
-	Angle    float32 //Direction of player (degrees)
+	ID       int      `json:"id"`
+	Position Position `json:"position"`
+	Velocity Velocity `json:"velocity"`
+	Color    string   `json:"color"`
+	Angle    float32  `json:"angle"`
 }
 
 func (p *Player) updatePosition() {

@@ -2915,9 +2915,7 @@ var App = function (_React$Component) {
         }, 17 // 60 Hz
         );
       } else if (msg.type === 'update') {
-        this.setState({
-          players: msg.players
-        });
+        console.log(msg);
       }
     }
   }, {

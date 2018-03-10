@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/ubclaunchpad/bumper/server/game"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
@@ -51,6 +52,10 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 		// TODO: receive controls here
 	}
+}
+
+func runGame() {
+	a := game.createArena()
 }
 
 func tick() {
@@ -100,6 +105,7 @@ func main() {
 		fmt.Fprint(w, "is Inertia working yet?\n")
 	})
 	http.HandleFunc("/connect", handleConnection)
+	go runGame()
 	go tick()
 
 	log.Println("Starting server on localhost:9090")

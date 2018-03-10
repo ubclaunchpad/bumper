@@ -13,8 +13,8 @@ type Arena struct {
 	Players []models.Player
 }
 
-// createArena constructor for arena to initialize a width/height
+// CreateArena constructor for arena to initialize a width/height
 // returns an Arena struct with width and height
-func createArena(height int, width int) *Arena {
+func CreateArena(height int, width int) *Arena {
 	return &Arena{height, width, nil, nil, nil}
 }

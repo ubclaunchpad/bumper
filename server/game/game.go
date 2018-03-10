@@ -32,16 +32,28 @@ func createArena(height float64, width float64) *Arena {
 
 	// create holes
 	for i := 0; i < holeCount; i++ {
-		position := a.generateCoord(minHoleRadius)
-		hole := models.Hole{position, minHoleRadius}
-		a.Holes = append(a.Holes, hole)
+		foundValidPos := false
+		for !foundValidPos {
+			position := a.generateCoord(minHoleRadius)
+			if a.isPositionValid(position) {
+				foundValidPos = true
+				hole := models.Hole{position, minHoleRadius}
+				a.Holes = append(a.Holes, hole)
+			}
+		}
 	}
 
 	// create junk
 	for i := 0; i < junkCount; i++ {
-		position := a.generateCoord(junkRadius)
-		junk := models.Junk{position, models.Velocity{0, 0}, 0}
-		a.Junk = append(a.Junk, junk)
+		foundValidPos := false
+		for !foundValidPos {
+			position := a.generateCoord(junkRadius)
+			if a.isPositionValid(position) {
+				foundValidPos = true
+				junk := models.Junk{position, models.Velocity{0, 0}, 0}
+				a.Junk = append(a.Junk, junk)
+			}
+		}
 	}
 
 	return &a
@@ -57,4 +69,30 @@ func (a *Arena) generateCoord(objectRadius float64) models.Position {
 	y := math.Floor(rand.Float64()*(maxHeight)) + objectRadius
 
 	return models.Position{x, y}
+}
+
+func (a *Arena) isPositionValid(position models.Position) bool {
+	for _, hole := range a.Holes {
+		if hole.Position == position {
+			return false
+		}
+	}
+	for _, junk := range a.Junk {
+		if junk.Position == position {
+			return false
+		}
+	}
+	for _, player := range a.Players {
+		if player.Position == position {
+			return false
+		}
+	}
+
+	return true
+}
+
+// detect collision between objects
+// (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
+func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 float64) bool {
+	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
 }

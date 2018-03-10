@@ -25,12 +25,12 @@ type Junk struct {
 }
 
 //Update Junk's position based on calculations of position/velocity
-func (j *Junk) updatePosition(a *Arena) {
+func (j *Junk) updatePosition(maxWidth float64, maxHeight float64) {
 	const r = JunkSize / 2
-	if j.Position.X+j.Velocity.Dx > a.Width-r || j.Position.X+j.Velocity.Dx < r {
+	if j.Position.X+j.Velocity.Dx > maxWidth-r || j.Position.X+j.Velocity.Dx < r {
 		j.Velocity.Dx = -j.Velocity.Dx
 	}
-	if j.Position.Y+j.Velocity.Dy > a.Height-r || j.Position.Y+j.Velocity.Dy < r {
+	if j.Position.Y+j.Velocity.Dy > maxHeight-r || j.Position.Y+j.Velocity.Dy < r {
 		j.Velocity.Dy = -j.Velocity.Dy
 	}
 
@@ -44,7 +44,6 @@ func (j *Junk) updatePosition(a *Arena) {
 //Update Junks's velocity based on calculations of being hit by a player
 func (j *Junk) hitBy(p *Player) {
 	j.Color = p.Color
-	j.Player = p
 
 	if p.Velocity.Dx < 0 {
 		j.Velocity.Dx = math.Max(p.Velocity.Dx*BumpFactor, -MinimumBump)

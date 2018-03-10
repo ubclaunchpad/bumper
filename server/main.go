@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/ubclaunchpad/bumper/server/game"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
@@ -55,12 +54,12 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 }
 
 func runGame() {
-	a := game.CreateArena(400, 400)
+	// a := game.CreateArena(400, 400)
 
-	for {
-		// RUN GAME HERE
-		a.hello()
-	}
+	// for {
+	// 	// RUN GAME HERE
+	// 	a.hello()
+	// }
 }
 
 func tick() {

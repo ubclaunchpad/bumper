@@ -99,7 +99,13 @@ func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 fl
 }
 
 func (a *Arena) checkForCollisions() {
+	collisionPlayerToPlayer()
+	collisionPlayerToJunk()
+	collisionPlayerToHole()
+	collisionJunkToHole()
+}
 
+func (a *Arena) collisionPlayerToPlayer() {
 	//Check player collisions
 	//Player A collides with Player B
 	for _, playerA := range a.Players {
@@ -107,6 +113,7 @@ func (a *Arena) checkForCollisions() {
 		for _, playerB := range a.Players {
 
 			//Player checks for collision on it's self
+			//if true, skip the collision calculation
 			if playerA == playerB {
 				continue
 			}
@@ -119,4 +126,16 @@ func (a *Arena) checkForCollisions() {
 
 		}
 	}
+}
+
+func (a *Arena) collisionPlayerToHole() {
+
+}
+
+func (a *Arena) collisionPlayerToJunk() {
+
+}
+
+func (a *Arena) collisionJunkToHole() {
+
 }

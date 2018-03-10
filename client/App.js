@@ -31,10 +31,10 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     if (window.WebSocket) {
-      console.log('hi from brian');
       this.socket = new WebSocket(address);
-      this.socket.onopen = () => this.initialClientMessage();
-      this.socket.onmessage = event => this.handleServerMessage(JSON.parse(event.data));
+      this.socket.onopen = () => {
+        this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
+      };
     } else {
       console.log('websocket not available');
     }
@@ -47,47 +47,23 @@ export default class App extends React.Component {
       points: 0,
     };
 
-    this.resizeCanvas = this.resizeCanvas.bind(this);
     this.tick = this.tick.bind(this);
-    this.initialClientMessage = this.initialClientMessage.bind(this);
   }
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
-    this.generateJunk();
-    this.generatePlayer();
-    this.generateHoles();
-
-    window.addEventListener('resize', this.resizeCanvas);
     this.tick();
   }
 
-
-  handleServerMessage(msg) {
-    if (msg.type === 'initial') {
-      // add id to player
-      // start update interval
-      this.state.player.id = msg.id;
-      this.setState({ player: this.state.player });
-
-      this.timerID = setInterval(
-        () => this.updateClientMessage(),
-        17, // 60 Hz
-      );
-    } else if (msg.type === 'update') {
-      console.log(msg);
+  handleMessage(msg) {
+    switch (msg.type) {
+      case 'initial':
+        console.log('initial msg received');
+      case 'update':
+        console.log('update msg received');        
+      default:
+        console.log('unknown msg type');
     }
-  }
-
-  initialClientMessage() {
-    if (this.socket.readyState !== 1) return;
-
-    this.socket.send(JSON.stringify({
-      type: 'initial',
-      id: 1,
-      message: 'hello',
-      color: this.state.player.color,
-    }));
   }
 
   updateClientMessage() {

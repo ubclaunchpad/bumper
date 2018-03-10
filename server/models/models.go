@@ -12,14 +12,6 @@ type Velocity struct {
 	Dy float32 `json:"dy"`
 }
 
-// Player contains data and state about a player's object
-type Player struct {
-	ID       int      `json:"id"`
-	Position Position `json:"position"`
-	Velocity Velocity `json:"velocity"`
-	Color    string   `json:"color"`
-}
-
 // Hole contains the data for a hole's position and size
 type Hole struct {
 	Position Position `json:"position"`

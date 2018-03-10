@@ -50,7 +50,10 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		// TODO: receive controls here
+		if msg.Type == "keyHandler" {
+			log.Printf("recieved: %s", msg.Data)
+
+		}
 	}
 }
 
@@ -59,7 +62,7 @@ func runGame() {
 
 	for {
 		// RUN GAME HERE
-		a.hello()
+		a.Hello()
 	}
 }
 

@@ -52,13 +52,33 @@ export default class App extends React.Component {
 
     this.handleMessage = this.handleMessage.bind(this);
     this.initializeGame = this.initializeGame.bind(this);
+    this.sendKeyPress = this.sendKeyPress.bind(this);
     this.update = this.update.bind(this);
     this.tick = this.tick.bind(this);
     this.draw = this.draw.bind(this);
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.keyUpHandler = this.keyUpHandler.bind(this);
+
+    window.addEventListener('keydown', this.keyDownHandler);
+    window.addEventListener('keyup', this.keyUpHandler);
   }
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
+  }
+
+  sendKeyPress(keyPressed, isPressed) {
+    const pressMessage = {
+      playerID: 1234, // TODO with player ID
+      key: keyPressed,
+      pressed: isPressed,
+    };
+    const message = {
+      type: 'keyHandler',
+      data: JSON.stringify(pressMessage),
+    };
+
+    this.socket.send(JSON.stringify(message));
   }
 
   handleMessage(msg) {
@@ -158,6 +178,15 @@ export default class App extends React.Component {
     this.drawPlayers();
     this.drawPlayerPoints();
   }
+
+  keyDownHandler(e) {
+    this.sendKeyPress(e.keyCode, true);
+  }
+
+  keyUpHandler(e) {
+    this.sendKeyPress(e.keyCode, false);
+  }
+
 
   render() {
     return (

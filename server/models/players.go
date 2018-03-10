@@ -51,7 +51,7 @@ type KeysPressed struct {
 }
 
 //Update Player's position based on calculations of position/velocity
-func (p *Player) updatePosition(a *Arena) {
+func (p *Player) updatePosition(height float64, width float64) {
 	controlsVector := Velocity{0, 0}
 
 	if p.Controls.Left {
@@ -89,13 +89,13 @@ func (p *Player) updatePosition(a *Arena) {
 	p.Position.Y += p.Velocity.Dy
 
 	// Check wall collisions
-	if p.Position.X+PlayerRadius > a.Width {
+	if p.Position.X+PlayerRadius > width {
 		p.Velocity.Dx *= WallBounceFactor
 	} else if p.Position.X-PlayerRadius < 0 {
 		p.Velocity.Dx *= WallBounceFactor
 	}
 
-	if p.Position.Y+PlayerRadius > a.Height {
+	if p.Position.Y+PlayerRadius > height {
 		p.Velocity.Dy *= WallBounceFactor
 	} else if p.Position.Y-PlayerRadius < 0 {
 		p.Velocity.Dy *= WallBounceFactor

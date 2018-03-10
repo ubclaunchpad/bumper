@@ -25,12 +25,12 @@ type Junk struct {
 }
 
 //Update Junk's position based on calculations of position/velocity
-func (j *Junk) updatePosition(a *Arena) {
+func (j *Junk) updatePosition(height float64, width float64) {
 	const r = JunkSize / 2
-	if j.Position.X+j.Velocity.Dx > a.Width-r || j.Position.X+j.Velocity.Dx < r {
+	if j.Position.X+j.Velocity.Dx > width-r || j.Position.X+j.Velocity.Dx < r {
 		j.Velocity.Dx = -j.Velocity.Dx
 	}
-	if j.Position.Y+j.Velocity.Dy > a.Height-r || j.Position.Y+j.Velocity.Dy < r {
+	if j.Position.Y+j.Velocity.Dy > height-r || j.Position.Y+j.Velocity.Dy < r {
 		j.Velocity.Dy = -j.Velocity.Dy
 	}
 

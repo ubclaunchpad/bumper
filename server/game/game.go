@@ -28,40 +28,33 @@ type Arena struct {
 	Players []models.Player
 }
 
-// createArena constructor for arena
+// CreateArena constructor for arena
 // initializes holes and junk
 func CreateArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
 
 	// create holes
 	for i := 0; i < holeCount; i++ {
-		foundValidPos := false
-		for !foundValidPos {
-			position := a.generateCoord(minHoleRadius)
-			if a.isPositionValid(position) {
-				foundValidPos = true
-				initialRadius := math.Floor(rand.Float64()*((maxHoleRadius-minHoleRadius)+1)) + minHoleRadius
-				lifespan := math.Floor(rand.Float64()*((maxHoleLife-minHoleLife)+1)) + minHoleLife
-				hole := models.Hole{
-					Position: position,
-					Radius:   initialRadius,
-					Life:     lifespan}
-				a.Holes = append(a.Holes, hole)
-			}
+		position := a.generateCoord(minHoleRadius)
+		initialRadius := math.Floor(rand.Float64()*((maxHoleRadius-minHoleRadius)+1)) + minHoleRadius
+		lifespan := math.Floor(rand.Float64()*((maxHoleLife-minHoleLife)+1)) + minHoleLife
+		hole := models.Hole{
+			Position: position,
+			Radius:   initialRadius,
+			Life:     lifespan,
 		}
+		a.Holes = append(a.Holes, hole)
 	}
 
 	// create junk
 	for i := 0; i < junkCount; i++ {
-		foundValidPos := false
-		for !foundValidPos {
-			position := a.generateCoord(junkRadius)
-			if a.isPositionValid(position) {
-				foundValidPos = true
-				junk := models.Junk{position, models.Velocity{0, 0}, "white", 0}
-				a.Junk = append(a.Junk, junk)
-			}
-		}
+		position := a.generateCoord(junkRadius)
+		junk := models.Junk{
+			Position: position,
+			Velocity: models.Velocity{Dx: 0, Dy: 0},
+			Color:    "white",
+			ID:       0}
+		a.Junk = append(a.Junk, junk)
 	}
 
 	return &a
@@ -69,14 +62,18 @@ func CreateArena(height float64, width float64) *Arena {
 
 // generateCoord creates a position coordinate
 // coordinates are constrained within the Arena's width/height and spacing
+// they are all valid
 func (a *Arena) generateCoord(objectRadius float64) models.Position {
 	maxWidth := a.Width - objectRadius
 	maxHeight := a.Height - objectRadius
-
-	x := math.Floor(rand.Float64()*(maxWidth)) + objectRadius
-	y := math.Floor(rand.Float64()*(maxHeight)) + objectRadius
-
-	return models.Position{x, y}
+	for {
+		x := math.Floor(rand.Float64()*(maxWidth)) + objectRadius
+		y := math.Floor(rand.Float64()*(maxHeight)) + objectRadius
+		position := models.Position{X: x, Y: y}
+		if a.isPositionValid(position) {
+			return position
+		}
+	}
 }
 
 func (a *Arena) isPositionValid(position models.Position) bool {
@@ -105,5 +102,6 @@ func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 fl
 	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
 }
 
+// Hello test
 func (a *Arena) Hello() {
 }

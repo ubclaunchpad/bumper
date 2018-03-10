@@ -42,6 +42,7 @@ export default class App extends React.Component {
 
     this.state = {
       allCoords: [],
+      isInitialized: false,
       junk: null,
       holes: null,
       players: null,
@@ -53,15 +54,18 @@ export default class App extends React.Component {
     this.initializeGame = this.initializeGame.bind(this);
     this.update = this.update.bind(this);
     this.tick = this.tick.bind(this);
+    this.draw = this.draw.bind(this);
   }
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
-    this.tick();
   }
 
   handleMessage(msg) {
     switch (msg.type) {
+      case 'initial':
+        console.log('initial msg received');
+        // TODO: set player id
       case 'update':
         this.update(msg.data);
         break;  
@@ -72,15 +76,96 @@ export default class App extends React.Component {
   }
 
   initializeGame(data) {
-    // TODO: create arrays
+    this.setState({
+      junk: data.junk,
+      holes: data.holes,
+      players: data.players,
+      player: data.players[0],
+      isInitialized: true,
+    }, () => this.tick());
+  }
+  
+  update(data) {
+    if (!this.state.isInitialized) {
+      this.initializeGame(data);
+      return;
+    }
+    
+    // TODO: update objects accordingly
   }
 
-  update(data) {
-    if (!junk || !holes || !players || !player) {
-      this.initializeGame(data);
-    }
+  tick() {
+    this.draw();
+    // eslint-disable-next-line
+    requestAnimationFrame(this.tick);
+  }
+  
+  drawHoles() {
+    this.state.holes.forEach((h) => {
+      const ctx = this.canvas.getContext('2d');
+      ctx.beginPath();
+      ctx.arc(h.position.x, h.position.y, h.radius, 0, Math.PI * 2);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+      ctx.closePath();
+    });
+  }
 
-    // TODO: update objects accordingly
+  drawJunk() {
+    this.state.junk.forEach((j) => {
+      const ctx = this.canvas.getContext('2d');
+      ctx.beginPath();
+      ctx.rect(j.position.x, j.position.y, JUNK_SIZE, JUNK_SIZE);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+      ctx.closePath();
+    });
+  }
+
+  drawPlayers() {
+    this.state.players.forEach((p) => {
+      const ctx = this.canvas.getContext('2d');
+      const { x, y } = p.position;
+      ctx.beginPath();
+      ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      ctx.closePath();
+    });
+  }
+  
+  drawPlayerPoints() {
+    const ctx = this.canvas.getContext('2d');
+    ctx.beginPath();
+    const rectHeight = 40;
+    const rectWidth = 150;
+    const rectX = window.innerWidth - 150;
+    const rectY = 0;
+    ctx.rect(rectX, rectY, rectWidth, rectHeight);
+    ctx.fillStyle = this.state.player.color;
+    ctx.fill();
+    ctx.font = '16px Lucida Sans Unicode';
+    ctx.textAlign = 'center'; 
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(`Points: ${this.state.player.points}`, rectX + (rectWidth / 2) - 10, rectY + (rectHeight / 2) + 2);
+    ctx.closePath();
+  }
+
+  draw() {
+    if (!this.state.isInitialized);
+    this.drawHoles();
+    this.drawJunk();
+    this.drawPlayers();
+    this.drawPlayerPoints();
+  }
+
+  render() {
+    return (
+      <div style={styles.canvasContainer}>
+        <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
+      </div>
+    );
   }
 
   generateJunk() {
@@ -209,75 +294,13 @@ export default class App extends React.Component {
     return coords;
   }
 
-  drawHoles() {
-    this.state.holes.forEach((hole) => {
-      if (hole.drawHole() === false) {
-        const newCoords = this.generateNewHoleCoords();
-        const newRadius = Math.floor(Math.random() * ((MAX_HOLE_RADIUS - MIN_HOLE_RADIUS) + 1)) + MIN_HOLE_RADIUS;
-        const newLifespan = Math.floor(Math.random() * ((MAX_HOLE_LIFE - MIN_HOLE_LIFE) + 1)) + MIN_HOLE_LIFE;
-        hole.startNewLife(newCoords, newRadius, newLifespan);
-        // this.state.holes = this.state.holes.filter(h => h !== hole);
-        // this.setState(this.state);
-      }
-    });
-  }
-
-  drawJunk() {
-    this.state.junk.forEach(j => j.drawJunk());
-  }
-
-  drawPlayers() {
-    if (this.state.player) {
-      this.state.player.drawPlayer();
-    }
-
-    if (!this.state.players) return;
-
-    this.state.players.forEach((p) => {
-      if (p.id === this.state.player.id) return;
-
-      const ctx = this.canvas.getContext('2d');
-      const { x, y } = p.position;
-      ctx.beginPath();
-      ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.fill();
-      ctx.closePath();
-    });
-  }
-
+  
   resizeCanvas() {
     const ctx = document.getElementById('ctx');
     ctx.width = window.innerWidth - 20;
     ctx.height = window.innerHeight - 20;
     ctx.textAlign = 'center';
     this.updateCanvas();
-  }
-
-  tick() {
-    this.updateCanvas();
-    // eslint-disable-next-line
-    requestAnimationFrame(this.tick);
-  }
-
-  drawPlayerPoints() {
-    if (!this.state.player) return;
-
-    const ctx = this.canvas.getContext('2d');
-    ctx.beginPath();
-    const rectHeight = 40;
-    const rectWidth = 150;
-    const rectX = window.innerWidth - 150;
-    const rectY = 0;
-    ctx.rect(rectX, rectY, rectWidth, rectHeight);
-    ctx.fillStyle = this.state.player.color;
-    ctx.fill();
-    ctx.font = '16px Lucida Sans Unicode';
-    ctx.textAlign = 'center'; 
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText(`Points: ${this.state.player.points}`, rectX + (rectWidth / 2) - 10, rectY + (rectHeight / 2) + 2);
-    ctx.closePath();
   }
 
   checkForCollisions() {
@@ -335,14 +358,6 @@ export default class App extends React.Component {
 
     this.state.player.updatePosition();
     this.state.junk.forEach(j => j.updatePosition());
-  }
-
-  render() {
-    return (
-      <div style={styles.canvasContainer}>
-        <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
-      </div>
-    );
   }
 }
 

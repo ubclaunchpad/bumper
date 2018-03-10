@@ -59,7 +59,7 @@ func runGame() {
 
 	for {
 		// RUN GAME HERE
-		a.hello()
+		a.Hello()
 	}
 }
 

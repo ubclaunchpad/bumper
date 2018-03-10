@@ -4,7 +4,7 @@ import (
 	"math"
 	"math/rand"
 
-	"../models"
+	"github.com/ubclaunchpad/bumper/server/models"
 )
 
 const playerRadius = 25
@@ -28,7 +28,7 @@ type Arena struct {
 
 // createArena constructor for arena
 // initializes holes and junk
-func createArena(height float64, width float64) *Arena {
+func CreateArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
 
 	// create holes
@@ -38,7 +38,12 @@ func createArena(height float64, width float64) *Arena {
 			position := a.generateCoord(minHoleRadius)
 			if a.isPositionValid(position) {
 				foundValidPos = true
-				hole := models.Hole{position, minHoleRadius}
+				initialRadius := math.Floor(rand.Float64()*((maxHoleRadius-minHoleRadius)+1)) + minHoleRadius
+				lifespan := math.Floor(rand.Float64()*((maxHoleLife-minHoleLife)+1)) + minHoleLife
+				hole := models.Hole{
+					Position: position,
+					Radius:   initialRadius,
+					Life:     lifespan}
 				a.Holes = append(a.Holes, hole)
 			}
 		}
@@ -51,7 +56,7 @@ func createArena(height float64, width float64) *Arena {
 			position := a.generateCoord(junkRadius)
 			if a.isPositionValid(position) {
 				foundValidPos = true
-				junk := models.Junk{position, models.Velocity{0, 0}, 0}
+				junk := models.Junk{position, models.Velocity{0, 0}, "white", 0}
 				a.Junk = append(a.Junk, junk)
 			}
 		}
@@ -98,6 +103,6 @@ func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 fl
 	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
 }
 
-func (a *Arena) hello() {
+func (a *Arena) Hello() {
 
 }

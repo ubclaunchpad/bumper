@@ -23,7 +23,7 @@ type Player struct {
 // Hole contains the data for a hole's position and size
 type Hole struct {
 	Position Position `json:"position"`
-	Radius   float32
+	Radius   float32  `json:"radius"`
 }
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points

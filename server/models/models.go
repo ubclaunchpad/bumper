@@ -16,20 +16,6 @@ type Velocity struct {
 	Dy float64 `json:"dy"`
 }
 
-
-// Hole contains the data for a hole's position and size
-type Hole struct {
-	Position Position `json:"position"`
-	Radius   float64  `json:"radius"`
-}
-
-// Junk a position and velocity struct describing it's state and player struct to identify rewarding points
-type Junk struct {
-	Position Position `json:"position"`
-	Velocity Velocity `json:"velocity"`
-	PlayerID int      `json:"playerId"`
-}
-
 func (v *Velocity) magnitude() float64 {
 	return math.Sqrt(v.Dx*v.Dx + v.Dy*v.Dy)
 }

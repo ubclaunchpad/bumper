@@ -7,6 +7,7 @@ import (
 	"../models"
 )
 
+const playerRadius = 25
 const junkCount = 10
 const holeCount = 10
 const junkRadius = 8
@@ -73,17 +74,17 @@ func (a *Arena) generateCoord(objectRadius float64) models.Position {
 
 func (a *Arena) isPositionValid(position models.Position) bool {
 	for _, hole := range a.Holes {
-		if hole.Position == position {
+		if areCirclesColliding(hole.Position, hole.Radius, position, minDistanceBetween) {
 			return false
 		}
 	}
 	for _, junk := range a.Junk {
-		if junk.Position == position {
+		if areCirclesColliding(junk.Position, junkRadius, position, minDistanceBetween) {
 			return false
 		}
 	}
 	for _, player := range a.Players {
-		if player.Position == position {
+		if areCirclesColliding(player.Position, playerRadius, position, minDistanceBetween) {
 			return false
 		}
 	}

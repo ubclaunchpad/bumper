@@ -70,19 +70,21 @@ func tick() {
 	for {
 		time.Sleep(time.Millisecond * 17) // 60 Hz
 		serverState := struct {
-			Type    string          `json:"type"`
 			Players []models.Player `json:"players"`
 			Holes   []models.Hole   `json:"holes"`
 			Junk    []models.Junk   `json:"junk"`
 		}{
-			"update",
 			players,
 			holes,
 			junk,
 		}
+		msg := Message{
+			Type: "update",
+			Data: serverState,
+		}
 		// update every client
 		for client := range clients {
-			err := client.WriteJSON(&serverState)
+			err := client.WriteJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)
 				client.Close()

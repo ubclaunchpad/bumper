@@ -22,5 +22,5 @@ type Hole struct {
 type Junk struct {
 	Position Position `json:"position"`
 	Velocity Velocity `json:"velocity"`
-	PlayerID int      `json:"playerId"`
+	ID int      `json:"id"` // ID of the player that last recently hit this junk
 }

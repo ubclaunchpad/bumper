@@ -1,6 +1,8 @@
 package models
 
-import "math"
+import (
+	"math"
+)
 
 // LeftKey is the left keyboard button
 const LeftKey = 37

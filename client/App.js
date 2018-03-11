@@ -65,10 +65,11 @@ export default class App extends React.Component {
     switch (msg.type) {
       case 'initial':
         console.log('initial msg received');
-        // TODO: set player id
+        this.setState({ player: msg.data });
+        break;
       case 'update':
         this.update(msg.data);
-        break;  
+        break;
       default:
         console.log(`unknown msg type ${msg.type}`);
         break;

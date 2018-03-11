@@ -17,7 +17,7 @@ type Message struct {
 	Data interface{} `json:"data"`
 }
 
-var clients = make(map[*websocket.Conn]bool)
+var clients = make(map[*websocket.Conn]*models.Player)
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -38,7 +38,22 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	clients[ws] = true
+	// add player
+	// set clients[ws] to be a pointer to the new player (*arena.Players[i])
+	clients[ws] = arena.addPlayer(id)
+	initialMsg := Message{
+		Type: "initial",
+		Data: *clients[ws],
+	}
+
+	// send initial message back to client with id
+	err := ws.WriteJSON(&initialMsg)
+	if err != nil {
+		log.Printf("error: %v", err)
+		ws.Close()
+		delete(clients, ws)
+		// TODO do i need to return here?
+	}
 
 	// infinite loop that receives msgs from clients
 	for {
@@ -51,6 +66,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// TODO: receive controls here
+		// player can be accessed through clients[ws]
 	}
 }
 

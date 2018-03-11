@@ -1,7 +1,12 @@
 package models
 
-// MaxRadius is the largest a hole will grow before disappearing
-const MaxRadius = 45
+// Hole related constants
+const (
+	MinHoleRadius = 15
+	MaxHoleRadius = 45
+	MinHoleLife   = 25
+	MaxHoleLife   = 75
+)
 
 // Hole contains the data for a hole's position and size
 type Hole struct {

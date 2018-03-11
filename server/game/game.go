@@ -7,16 +7,11 @@ import (
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
+// Game related constants
 const (
-	playerRadius       = 25
 	junkCount          = 10
 	holeCount          = 10
-	junkRadius         = 8
-	minHoleRadius      = 15
-	maxHoleRadius      = 30
-	minDistanceBetween = maxHoleRadius
-	minHoleLife        = 25
-	maxHoleLife        = 75
+	minDistanceBetween = models.MaxHoleRadius
 )
 
 // Arena container for play area information including all objects
@@ -34,9 +29,9 @@ func CreateArena(height float64, width float64) *Arena {
 
 	// create holes
 	for i := 0; i < holeCount; i++ {
-		position := a.generateCoord(minHoleRadius)
-		initialRadius := math.Floor(rand.Float64()*((maxHoleRadius-minHoleRadius)+1)) + minHoleRadius
-		lifespan := math.Floor(rand.Float64()*((maxHoleLife-minHoleLife)+1)) + minHoleLife
+		position := a.generateCoord(models.MinHoleRadius)
+		initialRadius := math.Floor(rand.Float64()*((models.MaxHoleRadius-models.MinHoleRadius)+1)) + models.MinHoleRadius
+		lifespan := math.Floor(rand.Float64()*((models.MaxHoleLife-models.MinHoleLife)+1)) + models.MinHoleLife
 		hole := models.Hole{
 			Position: position,
 			Radius:   initialRadius,
@@ -47,7 +42,7 @@ func CreateArena(height float64, width float64) *Arena {
 
 	// create junk
 	for i := 0; i < junkCount; i++ {
-		position := a.generateCoord(junkRadius)
+		position := a.generateCoord(models.JunkRadius)
 		junk := models.Junk{
 			Position: position,
 			Velocity: models.Velocity{Dx: 0, Dy: 0},
@@ -97,6 +92,8 @@ func (a *Arena) generateCoord(objectRadius float64) models.Position {
 		if a.isPositionValid(position) {
 			return position
 		}
+
+		// TODO: Add a timeout here
 	}
 }
 
@@ -107,12 +104,12 @@ func (a *Arena) isPositionValid(position models.Position) bool {
 		}
 	}
 	for _, junk := range a.Junk {
-		if areCirclesColliding(junk.Position, junkRadius, position, minDistanceBetween) {
+		if areCirclesColliding(junk.Position, models.JunkRadius, position, minDistanceBetween) {
 			return false
 		}
 	}
 	for _, player := range a.Players {
-		if areCirclesColliding(player.Position, playerRadius, position, minDistanceBetween) {
+		if areCirclesColliding(player.Position, models.PlayerRadius, position, minDistanceBetween) {
 			return false
 		}
 	}
@@ -140,7 +137,7 @@ func (a *Arena) collisionPlayerToPlayer() {
 			}
 
 			//TODO: Add logic to only calculate player-player collisions once
-			if areCirclesColliding(playerA.Position, playerRadius, playerB.Position, playerRadius) {
+			if areCirclesColliding(playerA.Position, models.PlayerRadius, playerB.Position, models.PlayerRadius) {
 				// playerA.hitPlayer()
 				// playerB.hitPlayer()
 			}

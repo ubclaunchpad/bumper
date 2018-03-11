@@ -57,8 +57,8 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 func runGame() {
 	a := game.CreateArena(400, 400)
 	for {
-		// RUN GAME HERE
 		a.UpdatePositions()
+		a.CollisionDetection()
 	}
 }
 
@@ -106,7 +106,7 @@ func tick() {
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "is Inertia working yet?\n")
+		fmt.Fprint(w, "HELLO, is Inertia working yet?\n")
 	})
 	http.HandleFunc("/connect", handleConnection)
 	go runGame()

@@ -41,8 +41,8 @@ func (j *Junk) updatePosition(height float64, width float64) {
 	j.Position.Y += j.Velocity.Dy
 }
 
-//Update Junks's velocity based on calculations of being hit by a player
-func (j *Junk) hitBy(p *Player) {
+// HitBy Update Junks's velocity based on calculations of being hit by a player
+func (j *Junk) HitBy(p *Player) {
 	j.Color = p.Color
 
 	if p.Velocity.Dx < 0 {

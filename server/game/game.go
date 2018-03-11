@@ -148,3 +148,13 @@ func (a *Arena) collisionPlayerToPlayer() {
 		}
 	}
 }
+
+func (a *Arena) collisionPlayerToJunk() {
+	for _, player := range a.Players {
+		for _, junk := range a.Junk {
+			if areCirclesColliding(player.Position, playerRadius, junk.Position, junkRadius) {
+				junk.HitBy(player)
+			}
+		}
+	}
+}

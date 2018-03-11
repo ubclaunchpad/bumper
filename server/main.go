@@ -58,6 +58,9 @@ func runGame() {
 	for {
 		a.UpdatePositions()
 		a.CollisionDetection()
+
+		// TODO: Determine good update interval
+		time.Sleep(time.Second * 5)
 	}
 }
 

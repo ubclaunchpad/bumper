@@ -21,6 +21,7 @@
     "webpack-dev-server": "^2.11.1"
   },
   "devDependencies": {
+    "babel-minify-webpack-plugin": "^0.3.0",
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",

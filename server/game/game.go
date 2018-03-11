@@ -30,12 +30,7 @@ type Arena struct {
 	Players []models.Player
 }
 
-<<<<<<< HEAD
 // CreateArena constructor for arena initializes holes and junk
-=======
-// CreateArena constructor for arena
-// initializes holes and junk
->>>>>>> initialize player struct on server &send to client
 func CreateArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
 
@@ -66,7 +61,6 @@ func CreateArena(height float64, width float64) *Arena {
 	return &a
 }
 
-<<<<<<< HEAD
 // UpdatePositions calculates the next state of each object
 func (a *Arena) UpdatePositions() {
 	// for _, hole := range a.Holes {
@@ -90,21 +84,18 @@ func (a *Arena) CollisionDetection() {
 	// 	// TODO: Hole to Player
 	// 	// TODO: Hole to Junk
 	// }
-=======
 // AddPlayer adds a new player to the arena
 func (a *Arena) AddPlayer() *models.Player {
-
 	p := &models.Player{
 		ID:       generateId(),
 		Position: a.generateCoord(playerRadius),
 		Velocity: models.Velocity{Dx: 0, Dy: 0},
 		Color:    generateRandomColor(),
 		Angle:    0,
-		Controls: models.KeysPressed{false, false, false, false},
+		Controls: models.KeysPressed{false, false, false, false}
 	}
 	a.Players = append(a.Players, *p)
 	return p
->>>>>>> initialize player struct on server &send to client
 }
 
 // generateCoord creates a position coordinate

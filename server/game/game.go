@@ -175,10 +175,12 @@ func (a *Arena) collisionPlayerToPlayer() {
 // TODO generate random hex value
 func generateRandomColor() string {
 	var buffer bytes.Buffer
-	for len(c) < 6 {
-		c := rand.Float64()
+	buffer.WriteString("#")
+	for len(buffer) < 7 {
+		c := string(rand.Float64()) //tostring
 		buffer.WriteString(c)
 	}
+	return buffer
 }
 
 // TODO generate player id

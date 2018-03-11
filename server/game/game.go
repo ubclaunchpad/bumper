@@ -9,9 +9,9 @@ import (
 
 // Game related constants
 const (
-	junkCount          = 10
-	holeCount          = 10
-	minDistanceBetween = models.MaxHoleRadius
+	JunkCount          = 10
+	HoleCount          = 10
+	MinDistanceBetween = models.MaxHoleRadius
 )
 
 // Arena container for play area information including all objects
@@ -28,14 +28,14 @@ func CreateArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
 
 	// create holes
-	for i := 0; i < holeCount; i++ {
+	for i := 0; i < HoleCount; i++ {
 		position := a.generateCoord(models.MinHoleRadius)
 		hole := models.CreateHole(position)
 		a.Holes = append(a.Holes, hole)
 	}
 
 	// create junk
-	for i := 0; i < junkCount; i++ {
+	for i := 0; i < JunkCount; i++ {
 		position := a.generateCoord(models.JunkRadius)
 		junk := models.Junk{
 			Position: position,
@@ -93,17 +93,17 @@ func (a *Arena) generateCoord(objectRadius float64) models.Position {
 
 func (a *Arena) isPositionValid(position models.Position) bool {
 	for _, hole := range a.Holes {
-		if areCirclesColliding(hole.Position, hole.Radius, position, minDistanceBetween) {
+		if areCirclesColliding(hole.Position, hole.Radius, position, MinDistanceBetween) {
 			return false
 		}
 	}
 	for _, junk := range a.Junk {
-		if areCirclesColliding(junk.Position, models.JunkRadius, position, minDistanceBetween) {
+		if areCirclesColliding(junk.Position, models.JunkRadius, position, MinDistanceBetween) {
 			return false
 		}
 	}
 	for _, player := range a.Players {
-		if areCirclesColliding(player.Position, models.PlayerRadius, position, minDistanceBetween) {
+		if areCirclesColliding(player.Position, models.PlayerRadius, position, MinDistanceBetween) {
 			return false
 		}
 	}

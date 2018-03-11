@@ -4,17 +4,13 @@ import (
 	"math"
 )
 
-// JunkFriction - Apply a very low damping to the junks
-const JunkFriction = 0.99
-
-// MinimumBump factor is a quick fix for the junks not getting stuck on you
-const MinimumBump = 1.5
-
-// BumpFactor - gives junk a bit of a boost on bumps
-const BumpFactor = 1.05
-
-// JunkSize - Make this a member of the stuct later
-const JunkSize = 15
+// Junk related constants
+const (
+	JunkFriction = 0.99
+	MinimumBump  = 1.5
+	BumpFactor   = 1.05
+	JunkSize     = 15
+)
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points
 type Junk struct {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -104,10 +103,7 @@ func tick() {
 }
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "HELLO, is Inertia working yet?\n")
-	})
+	http.Handle("/", http.FileServer(http.Dir("../client/public")))
 	http.HandleFunc("/connect", handleConnection)
 	go runGame()
 	go tick()

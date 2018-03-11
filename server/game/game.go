@@ -28,18 +28,6 @@ type Arena struct {
 	Players []models.Player
 }
 
-func (a *Arena) UpdatePositions() {
-	// for _, hole := range a.Holes {
-
-	// }
-	// for _, junk := range a.Junk {
-
-	// }
-	// for _, player := range a.Players {
-
-	// }
-}
-
 // CreateArena constructor for arena initializes holes and junk
 func CreateArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
@@ -69,6 +57,31 @@ func CreateArena(height float64, width float64) *Arena {
 	}
 
 	return &a
+}
+
+// UpdatePositions calculates the next state of each object
+func (a *Arena) UpdatePositions() {
+	// for _, hole := range a.Holes {
+
+	// }
+	// for _, junk := range a.Junk {
+
+	// }
+	// for _, player := range a.Players {
+
+	// }
+}
+
+// CollisionDetection loops through players and holes and determines if a collision has occurred
+func (a *Arena) CollisionDetection() {
+	// for _, player := range a.Players {
+	// 	// TODO: Player to Player
+	// 	// TODO: Player to Junk
+	// }
+	// for _, hole := range a.Holes {
+	// 	// TODO: Hole to Player
+	// 	// TODO: Hole to Junk
+	// }
 }
 
 // generateCoord creates a position coordinate
@@ -113,13 +126,6 @@ func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 fl
 	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
 }
 
-func (a *Arena) checkForCollisions() {
-	a.collisionPlayerToPlayer()
-	a.collisionPlayerToJunk()
-	a.collisionPlayerToHole()
-	a.collisionJunkToHole()
-}
-
 func (a *Arena) collisionPlayerToPlayer() {
 	//Check player collisions
 	//Player A collides with Player B
@@ -141,16 +147,4 @@ func (a *Arena) collisionPlayerToPlayer() {
 
 		}
 	}
-}
-
-func (a *Arena) collisionPlayerToHole() {
-
-}
-
-func (a *Arena) collisionPlayerToJunk() {
-
-}
-
-func (a *Arena) collisionJunkToHole() {
-
 }

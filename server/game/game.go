@@ -30,13 +30,7 @@ func CreateArena(height float64, width float64) *Arena {
 	// create holes
 	for i := 0; i < holeCount; i++ {
 		position := a.generateCoord(models.MinHoleRadius)
-		initialRadius := math.Floor(rand.Float64()*((models.MaxHoleRadius-models.MinHoleRadius)+1)) + models.MinHoleRadius
-		lifespan := math.Floor(rand.Float64()*((models.MaxHoleLife-models.MinHoleLife)+1)) + models.MinHoleLife
-		hole := models.Hole{
-			Position: position,
-			Radius:   initialRadius,
-			Life:     lifespan,
-		}
+		hole := models.CreateHole(position)
 		a.Holes = append(a.Holes, hole)
 	}
 

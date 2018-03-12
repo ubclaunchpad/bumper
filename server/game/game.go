@@ -131,9 +131,7 @@ func (a *Arena) collisionPlayer() {
 		}
 		for _, junk := range a.Junk { //Check if player hits a junk
 			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
-				junk.HitBy(&player)       //Junk calls player.hitJunk function to calculate player state
-				junk.ID = player.ID       //Assign junk to last recently hit player id
-				junk.Color = player.Color //Assign junk to last recently hit player color
+				junk.HitBy(&player) //Junk calls player.hitJunk function to calculate player state
 			}
 		}
 	}

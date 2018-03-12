@@ -36,10 +36,10 @@ func (j *Junk) updatePosition(height float64, width float64) {
 	j.Position.Y += j.Velocity.Dy
 }
 
-//Update Junks's velocity based on calculations of being hit by a player
-func (j *Junk) hitBy(p *Player) {
-	j.Color = p.Color
-
+// HitBy Update Junks's velocity based on calculations of being hit by a player
+func (j *Junk) HitBy(p *Player) {
+	j.Color = p.Color //Assign junk to last recently hit player color
+	j.ID = p.ID       //Assign junk to last recently hit player id
 	if p.Velocity.Dx < 0 {
 		j.Velocity.Dx = math.Max(p.Velocity.Dx*BumpFactor, -MinimumBump)
 	} else {

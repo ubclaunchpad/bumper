@@ -14,6 +14,7 @@ const (
 	PlayerAcceleration = 0.5
 	PlayerFriction     = 0.97
 	MaxVelocity        = 15
+	PointsPerJunk      = 100
 )
 
 // Player contains data and state about a player's object
@@ -24,6 +25,7 @@ type Player struct {
 	Color    string      `json:"color"`
 	Angle    float64     `json:"angle"`
 	Controls KeysPressed `json:"controls"`
+	Points   int         `json:"points"`
 }
 
 // KeysPressed contains a boolean about each key, true if it's down
@@ -86,19 +88,17 @@ func (p *Player) updatePosition(height float64, width float64) {
 	}
 }
 
-//Update Player's position based on calculations of hitting junk
 func (p *Player) hitJunk() {
 	p.Velocity.Dx *= JunkBounceFactor
 	p.Velocity.Dy *= JunkBounceFactor
 }
 
-//Update Player's position based on calculation of hitting another player
-func (p *Player) hitPlayer() {
+// HitPlayer calculates collision, update Player's position based on calculation of hitting another player
+func (p *Player) HitPlayer() {
 	p.Velocity.Dx *= JunkBounceFactor
 	p.Velocity.Dy *= JunkBounceFactor
 }
 
-//Handle a key press
 func (p *Player) keyDownHandler(key int) {
 	if key == RightKey {
 		p.Controls.Right = true
@@ -111,7 +111,6 @@ func (p *Player) keyDownHandler(key int) {
 	}
 }
 
-//Handle a key release
 func (p *Player) keyUpHandler(key int) {
 	if key == RightKey {
 		p.Controls.Right = false

@@ -40,7 +40,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 	clients[ws] = true
 
-	// infinite loop that receives msgs from clients
 	for {
 		var msg Message
 		err := ws.ReadJSON(&msg)
@@ -91,7 +90,7 @@ func tick() {
 			Type: "update",
 			Data: serverState,
 		}
-		// update every client
+
 		for client := range clients {
 			err := client.WriteJSON(&msg)
 			if err != nil {

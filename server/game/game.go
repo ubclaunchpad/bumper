@@ -63,10 +63,8 @@ func (a *Arena) UpdatePositions() {
 
 // CollisionDetection loops through players and holes and determines if a collision has occurred
 func (a *Arena) CollisionDetection() {
-	a.collisionPlayerToPlayer()
-	a.collisionPlayerToJunk()
-	a.collisionHoleToJunk()
-	a.collisionHoleToPlayer()
+	a.collisionPlayer()
+	a.collisionHole()
 }
 
 // generateCoord creates a position coordinate
@@ -113,42 +111,38 @@ func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 fl
 	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
 }
 
-func (a *Arena) collisionPlayerToPlayer() {
+func (a *Arena) collisionPlayer() {
 
 	//memo keeps track of collisions calculated between B and A
 	//duplicate calculations between A and B will be skipped
 	memo := make(map[int]int)
 	//Check player collisions
 	//Player A collides with Player B
-	for _, playerA := range a.Players {
+	for _, player := range a.Players {
 		//Player B collides with Player A
-		for _, playerB := range a.Players {
+		for _, playerHit := range a.Players {
 
 			//Player checks for collision on it's self
 			//if true, skip the collision calculation
 			//Check if the calculation was already done between B and A
 			//skip the duplicate calculation if A and B are colliding
 			//memo[playerB.ID] evaluates to 0 if it does not exist in the map
-			if playerA == playerB || memo[playerB.ID] == playerA.ID {
+			if player == playerHit || memo[playerHit.ID] == playerHit.ID {
 				continue
 			}
 
-
-			if areCirclesColliding(playerA.Position, playerRadius, playerB.Position, playerRadius) {
+			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
 				//Keep track of already calculated collisions
-				memo[playerB.ID] = playerA.ID
-				playerA.HitPlayer()
-				playerB.HitPlayer()
+				memo[playerHit.ID] = player.ID
+				player.HitPlayer()
+				playerHit.HitPlayer()
 			}
 
 		}
-	}
-}
 
-func (a *Arena) collisionPlayerToJunk() {
-	for _, player := range a.Players {
+		//Check if player hits a junk
 		for _, junk := range a.Junk {
-			if areCirclesColliding(player.Position, playerRadius, junk.Position, junkRadius) {
+			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
 				//Junk calls player.hitJunk function to calculate player state
 				junk.HitBy(&player)
 				//Assign junk to last recently hit player color/id
@@ -156,24 +150,24 @@ func (a *Arena) collisionPlayerToJunk() {
 				junk.Color = player.Color
 			}
 		}
+
 	}
 }
 
-func (a *Arena) collisionHoleToPlayer() {
+func (a *Arena) collisionHole() {
+
+	//Loop through all holes in the arena
 	for _, hole := range a.Holes {
+		//Check if hole collides with a player
 		for _, player := range a.Players {
-			if areCirclesColliding(player.Position, playerRadius, hole.Position, hole.Radius) {
+			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
 				//Player falls into hole
 				//TODO: implement events for player falling into hole
 			}
 		}
-	}
-}
-
-func (a *Arena) collisionHoleToJunk() {
-	for _, hole := range a.Holes {
+		//Check if hole collides with junk
 		for _, junk := range a.Junk {
-			if areCirclesColliding(junk.Position, junkRadius, hole.Position, hole.Radius) {
+			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
 				//Junk falls into hole
 				//TODO: implement events for junk falling into hole
 			}

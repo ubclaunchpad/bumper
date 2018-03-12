@@ -180,8 +180,8 @@ func (a *Arena) collisionHoleToPlayer() {
 
 func (a *Arena) collisionHoleToJunk() {
 	for _, hole := range a.Holes {
-		for _, player := range a.Players {
-			if areCirclesColliding(player.Position, playerRadius, hole.Position, hole.Radius) {
+		for _, junk := range a.Junk {
+			if areCirclesColliding(junk.Position, junkRadius, hole.Position, hole.Radius) {
 				//Junk falls into hole
 				//TODO: implement events for junk falling into hole
 			}

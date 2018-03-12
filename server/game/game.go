@@ -162,14 +162,21 @@ func (a *Arena) collisionHole() {
 		for _, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
 				//Player falls into hole
-				//TODO: implement events for player falling into hole
+				//TODO: implement events for player falling into hole, removing the player
 			}
 		}
 		//Check if hole collides with junk
 		for _, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
 				//Junk falls into hole
-				//TODO: implement events for junk falling into hole
+
+				//Loop through player ID's and add points
+				for _, playerPt := range a.Players {
+					if playerPt.ID == junk.ID {
+						playerPt.Points += models.PointsPerJunk
+					}
+				}
+				//TODO: implement removing junk
 			}
 		}
 	}

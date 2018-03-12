@@ -100,7 +100,6 @@ func (p *Player) HitPlayer() {
 	p.Velocity.Dy *= JunkBounceFactor
 }
 
-//Handle a key press
 func (p *Player) keyDownHandler(key int) {
 	if key == RightKey {
 		p.Controls.Right = true
@@ -113,7 +112,6 @@ func (p *Player) keyDownHandler(key int) {
 	}
 }
 
-//Handle a key release
 func (p *Player) keyUpHandler(key int) {
 	if key == RightKey {
 		p.Controls.Right = false

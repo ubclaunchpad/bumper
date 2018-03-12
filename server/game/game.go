@@ -16,8 +16,8 @@ const (
 
 // Arena container for play area information including all objects
 type Arena struct {
-	Height  float64 // Height of play area in pixels
-	Width   float64 // Width of play area in pixels
+	Height  float64
+	Width   float64
 	Holes   []models.Hole
 	Junk    []models.Junk
 	Players []models.Player
@@ -27,14 +27,12 @@ type Arena struct {
 func CreateArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
 
-	// create holes
 	for i := 0; i < HoleCount; i++ {
 		position := a.generateCoord(models.MinHoleRadius)
 		hole := models.CreateHole(position)
 		a.Holes = append(a.Holes, hole)
 	}
 
-	// create junk
 	for i := 0; i < JunkCount; i++ {
 		position := a.generateCoord(models.JunkRadius)
 		junk := models.Junk{
@@ -117,42 +115,42 @@ Duplicate calculations are kept track of using the memo map to store collisions 
 between player-to-player.
 */
 func (a *Arena) collisionPlayer() {
-	memo := make(map[int]int)          //memo keeps track of collisions calculated between B and A
-	for _, player := range a.Players { //Loop through all players in the arena
-		for _, playerHit := range a.Players { //Check player collisions
-			if player == playerHit || memo[playerHit.ID] == playerHit.ID { //Skip duplicate calculation
+	memo := make(map[int]int)
+	for _, player := range a.Players {
+		for _, playerHit := range a.Players {
+			if player == playerHit || memo[playerHit.ID] == playerHit.ID {
 				continue
 			}
 			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
-				memo[playerHit.ID] = player.ID //Keep track of already calculated collisions
+				memo[playerHit.ID] = player.ID
 				player.HitPlayer()
 				playerHit.HitPlayer()
 			}
 		}
-		for _, junk := range a.Junk { //Check if player hits a junk
+		for _, junk := range a.Junk {
 			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
-				junk.HitBy(&player) //Junk calls player.hitJunk function to calculate player state
+				junk.HitBy(&player)
 			}
 		}
 	}
 }
 
 func (a *Arena) collisionHole() {
-	for _, hole := range a.Holes { //Loop through all holes in the arena
-		for _, player := range a.Players { //Check if hole collides with a player
+	for _, hole := range a.Holes {
+		for _, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-				//Player falls into hole
-				//TODO: implement events for player falling into hole, removing the player
+				// Player falls into hole
+				// TODO: implement events for player falling into hole, removing the player
 			}
 		}
-		for _, junk := range a.Junk { //Check if hole collides with junk
+		for _, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
-				for _, playerPt := range a.Players { //Loop through player ID's and add points
+				for _, playerPt := range a.Players {
 					if playerPt.ID == junk.ID {
 						playerPt.Points += models.PointsPerJunk
 					}
 				}
-				//TODO: implement deleting junk
+				// TODO: implement deleting junk
 			}
 		}
 	}

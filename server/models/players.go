@@ -108,8 +108,8 @@ func (p *Player) hitJunk() {
 	p.Velocity.Dy *= JunkBounceFactor
 }
 
-//Update Player's position based on calculation of hitting another player
-func (p *Player) hitPlayer() {
+// HitPlayer calculates collision, update Player's position based on calculation of hitting another player
+func (p *Player) HitPlayer() {
 	p.Velocity.Dx *= JunkBounceFactor
 	p.Velocity.Dy *= JunkBounceFactor
 }

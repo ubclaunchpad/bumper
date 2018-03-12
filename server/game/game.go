@@ -123,6 +123,10 @@ func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 fl
 }
 
 func (a *Arena) collisionPlayerToPlayer() {
+
+	//memo keeps track of collisions calculated between B and A
+	//duplicate calculations between A and B will be skipped
+	memo := make(map[int]int)
 	//Check player collisions
 	//Player A collides with Player B
 	for _, playerA := range a.Players {
@@ -131,14 +135,18 @@ func (a *Arena) collisionPlayerToPlayer() {
 
 			//Player checks for collision on it's self
 			//if true, skip the collision calculation
-			if playerA == playerB {
+			//Check if the calculation was already done between B and A
+			//skip the duplicate calculation if A and B are colliding
+			//memo[playerB.ID] evaluates to 0 if it does not exist in the map
+			if playerA == playerB || memo[playerB.ID] == playerA.ID {
 				continue
 			}
 
-			//TODO: Add logic to only calculate player-player collisions once
 			if areCirclesColliding(playerA.Position, playerRadius, playerB.Position, playerRadius) {
-				// playerA.hitPlayer()
-				// playerB.hitPlayer()
+				//Keep track of already calculated collisions
+				memo[playerB.ID] = playerA.ID
+				playerA.HitPlayer()
+				playerB.HitPlayer()
 			}
 
 		}

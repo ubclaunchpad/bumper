@@ -88,7 +88,6 @@ func (p *Player) updatePosition(height float64, width float64) {
 	}
 }
 
-//Update Player's position based on calculations of hitting junk
 func (p *Player) hitJunk() {
 	p.Velocity.Dx *= JunkBounceFactor
 	p.Velocity.Dy *= JunkBounceFactor

@@ -2,35 +2,19 @@ package models
 
 import "math"
 
-// LeftKey is the left keyboard button
-const LeftKey = 37
-
-// RightKey is the left keyboard button
-const RightKey = 39
-
-// UpKey is the up keyboard button
-const UpKey = 38
-
-// DownKey is the down keyboard button
-const DownKey = 40
-
-// JunkBounceFactor is how much hitting a junk affects your velocity
-const JunkBounceFactor = -0.25
-
-// WallBounceFactor is how much hitting a wall affects your velocity
-const WallBounceFactor = -1.5
-
-// PlayerRadius is how big
-const PlayerRadius = 25
-
-// PlayerAcceleration is how much a key press affects the player's velocity
-const PlayerAcceleration = 0.5
-
-// PlayerFriction is how much damping they experience per tick
-const PlayerFriction = 0.97
-
-// MaxVelocity caps how fast a player can get going
-const MaxVelocity = 15
+// Player related constants
+const (
+	LeftKey            = 37
+	RightKey           = 39
+	UpKey              = 38
+	DownKey            = 40
+	JunkBounceFactor   = -0.25
+	WallBounceFactor   = -1.5
+	PlayerRadius       = 25
+	PlayerAcceleration = 0.5
+	PlayerFriction     = 0.97
+	MaxVelocity        = 15
+)
 
 // Player contains data and state about a player's object
 type Player struct {

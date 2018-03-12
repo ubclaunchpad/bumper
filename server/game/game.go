@@ -74,14 +74,10 @@ func (a *Arena) UpdatePositions() {
 
 // CollisionDetection loops through players and holes and determines if a collision has occurred
 func (a *Arena) CollisionDetection() {
-	// for _, player := range a.Players {
-	// 	// TODO: Player to Player
-	// 	// TODO: Player to Junk
-	// }
-	// for _, hole := range a.Holes {
-	// 	// TODO: Hole to Player
-	// 	// TODO: Hole to Junk
-	// }
+	a.collisionPlayerToPlayer()
+	a.collisionPlayerToJunk()
+	a.collisionHoleToJunk()
+	a.collisionHoleToPlayer()
 }
 
 // generateCoord creates a position coordinate
@@ -153,7 +149,33 @@ func (a *Arena) collisionPlayerToJunk() {
 	for _, player := range a.Players {
 		for _, junk := range a.Junk {
 			if areCirclesColliding(player.Position, playerRadius, junk.Position, junkRadius) {
-				junk.HitBy(player)
+				//Junk calls player.hitJunk function to calculate player state
+				junk.HitBy(&player)
+				//Assign junk to last recently hit player color/id
+				junk.ID = player.ID
+				junk.Color = player.Color
+			}
+		}
+	}
+}
+
+func (a *Arena) collisionHoleToPlayer() {
+	for _, hole := range a.Holes {
+		for _, player := range a.Players {
+			if areCirclesColliding(player.Position, playerRadius, hole.Position, hole.Radius) {
+				//Player falls into hole
+				//TODO: implement events for player falling into hole
+			}
+		}
+	}
+}
+
+func (a *Arena) collisionHoleToJunk() {
+	for _, hole := range a.Holes {
+		for _, player := range a.Players {
+			if areCirclesColliding(player.Position, playerRadius, hole.Position, hole.Radius) {
+				//Junk falls into hole
+				//TODO: implement events for junk falling into hole
 			}
 		}
 	}

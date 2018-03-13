@@ -1,6 +1,8 @@
 package models
 
-import "math"
+import (
+	"math"
+)
 
 // Player related constants
 const (
@@ -37,7 +39,8 @@ type KeysPressed struct {
 }
 
 //Update Player's position based on calculations of position/velocity
-func (p *Player) updatePosition(height float64, width float64) {
+func (p *Player) UpdatePosition(height float64, width float64) {
+
 	controlsVector := Velocity{0, 0}
 
 	if p.Controls.Left {
@@ -99,7 +102,7 @@ func (p *Player) HitPlayer() {
 	p.Velocity.Dy *= JunkBounceFactor
 }
 
-func (p *Player) keyDownHandler(key int) {
+func (p *Player) KeyDownHandler(key int) {
 	if key == RightKey {
 		p.Controls.Right = true
 	} else if key == LeftKey {
@@ -111,7 +114,7 @@ func (p *Player) keyDownHandler(key int) {
 	}
 }
 
-func (p *Player) keyUpHandler(key int) {
+func (p *Player) KeyUpHandler(key int) {
 	if key == RightKey {
 		p.Controls.Right = false
 	} else if key == LeftKey {

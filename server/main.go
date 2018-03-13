@@ -64,7 +64,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if msg.Type == "keyHandler" {
-
 			var kh KeyHandler
 			err = json.Unmarshal([]byte(msg.Data.(string)), &kh)
 			if err != nil {
@@ -72,8 +71,8 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			fmt.Println(kh)
 			for _, player := range players {
+				//A get playerByID would be nice once we're storing them in the game
 				if player.ID == kh.PlayerID {
 					if kh.Pressed == true {
 						player.KeyDownHandler(kh.Key)

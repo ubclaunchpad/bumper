@@ -69,7 +69,7 @@ export default class App extends React.Component {
 
   sendKeyPress(keyPressed, isPressed) {
     const pressMessage = {
-      playerID: 1234, // TODO with player ID
+      playerID: 1, // TODO with player ID
       key: keyPressed,
       pressed: isPressed,
     };

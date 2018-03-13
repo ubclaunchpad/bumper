@@ -20,9 +20,9 @@ type Message struct {
 
 // KeyHandler is the schema for client/server key handling communication
 type KeyHandler struct {
-	PlayerID float64 `json:"playerID"`
-	Key      int     `json:"key"`
-	Pressed  bool    `json:"pressed"`
+	PlayerID int  `json:"playerID"`
+	Key      int  `json:"key"`
+	Pressed  bool `json:"pressed"`
 } //TODO move to player?
 
 var clients = make(map[*websocket.Conn]bool)
@@ -73,11 +73,13 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			}
 
 			fmt.Println(kh)
-			if kh.PlayerID == 1234 {
-				if kh.Pressed == true {
-					players[0].KeyDownHandler(kh.Key)
-				} else {
-					players[0].KeyUpHandler(kh.Key)
+			for _, player := range players {
+				if player.ID == kh.PlayerID {
+					if kh.Pressed == true {
+						player.KeyDownHandler(kh.Key)
+					} else {
+						player.KeyUpHandler(kh.Key)
+					}
 				}
 			}
 		}
@@ -86,7 +88,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 func runGame() {
 	a := game.CreateArena(400, 400)
-	a.AddPlayer(players[0])
 	for {
 		a.UpdatePositions()
 		a.CollisionDetection()

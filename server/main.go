@@ -51,7 +51,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 	clients[ws] = true
 
-	// infinite loop that receives msgs from clients
 	for {
 		var msg Message
 		err := ws.ReadJSON(&msg)
@@ -96,10 +95,9 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 func runGame() {
 	a := game.CreateArena(400, 400)
-
 	for {
-		// RUN GAME HERE
-		a.Hello()
+		a.UpdatePositions()
+		a.CollisionDetection()
 	}
 }
 
@@ -132,7 +130,7 @@ func tick() {
 			Type: "update",
 			Data: serverState,
 		}
-		// update every client
+
 		for client := range clients {
 			err := client.WriteJSON(&msg)
 			if err != nil {
@@ -147,7 +145,7 @@ func tick() {
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "is Inertia working yet?\n")
+		fmt.Fprint(w, "HELLO, is Inertia working yet?\n")
 	})
 	http.HandleFunc("/connect", handleConnection)
 	go runGame()

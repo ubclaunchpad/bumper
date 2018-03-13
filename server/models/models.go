@@ -20,14 +20,10 @@ func (v *Velocity) magnitude() float64 {
 	return math.Sqrt(v.Dx*v.Dx + v.Dy*v.Dy)
 }
 
-func (v *Velocity) normalize() *Velocity {
+func (v *Velocity) normalize() {
 	var mag = v.magnitude()
 	if mag > 0 {
-		return &Velocity{
-			Dx: v.Dx / mag,
-			Dy: v.Dy / mag,
-		}
+		v.Dx /= mag
+		v.Dy /= mag
 	}
-
-	return v
 }

@@ -17,7 +17,18 @@ type Message struct {
 	Data interface{} `json:"data"`
 }
 
+// KeyHandler is the schema for client/server key handling communication
+type KeyHandler struct {
+	PlayerID float64 `json:"playerID"`
+	Key      int     `json:"key"`
+	Pressed  bool    `json:"pressed"`
+} //TODO move to player?
+
 var clients = make(map[*websocket.Conn]bool)
+
+var players = []models.Player{ //TEMPORARY
+	models.Player{ID: 1, Position: models.Position{X: 200, Y: 200}, Velocity: models.Velocity{Dx: 0, Dy: 0}, Color: "blue"},
+}
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -53,6 +64,32 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		if msg.Type == "keyHandler" {
 			log.Printf("recieved: %s", msg.Data)
 
+			// msg.Data.PlayerID
+			// var kh KeyHandler
+			// data, err := json.Marshal(msg.Data)
+			// if err != nil {
+			// 	log.Printf("error: %v", err)
+			// } else {
+			// 	json.Unmarshal(data, kh)
+
+			// 	// kh, ok := msg.Data.(KeyHandler)
+
+			// 	// if ok {
+			// 	log.Printf("player %v, pressed %v, key %v", kh.PlayerID, kh.Pressed, kh.Key)
+			// }
+			// else {
+			// 	log.Printf("couldn't parse")
+			// }
+			// m := msg.Data.(map[string]interface{})
+			// for pid, k, p := range m {
+			// 	log.Printf("%s, %s, %s", pid, k, p)
+			// }
+			// // var kh KeyHandler // = &msg.Data
+			// err := json.Unmarshal(json.Marshal(msg.Data), &kh)
+
+			// if kh {
+			// 	players[0].keyDownHandler(msg.Data.key)
+			// }
 		}
 	}
 }

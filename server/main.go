@@ -106,7 +106,7 @@ func tick() {
 }
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("../client/public")))
+	http.Handle("/", http.FileServer(http.Dir("build")))
 	http.HandleFunc("/connect", handleConnection)
 	go runGame()
 	go tick()

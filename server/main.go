@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -58,6 +57,9 @@ func runGame() {
 	for {
 		a.UpdatePositions()
 		a.CollisionDetection()
+
+		// TODO: Determine good update interval
+		time.Sleep(time.Second * 5)
 	}
 }
 
@@ -103,10 +105,7 @@ func tick() {
 }
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "HELLO, is Inertia working yet?\n")
-	})
+	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.HandleFunc("/connect", handleConnection)
 	go runGame()
 	go tick()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -21,6 +22,13 @@ type Message struct {
 	Type string      `json:"type"`
 	Data interface{} `json:"data"`
 }
+
+// KeyHandler is the schema for client/server key handling communication
+type KeyHandler struct {
+	PlayerID int  `json:"playerID"`
+	Key      int  `json:"key"`
+	Pressed  bool `json:"pressed"`
+} //TODO move to player?
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -65,8 +73,25 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		// TODO: receive controls here
-		// player can be accessed through clients[ws]
+		if msg.Type == "keyHandler" {
+			var kh KeyHandler
+			err = json.Unmarshal([]byte(msg.Data.(string)), &kh)
+			if err != nil {
+				log.Printf("error: %v", err)
+				continue
+			}
+
+			for _, player := range g.Clients {
+				//A get playerByID would be nice once we're storing them in the game
+				if player.ID == kh.PlayerID {
+					if kh.Pressed == true {
+						player.KeyDownHandler(kh.Key)
+					} else {
+						player.KeyUpHandler(kh.Key)
+					}
+				}
+			}
+		}
 	}
 }
 

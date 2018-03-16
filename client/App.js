@@ -83,13 +83,13 @@ export default class App extends React.Component {
       isInitialized: true,
     }, () => this.tick());
   }
-  
+
   update(data) {
     if (!this.state.isInitialized) {
       this.initializeGame(data);
       return;
     }
-    
+
     this.setState({
       junk: data.junk,
       holes: data.holes,
@@ -129,7 +129,6 @@ export default class App extends React.Component {
     this.state.players.forEach((p) => {
       const ctx = this.canvas.getContext('2d');
       const { x, y } = p.position;
-      console.log(p);
       ctx.beginPath();
       ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
       ctx.fillStyle = p.color;
@@ -149,7 +148,7 @@ export default class App extends React.Component {
     ctx.fillStyle = this.state.player.color;
     ctx.fill();
     ctx.font = '16px Lucida Sans Unicode';
-    ctx.textAlign = 'center'; 
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText(`Points: ${this.state.player.points}`, rectX + (rectWidth / 2) - 10, rectY + (rectHeight / 2) + 2);

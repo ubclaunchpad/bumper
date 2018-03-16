@@ -2,6 +2,7 @@
 **npm-debug.log
 
 /client/node_modules/
+/server/build/
 /server/server
 /server/server.exe
 vendor/

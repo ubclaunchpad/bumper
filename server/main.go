@@ -1,14 +1,21 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/ubclaunchpad/bumper/server/game"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
+
+// Game represents a session
+type Game struct {
+	Arena   *game.Arena
+	Clients map[*websocket.Conn]*models.Player
+}
 
 // Message is the schema for client/server communication
 type Message struct {
@@ -16,7 +23,12 @@ type Message struct {
 	Data interface{} `json:"data"`
 }
 
-var clients = make(map[*websocket.Conn]bool)
+// KeyHandler is the schema for client/server key handling communication
+type KeyHandler struct {
+	PlayerID int  `json:"playerID"`
+	Key      int  `json:"key"`
+	Pressed  bool `json:"pressed"`
+} //TODO move to player?
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -25,82 +37,101 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-/*	handleConnection handles received messages from a client
+/*	ServeHTTP handles received messages from a client
 Upgrades the connection to be persistent
 Initializes the client connection to a map of clients
 Listens for messages and acts on different message formats
 */
-func handleConnection(w http.ResponseWriter, r *http.Request) {
+func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer ws.Close()
 
-	clients[ws] = true
+	g.Clients[ws] = g.Arena.AddPlayer()
+	initialMsg := Message{
+		Type: "initial",
+		Data: g.Clients[ws],
+	}
 
-	// infinite loop that receives msgs from clients
+	// send initial message back to client with id
+	err = ws.WriteJSON(&initialMsg)
+	if err != nil {
+		log.Printf("error: %v", err)
+		ws.Close()
+		delete(g.Clients, ws)
+		return
+	}
+
 	for {
 		var msg Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("error: %v", err)
-			delete(clients, ws)
+			delete(g.Clients, ws)
 			break
 		}
 
-		// TODO: receive controls here
+		if msg.Type == "keyHandler" {
+			var kh KeyHandler
+			err = json.Unmarshal([]byte(msg.Data.(string)), &kh)
+			if err != nil {
+				log.Printf("error: %v", err)
+				continue
+			}
+
+			for _, player := range g.Clients {
+				//A get playerByID would be nice once we're storing them in the game
+				if player.ID == kh.PlayerID {
+					if kh.Pressed == true {
+						player.KeyDownHandler(kh.Key)
+					} else {
+						player.KeyUpHandler(kh.Key)
+					}
+				}
+			}
+		}
 	}
 }
 
-func tick() {
-	players := []models.Player{
-		models.Player{ID: 1, Position: models.Position{X: 200, Y: 200}, Velocity: models.Velocity{Dx: 0, Dy: 0}, Color: "blue"},
-		models.Player{ID: 2, Position: models.Position{X: 250, Y: 250}, Velocity: models.Velocity{Dx: 0, Dy: 0}, Color: "red"},
-		models.Player{ID: 3, Position: models.Position{X: 300, Y: 300}, Velocity: models.Velocity{Dx: 0, Dy: 0}, Color: "green"},
+func run(g *Game) {
+	for {
+		g.Arena.UpdatePositions()
+		g.Arena.CollisionDetection()
+		time.Sleep(time.Second * 30)
 	}
-	holes := []models.Hole{
-		models.Hole{Position: models.Position{X: 150, Y: 150}, Radius: 15},
-		models.Hole{Position: models.Position{X: 100, Y: 100}, Radius: 15},
-	}
-	junk := []models.Junk{
-		models.Junk{Position: models.Position{X: 50, Y: 50}, Velocity: models.Velocity{Dx: 0, Dy: 0}},
-		models.Junk{Position: models.Position{X: 25, Y: 25}, Velocity: models.Velocity{Dx: 0, Dy: 0}},
-	}
+}
+
+func tick(g *Game) {
 	for {
 		time.Sleep(time.Millisecond * 17) // 60 Hz
-		serverState := struct {
-			Players []models.Player `json:"players"`
-			Holes   []models.Hole   `json:"holes"`
-			Junk    []models.Junk   `json:"junk"`
-		}{
-			players,
-			holes,
-			junk,
-		}
 		msg := Message{
 			Type: "update",
-			Data: serverState,
+			Data: g.Arena,
 		}
 		// update every client
-		for client := range clients {
+		for client := range g.Clients {
 			err := client.WriteJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)
 				client.Close()
-				delete(clients, client)
+				delete(g.Clients, client)
 			}
 		}
 	}
 }
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "is Inertia working yet?\n")
-	})
-	http.HandleFunc("/connect", handleConnection)
-	go tick()
+	game := Game{
+		Arena:   game.CreateArena(1000, 800),
+		Clients: make(map[*websocket.Conn]*models.Player),
+	}
+
+	http.Handle("/", http.FileServer(http.Dir("./build")))
+	http.Handle("/connect", &game)
+	go run(&game)
+	go tick(&game)
 
 	log.Println("Starting server on localhost:9090")
 	err := http.ListenAndServe(":9090", nil)

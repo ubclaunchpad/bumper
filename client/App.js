@@ -67,7 +67,6 @@ export default class App extends React.Component {
         this.setState({ player: msg.data });
         break;
       case 'update':
-        console.log(msg);
         this.update(msg.data);
         break;
       default:
@@ -86,7 +85,7 @@ export default class App extends React.Component {
   }
   
   update(data) {
-    if (!this.state.player && !this.state.isInitialized) {
+    if (!this.state.player || !this.state.isInitialized) {
       this.initializeGame(data);
       return;
     }

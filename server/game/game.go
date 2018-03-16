@@ -27,7 +27,7 @@ type Arena struct {
 	Width   float64         `json:"width"`
 	Holes   []models.Hole   `json:"holes"`
 	Junk    []models.Junk   `json:"junk"`
-	Players []models.Player `json:"player"`
+	Players []models.Player `json:"players"`
 }
 
 // CreateArena constructor for arena initializes holes and junk

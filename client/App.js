@@ -64,10 +64,10 @@ export default class App extends React.Component {
   handleMessage(msg) {
     switch (msg.type) {
       case 'initial':
-        console.log('initial msg received');
         this.setState({ player: msg.data });
         break;
       case 'update':
+        console.log(msg);
         this.update(msg.data);
         break;
       default:
@@ -81,18 +81,22 @@ export default class App extends React.Component {
       junk: data.junk,
       holes: data.holes,
       players: data.players,
-      player: data.players[0],
       isInitialized: true,
     }, () => this.tick());
   }
   
   update(data) {
-    if (!this.state.isInitialized) {
+    if (!this.state.player && !this.state.isInitialized) {
       this.initializeGame(data);
       return;
     }
-    
+
     // TODO: update objects accordingly
+    this.setState({
+      junk: data.junk,
+      holes: data.holes,
+      players: data.players,
+    });
   }
 
   tick() {

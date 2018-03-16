@@ -51,14 +51,9 @@ export default class App extends React.Component {
       isInitialized: false,
       junk: null,
       holes: null,
-      players: ["Player A","Player B","Player C","Player D","Player E", "Player F", "Player G"],
-      currPlayer: "Player G",
-      currPlayerPoints: 100,
-      playerRank: 7, // This should be calculated based on an iteration through points
-      allPoints: [700,600,500,400,300,200,100],
-      topFivePlayers: ["Player A","Player B","Player C","Player D","Player E"],
-      topFivePoints: [700,600,500,400,300,200,100],
-      playerColor: '#1702ff',
+      players: null,
+      player: null,
+      points: 0,
     };
 
     this.handleMessage = this.handleMessage.bind(this);
@@ -123,6 +118,12 @@ export default class App extends React.Component {
    *           currPlayerPoints, an int of the points the player currently has
    */
   leaderboard(operation) {
+    const currPlayer = "Player G";
+    const  currPlayerPoints = 100;
+    const  playerRank = 7; // This should be calculated based on an iteration through points
+    const  topFivePlayers = ["Player A","Player B","Player C","Player D","Player E"];
+    const  topFivePoints = [700,600,500,400,300,200,100];
+    const  playerColor = '#1702ff';
     // Draw the rectangle for the leaderboard:
 	  const ctx = this.canvas.getContext('2d');
     ctx.beginPath();
@@ -154,29 +155,29 @@ export default class App extends React.Component {
         index = currRank - 1;
         printedPlayerRank = false;
 
-        if(this.state.playerRank == currRank) {  // If player is in the top 5, print its rank in its player color
+        if(playerRank == currRank) {  // If player is in the top 5, print its rank in its player color
           printedPlayerRank = true;
-          ctx.fillStyle = this.state.playerColor;
+          ctx.fillStyle = playerColor;
           ctx.textAlign = 'left'; 
-          ctx.fillText(rank + '. ' + this.state.topFivePlayers[index], rectX + (rectWidth / 2) - 80, rectY + (rectHeight / 2) - 25 + 15 * index);
+          ctx.fillText(currRank + '. ' + topFivePlayers[index], rectX + (rectWidth / 2) - 80, rectY + (rectHeight / 2) - 25 + 15 * index);
           ctx.textAlign = 'right';
-          ctx.fillText(this.state.topFivePoints[index], rectX + (rectWidth / 2) + 60, rectY + (rectHeight / 2) - 25 + 15 * index);
+          ctx.fillText(topFivePoints[index], rectX + (rectWidth / 2) + 60, rectY + (rectHeight / 2) - 25 + 15 * index);
           ctx.fillStyle = '#FFFFFF';
         }
         else {   // Else, just print the rank
           ctx.textAlign = 'left'; 
-          ctx.fillText(currRank + '. ' + this.state.topFivePlayers[index], rectX + (rectWidth / 2) - 80, rectY + (rectHeight / 2) - 25 + 15 * index);
+          ctx.fillText(currRank + '. ' + topFivePlayers[index], rectX + (rectWidth / 2) - 80, rectY + (rectHeight / 2) - 25 + 15 * index);
           ctx.textAlign = 'right';
-          ctx.fillText(this.state.topFivePoints[index], rectX + (rectWidth / 2) + 60, rectY + (rectHeight / 2) - 25 + 15 * index);
+          ctx.fillText(topFivePoints[index], rectX + (rectWidth / 2) + 60, rectY + (rectHeight / 2) - 25 + 15 * index);
         }
       }
       if(!printedPlayerRank) { // Print the player's rank if it hasn't already been printed
         index = NUM_RANKS - 1;
-        ctx.fillStyle = this.state.playerColor;
+        ctx.fillStyle = playerColor;
         ctx.textAlign = 'left'; 
-        ctx.fillText(this.state.playerRank + '. ' + this.state.currPlayer, rectX + (rectWidth / 2) - 80, rectY + (rectHeight / 2) - 25 + 15 * index);
+        ctx.fillText(playerRank + '. ' + currPlayer, rectX + (rectWidth / 2) - 80, rectY + (rectHeight / 2) - 25 + 15 * index);
         ctx.textAlign = 'right';
-        ctx.fillText(this.state.currPlayerPoints, rectX + (rectWidth / 2) + 60, rectY + (rectHeight / 2) - 25 + 15 * index);
+        ctx.fillText(currPlayerPoints, rectX + (rectWidth / 2) + 60, rectY + (rectHeight / 2) - 25 + 15 * index);
         ctx.fillStyle = '#FFFFFF';
       }
 

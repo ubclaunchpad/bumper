@@ -4,35 +4,20 @@ import (
 	"math"
 )
 
-// LeftKey is the left keyboard button
-const LeftKey = 37
-
-// RightKey is the left keyboard button
-const RightKey = 39
-
-// UpKey is the up keyboard button
-const UpKey = 38
-
-// DownKey is the down keyboard button
-const DownKey = 40
-
-// JunkBounceFactor is how much hitting a junk affects your velocity
-const JunkBounceFactor = -0.25
-
-// WallBounceFactor is how much hitting a wall affects your velocity
-const WallBounceFactor = -1.5
-
-// PlayerRadius is how big
-const PlayerRadius = 25
-
-// PlayerAcceleration is how much a key press affects the player's velocity
-const PlayerAcceleration = 0.5
-
-// PlayerFriction is how much damping they experience per tick
-const PlayerFriction = 0.97
-
-// MaxVelocity caps how fast a player can get going
-const MaxVelocity = 15
+// Player related constants
+const (
+	LeftKey            = 37
+	RightKey           = 39
+	UpKey              = 38
+	DownKey            = 40
+	JunkBounceFactor   = -0.25
+	WallBounceFactor   = -1.5
+	PlayerRadius       = 25
+	PlayerAcceleration = 0.5
+	PlayerFriction     = 0.97
+	MaxVelocity        = 15
+	PointsPerJunk      = 100
+)
 
 // Player contains data and state about a player's object
 type Player struct {
@@ -42,6 +27,7 @@ type Player struct {
 	Color    string      `json:"color"`
 	Angle    float64     `json:"angle"`
 	Controls KeysPressed `json:"controls"`
+	Points   int         `json:"points"`
 }
 
 // KeysPressed contains a boolean about each key, true if it's down
@@ -104,19 +90,17 @@ func (p *Player) updatePosition(height float64, width float64) {
 	}
 }
 
-//Update Player's position based on calculations of hitting junk
 func (p *Player) hitJunk() {
 	p.Velocity.Dx *= JunkBounceFactor
 	p.Velocity.Dy *= JunkBounceFactor
 }
 
-//Update Player's position based on calculation of hitting another player
-func (p *Player) hitPlayer() {
+// HitPlayer calculates collision, update Player's position based on calculation of hitting another player
+func (p *Player) HitPlayer() {
 	p.Velocity.Dx *= JunkBounceFactor
 	p.Velocity.Dy *= JunkBounceFactor
 }
 
-//Handle a key press
 func (p *Player) keyDownHandler(key int) {
 	if key == RightKey {
 		p.Controls.Right = true
@@ -129,7 +113,6 @@ func (p *Player) keyDownHandler(key int) {
 	}
 }
 
-//Handle a key release
 func (p *Player) keyUpHandler(key int) {
 	if key == RightKey {
 		p.Controls.Right = false

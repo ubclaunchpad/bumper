@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -104,10 +103,7 @@ func main() {
 		Clients: make(map[*websocket.Conn]*models.Player),
 	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, "HELLO, is Inertia working yet?\n")
-	})
+	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.Handle("/connect", &game)
 	go run(&game)
 	go tick(&game)

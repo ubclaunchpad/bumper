@@ -84,11 +84,11 @@ export default class App extends React.Component {
   handleMessage(msg) {
     switch (msg.type) {
       case 'initial':
-        console.log('initial msg received');
-        // TODO: set player id
+        this.setState({ player: msg.data });
+        break;
       case 'update':
         this.update(msg.data);
-        break;  
+        break;
       default:
         console.log(`unknown msg type ${msg.type}`);
         break;
@@ -100,18 +100,21 @@ export default class App extends React.Component {
       junk: data.junk,
       holes: data.holes,
       players: data.players,
-      player: data.players[0],
       isInitialized: true,
     }, () => this.tick());
   }
-  
+
   update(data) {
     if (!this.state.isInitialized) {
       this.initializeGame(data);
       return;
     }
-    
-    // TODO: update objects accordingly
+
+    this.setState({
+      junk: data.junk,
+      holes: data.holes,
+      players: data.players,
+    });
   }
 
   tick() {
@@ -165,7 +168,7 @@ export default class App extends React.Component {
     ctx.fillStyle = this.state.player.color;
     ctx.fill();
     ctx.font = '16px Lucida Sans Unicode';
-    ctx.textAlign = 'center'; 
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText(`Points: ${this.state.player.points}`, rectX + (rectWidth / 2) - 10, rectY + (rectHeight / 2) + 2);

@@ -14,13 +14,15 @@ const (
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
+var lastID = 0
+
 // Arena container for play area information including all objects
 type Arena struct {
-	Height  float64
-	Width   float64
-	Holes   []models.Hole
-	Junk    []models.Junk
-	Players []models.Player
+	Height  float64         `json:"height"`
+	Width   float64         `json:"width"`
+	Holes   []models.Hole   `json:"holes"`
+	Junk    []models.Junk   `json:"junk"`
+	Players []models.Player `json:"players"`
 }
 
 // CreateArena constructor for arena initializes holes and junk
@@ -63,6 +65,20 @@ func (a *Arena) UpdatePositions() {
 func (a *Arena) CollisionDetection() {
 	a.collisionPlayer()
 	a.collisionHole()
+}
+
+// AddPlayer adds a new player to the arena
+func (a *Arena) AddPlayer() *models.Player {
+	player := models.Player{
+		ID:       0,
+		Position: a.generateCoord(models.PlayerRadius),
+		Velocity: models.Velocity{0, 0},
+		Color:    generateRandomColor(),
+		Angle:    0.0,
+		Controls: models.KeysPressed{false, false, false, false},
+	}
+	a.Players = append(a.Players, player)
+	return &player
 }
 
 // generateCoord creates a position coordinate
@@ -154,4 +170,22 @@ func (a *Arena) collisionHole() {
 			}
 		}
 	}
+}
+
+// TODO generate random hex value
+func generateRandomColor() string {
+	// var buffer bytes.Buffer
+	// buffer.WriteString("#")
+	// for len(buffer) < 7 {
+	// 	c := string(rand.Float64()) //tostring
+	// 	buffer.WriteString(c)
+	// }
+	return "blue"
+}
+
+// TODO generate player id check whether any current players have this id
+func generateID() int {
+	id := lastID
+	lastID++
+	return id
 }

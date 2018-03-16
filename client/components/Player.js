@@ -1,12 +1,6 @@
-import { magnitude, normalize } from '../utils/vector';
 import { generateRandomColor } from '../utils/color';
 
 const PLAYER_RADIUS = 25;
-const MAX_VELOCITY = 15;
-const PLAYER_ACCELERATION = 0.5;
-const PLAYER_FRICTION = 0.97;
-const WALL_BOUNCE_FACTOR = -1.5;
-const JUNK_BOUNCE_FACTOR = -0.25;
 
 export default class Player {
   constructor(props) {
@@ -14,7 +8,7 @@ export default class Player {
     this.position = props.position || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     this.velocity = { dx: 0, dy: 0 };
     this.theta = props.theta;
-    this.color = generateRandomColor();
+    this.color = props.color || generateRandomColor();
     this.points = 0;
 
     this.rightPressed = false;
@@ -54,69 +48,6 @@ export default class Player {
     ctx.strokeStyle = '#0000000';
     ctx.strokeWidth = 5;
     ctx.stroke();
-  }
-
-  updatePosition() {
-    let controlsVector = { dx: 0, dy: 0 };
-
-    if (this.leftPressed) {
-      this.theta = (this.theta + 0.1) % 360;
-    }
-
-    if (this.rightPressed) {
-      this.theta = (this.theta - 0.1) % 360;
-    }
-
-    // if (this.downPressed) {
-    //   controlsVector.dy = -(0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
-    //   controlsVector.dx = -(0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
-    // }
-
-    if (this.upPressed) {
-      controlsVector.dy = (0.5 * (PLAYER_RADIUS * Math.cos(this.theta)));
-      controlsVector.dx = (0.5 * (PLAYER_RADIUS * Math.sin(this.theta)));
-    }
-
-    // Normalize controls vector and apply speed
-    controlsVector = normalize(controlsVector);
-    controlsVector.dx *= PLAYER_ACCELERATION;
-    controlsVector.dy *= PLAYER_ACCELERATION;
-
-    // Apply some friction damping
-    this.velocity.dx *= PLAYER_FRICTION;
-    this.velocity.dy *= PLAYER_FRICTION;
-
-    this.velocity.dx += controlsVector.dx;
-    this.velocity.dy += controlsVector.dy;
-
-    // Ensure it never gets going too fast
-    if (magnitude(this.velocity) > MAX_VELOCITY) {
-      this.velocity = normalize(this.velocity);
-      this.velocity.dx *= MAX_VELOCITY;
-      this.velocity.dy *= MAX_VELOCITY;
-    }
-
-    // Apply player's velocity vector
-    this.position.x += this.velocity.dx;
-    this.position.y += this.velocity.dy;
-
-    // Check wall collisions
-    if (this.position.x + PLAYER_RADIUS > this.canvas.width) {
-      this.velocity.dx *= WALL_BOUNCE_FACTOR;
-    } else if (this.position.x - PLAYER_RADIUS < 0) {
-      this.velocity.dx *= WALL_BOUNCE_FACTOR;
-    }
-
-    if (this.position.y + PLAYER_RADIUS > this.canvas.height) {
-      this.velocity.dy *= WALL_BOUNCE_FACTOR;
-    } else if (this.position.y - PLAYER_RADIUS < 0) {
-      this.velocity.dy *= WALL_BOUNCE_FACTOR;
-    }
-  }
-
-  hitJunk() {
-    this.velocity.dx *= JUNK_BOUNCE_FACTOR;
-    this.velocity.dy *= JUNK_BOUNCE_FACTOR;
   }
 
   keyDownHandler(e) {

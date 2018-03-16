@@ -85,12 +85,11 @@ export default class App extends React.Component {
   }
   
   update(data) {
-    if (!this.state.player || !this.state.isInitialized) {
+    if (!this.state.isInitialized) {
       this.initializeGame(data);
       return;
     }
-
-    // TODO: update objects accordingly
+    
     this.setState({
       junk: data.junk,
       holes: data.holes,
@@ -130,6 +129,7 @@ export default class App extends React.Component {
     this.state.players.forEach((p) => {
       const ctx = this.canvas.getContext('2d');
       const { x, y } = p.position;
+      console.log(p);
       ctx.beginPath();
       ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
       ctx.fillStyle = p.color;

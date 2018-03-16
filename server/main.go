@@ -100,7 +100,7 @@ func tick(g *Game) {
 
 func main() {
 	game := Game{
-		Arena:   game.CreateArena(400, 400),
+		Arena:   game.CreateArena(1000, 800),
 		Clients: make(map[*websocket.Conn]*models.Player),
 	}
 

@@ -1,11 +1,5 @@
 import React from 'react';
 
-const DRAW = 0;
-const CLEAR = 1;
-const NUM_RANKS = 6;
-
-let printedPlayerRank = false;
-
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
@@ -119,12 +113,15 @@ export default class App extends React.Component {
    *           currPlayerPoints, an int of the points the player currently has
    */
   leaderboard() {
+    const NUM_RANKS = 6;
     const currPlayer = 'Player G';
     const currPlayerPoints = 100;
     const playerRank = 7; // This should be calculated based on an iteration through points
     const topFivePlayers = ['Player A', 'Player B', 'Player C', 'Player D', 'Player E'];
     const topFivePoints = [700, 600, 500, 400, 300, 200, 100];
     const playerColor = '#1702ff';
+    let printedPlayerRank = false;
+
     const ctx = this.canvas.getContext('2d');
     ctx.beginPath();
     const rectHeight = 130;

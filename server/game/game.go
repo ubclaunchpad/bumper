@@ -138,13 +138,9 @@ func (a *Arena) collisionPlayer() {
 			if player == playerHit || memo[playerHit] == player {
 				continue
 			}
-			// fmt.Println("checking")
-			// fmt.Println(player)
-			// fmt.Println(playerHit)
 			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
 				memo[playerHit] = player
 				player.HitPlayer(playerHit)
-				// playerHit.HitPlayer()
 			}
 		}
 		for _, junk := range a.Junk {

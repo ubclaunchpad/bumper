@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -12,7 +11,7 @@ const (
 	UpKey                  = 38
 	DownKey                = 40
 	JunkBounceFactor       = -0.25
-	VelocityTransferFactor = 0.5
+	VelocityTransferFactor = 0.75
 	WallBounceFactor       = -1.5
 	PlayerRadius           = 25
 	PlayerAcceleration     = 0.5
@@ -100,16 +99,20 @@ func (p *Player) hitJunk() {
 
 // HitPlayer calculates collision, update Player's position based on calculation of hitting another player
 func (p *Player) HitPlayer(ph *Player) {
-	// initalVelocity := p.Velocity
-	fmt.Println("Player hit Player")
-	// fmt.Println(p.Velocity)
-	// fmt.Println(initalVelocity)
-	// fmt.Println(ph.Velocity)
-	p.Velocity.Dx = (p.Velocity.Dx * -1.5) //-VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
-	p.Velocity.Dy = (p.Velocity.Dy * -1.5) //VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
-	// fmt.Println(p)
-	ph.Velocity.Dx = (ph.Velocity.Dx * -1.5) //-VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
-	ph.Velocity.Dy = (ph.Velocity.Dy * -1.5) //-VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
+	initalVelocity := p.Velocity
+
+	//Calculate player's new velocity
+	p.Velocity.Dx = (p.Velocity.Dx * -VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
+	p.Velocity.Dy = (p.Velocity.Dy * -VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
+	//We add one position update so that multiple collision events don't occur for a single bump
+	p.Position.X += p.Velocity.Dx
+	p.Position.Y += p.Velocity.Dy
+
+	//Calculate the player you hits new velocity (and again one position update)
+	ph.Velocity.Dx = (ph.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
+	ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
+	ph.Position.X += ph.Velocity.Dx
+	ph.Position.Y += ph.Velocity.Dy
 }
 
 // KeyDownHandler sets this players given key as pressed down

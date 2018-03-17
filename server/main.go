@@ -8,13 +8,11 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/ubclaunchpad/bumper/server/game"
-	"github.com/ubclaunchpad/bumper/server/models"
 )
 
 // Game represents a session
 type Game struct {
-	Arena   *game.Arena
-	Clients map[*websocket.Conn]*models.Player
+	Arena *game.Arena
 }
 
 // Message is the schema for client/server communication
@@ -49,27 +47,14 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	g.Clients[ws] = g.Arena.AddPlayer()
-	initialMsg := Message{
-		Type: "initial",
-		Data: g.Clients[ws],
-	}
-
-	// send initial message back to client with id
-	err = ws.WriteJSON(&initialMsg)
-	if err != nil {
-		log.Printf("error: %v", err)
-		ws.Close()
-		delete(g.Clients, ws)
-		return
-	}
+	g.Arena.AddPlayer(ws)
 
 	for {
 		var msg Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("error: %v", err)
-			delete(g.Clients, ws)
+			delete(g.Arena.Players, ws)
 			break
 		}
 
@@ -81,16 +66,12 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			for _, player := range g.Clients {
-				//A get playerByID would be nice once we're storing them in the game
-				if player.ID == kh.PlayerID {
-					if kh.Pressed == true {
-						player.KeyDownHandler(kh.Key)
-					} else {
-						player.KeyUpHandler(kh.Key)
-					}
-				}
+			if kh.Pressed == true {
+				g.Arena.Players[ws].KeyDownHandler(kh.Key)
+			} else {
+				g.Arena.Players[ws].KeyUpHandler(kh.Key)
 			}
+
 		}
 	}
 }
@@ -111,12 +92,12 @@ func tick(g *Game) {
 			Data: g.Arena,
 		}
 		// update every client
-		for client := range g.Clients {
+		for client := range g.Arena.Players {
 			err := client.WriteJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)
 				client.Close()
-				delete(g.Clients, client)
+				delete(g.Arena.Players, client)
 			}
 		}
 	}
@@ -124,8 +105,7 @@ func tick(g *Game) {
 
 func main() {
 	game := Game{
-		Arena:   game.CreateArena(800, 1000),
-		Clients: make(map[*websocket.Conn]*models.Player),
+		Arena: game.CreateArena(800, 1000),
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))

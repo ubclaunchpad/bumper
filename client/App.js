@@ -230,8 +230,7 @@ export default class App extends React.Component {
 
   draw() {
     const ctx = this.canvas.getContext('2d');
-    ctx.fillStyle = '#000000';
-    ctx.fill();
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawHoles();
     this.drawJunk();
     this.drawPlayers();

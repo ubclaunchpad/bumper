@@ -209,7 +209,7 @@ export default class App extends React.Component {
       const ctx = this.canvas.getContext('2d');
       ctx.beginPath();
       ctx.rect(j.position.x, j.position.y, JUNK_SIZE, JUNK_SIZE);
-      ctx.fillStyle = 'white';
+      ctx.fillStyle = j.color;
       ctx.fill();
       ctx.closePath();
     });

@@ -132,16 +132,19 @@ Duplicate calculations are kept track of using the memo map to store collisions 
 between player-to-player.
 */
 func (a *Arena) collisionPlayer() {
-	memo := make(map[int]int)
+	memo := make(map[*models.Player]*models.Player)
 	for _, player := range a.Players {
 		for _, playerHit := range a.Players {
-			if player == playerHit || memo[playerHit.ID] == playerHit.ID {
+			if player == playerHit || memo[playerHit] == player {
 				continue
 			}
+			// fmt.Println("checking")
+			// fmt.Println(player)
+			// fmt.Println(playerHit)
 			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
-				memo[playerHit.ID] = player.ID
-				player.HitPlayer()
-				playerHit.HitPlayer()
+				memo[playerHit] = player
+				player.HitPlayer(playerHit)
+				// playerHit.HitPlayer()
 			}
 		}
 		for _, junk := range a.Junk {

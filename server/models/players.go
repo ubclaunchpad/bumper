@@ -1,22 +1,24 @@
 package models
 
 import (
+	"fmt"
 	"math"
 )
 
 // Player related constants
 const (
-	LeftKey            = 37
-	RightKey           = 39
-	UpKey              = 38
-	DownKey            = 40
-	JunkBounceFactor   = -0.25
-	WallBounceFactor   = -1.5
-	PlayerRadius       = 25
-	PlayerAcceleration = 0.5
-	PlayerFriction     = 0.97
-	MaxVelocity        = 15
-	PointsPerJunk      = 100
+	LeftKey                = 37
+	RightKey               = 39
+	UpKey                  = 38
+	DownKey                = 40
+	JunkBounceFactor       = -0.25
+	VelocityTransferFactor = 0.5
+	WallBounceFactor       = -1.5
+	PlayerRadius           = 25
+	PlayerAcceleration     = 0.5
+	PlayerFriction         = 0.97
+	MaxVelocity            = 15
+	PointsPerJunk          = 100
 )
 
 // Player contains data and state about a player's object
@@ -97,9 +99,17 @@ func (p *Player) hitJunk() {
 }
 
 // HitPlayer calculates collision, update Player's position based on calculation of hitting another player
-func (p *Player) HitPlayer() {
-	p.Velocity.Dx *= JunkBounceFactor
-	p.Velocity.Dy *= JunkBounceFactor
+func (p *Player) HitPlayer(ph *Player) {
+	// initalVelocity := p.Velocity
+	fmt.Println("Player hit Player")
+	// fmt.Println(p.Velocity)
+	// fmt.Println(initalVelocity)
+	// fmt.Println(ph.Velocity)
+	p.Velocity.Dx = (p.Velocity.Dx * -1.5) //-VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
+	p.Velocity.Dy = (p.Velocity.Dy * -1.5) //VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
+	// fmt.Println(p)
+	ph.Velocity.Dx = (ph.Velocity.Dx * -1.5) //-VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
+	ph.Velocity.Dy = (ph.Velocity.Dy * -1.5) //-VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
 }
 
 // KeyDownHandler sets this players given key as pressed down

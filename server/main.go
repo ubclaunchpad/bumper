@@ -93,6 +93,11 @@ func tick(g *Game) {
 			slice = append(slice, *val)
 		}
 
+		junks := make([]models.Junk, 0)
+		for _, junk := range g.Arena.Junk {
+			junks = append(junks, *junk)
+		}
+
 		msg := Message{
 			Type: "update",
 			Data: struct {
@@ -101,7 +106,7 @@ func tick(g *Game) {
 				Players []models.Player `json:"players"`
 			}{
 				g.Arena.Holes,
-				g.Arena.Junk,
+				junks,
 				slice,
 			},
 		}

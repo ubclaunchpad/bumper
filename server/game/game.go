@@ -22,7 +22,7 @@ type Arena struct {
 	Height  float64                            `json:"height"`
 	Width   float64                            `json:"width"`
 	Holes   []models.Hole                      `json:"holes"`
-	Junk    []models.Junk                      `json:"junk"`
+	Junk    []*models.Junk                     `json:"junk"`
 	Players map[*websocket.Conn]*models.Player `json:"players"`
 }
 
@@ -44,7 +44,7 @@ func CreateArena(height float64, width float64) *Arena {
 			Velocity: models.Velocity{Dx: 0, Dy: 0},
 			Color:    "white",
 			ID:       0}
-		a.Junk = append(a.Junk, junk)
+		a.Junk = append(a.Junk, &junk)
 	}
 
 	return &a

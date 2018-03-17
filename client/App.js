@@ -241,13 +241,6 @@ export default class App extends React.Component {
       ctx.strokeStyle = '#0000000';
       ctx.strokeWidth = 5;
       ctx.stroke();
-      // const ctx = this.canvas.getContext('2d');
-      // const { x, y } = p.position;
-      // ctx.beginPath();
-      // ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
-      // ctx.fillStyle = p.color;
-      // ctx.fill();
-      // ctx.closePath();
     });
   }
 

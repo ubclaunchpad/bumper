@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/ubclaunchpad/bumper/server/game"
+	"github.com/ubclaunchpad/bumper/server/models"
 )
 
 // Game represents a session
@@ -87,9 +88,23 @@ func run(g *Game) {
 func tick(g *Game) {
 	for {
 		time.Sleep(time.Millisecond * 17) // 60 Hz
+
+		slice := make([]models.Player, 0)
+		for _, val := range g.Arena.Players {
+			slice = append(slice, *val)
+		}
+
 		msg := Message{
 			Type: "update",
-			Data: g.Arena,
+			Data: struct {
+				Holes   []models.Hole   `json:"holes"`
+				Junk    []models.Junk   `json:"junk"`
+				Players []models.Player `json:"players"`
+			}{
+				g.Arena.Holes,
+				g.Arena.Junk,
+				slice,
+			},
 		}
 		// update every client
 		for client := range g.Arena.Players {

@@ -55,9 +55,9 @@ func (a *Arena) UpdatePositions() {
 	// for _, hole := range a.Holes {
 
 	// }
-	// for _, junk := range a.Junk {
-
-	// }
+	for _, junk := range a.Junk {
+		junk.UpdatePosition(a.Height, a.Width)
+	}
 	for _, player := range a.Players {
 		player.UpdatePosition(a.Height, a.Width)
 	}

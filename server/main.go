@@ -24,9 +24,8 @@ type Message struct {
 
 // KeyHandler is the schema for client/server key handling communication
 type KeyHandler struct {
-	PlayerID int  `json:"playerID"`
-	Key      int  `json:"key"`
-	Pressed  bool `json:"pressed"`
+	Key     int  `json:"key"`
+	Pressed bool `json:"pressed"`
 } //TODO move to player?
 
 var upgrader = websocket.Upgrader{

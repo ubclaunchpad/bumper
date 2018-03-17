@@ -20,8 +20,8 @@ type Junk struct {
 	ID       int      `json:"int"`
 }
 
-//Update Junk's position based on calculations of position/velocity
-func (j *Junk) updatePosition(height float64, width float64) {
+// UpdatePosition Update Junk's position based on calculations of position/velocity
+func (j *Junk) UpdatePosition(height float64, width float64) {
 	if j.Position.X+j.Velocity.Dx > width-JunkRadius || j.Position.X+j.Velocity.Dx < JunkRadius {
 		j.Velocity.Dx = -j.Velocity.Dx
 	}

@@ -58,9 +58,9 @@ func (a *Arena) UpdatePositions() {
 	// for _, junk := range a.Junk {
 
 	// }
-	// for _, player := range a.Players {
-
-	// }
+	for _, player := range a.Players {
+		player.UpdatePosition(a.Height, a.Width)
+	}
 }
 
 // CollisionDetection loops through players and holes and determines if a collision has occurred

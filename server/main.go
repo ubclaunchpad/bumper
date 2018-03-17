@@ -81,7 +81,7 @@ func run(g *Game) {
 	for {
 		g.Arena.UpdatePositions()
 		g.Arena.CollisionDetection()
-		time.Sleep(time.Second * 30)
+		time.Sleep(time.Millisecond * 17)
 	}
 }
 

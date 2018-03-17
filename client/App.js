@@ -4,7 +4,7 @@ const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
 const address = process.env.NODE_ENV === 'production'
-  ? 'ws://ec2-18-188-53-231.us-east-2.compute.amazonaws.com:9090/connect'
+  ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com:9090//connect'
   : 'ws://localhost:9090/connect';
 
 export default class App extends React.Component {
@@ -56,7 +56,9 @@ export default class App extends React.Component {
       data: JSON.stringify(pressMessage),
     };
 
-    this.socket.send(JSON.stringify(message));
+    if (this.socket.readyState === 1) {
+      this.socket.send(JSON.stringify(message));
+    }
   }
 
   handleMessage(msg) {

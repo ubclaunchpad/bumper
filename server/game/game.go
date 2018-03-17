@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 
+	"github.com/gorilla/websocket"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
@@ -18,16 +19,17 @@ var lastID = 0
 
 // Arena container for play area information including all objects
 type Arena struct {
-	Height  float64         `json:"height"`
-	Width   float64         `json:"width"`
-	Holes   []models.Hole   `json:"holes"`
-	Junk    []models.Junk   `json:"junk"`
-	Players []models.Player `json:"players"`
+	Height  float64                            `json:"height"`
+	Width   float64                            `json:"width"`
+	Holes   []models.Hole                      `json:"holes"`
+	Junk    []models.Junk                      `json:"junk"`
+	Players map[*websocket.Conn]*models.Player `json:"players"`
 }
 
 // CreateArena constructor for arena initializes holes and junk
 func CreateArena(height float64, width float64) *Arena {
 	a := Arena{height, width, nil, nil, nil}
+	a.Players = make(map[*websocket.Conn]*models.Player)
 
 	for i := 0; i < HoleCount; i++ {
 		position := a.generateCoord(models.MinHoleRadius)
@@ -68,7 +70,7 @@ func (a *Arena) CollisionDetection() {
 }
 
 // AddPlayer adds a new player to the arena
-func (a *Arena) AddPlayer() *models.Player {
+func (a *Arena) AddPlayer(ws *websocket.Conn) {
 	player := models.Player{
 		ID:       0,
 		Position: a.generateCoord(models.PlayerRadius),
@@ -77,8 +79,7 @@ func (a *Arena) AddPlayer() *models.Player {
 		Angle:    0.0,
 		Controls: models.KeysPressed{false, false, false, false},
 	}
-	a.Players = append(a.Players, player)
-	return &player
+	a.Players[ws] = &player
 }
 
 // generateCoord creates a position coordinate
@@ -145,7 +146,7 @@ func (a *Arena) collisionPlayer() {
 		}
 		for _, junk := range a.Junk {
 			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
-				junk.HitBy(&player)
+				junk.HitBy(player)
 			}
 		}
 	}

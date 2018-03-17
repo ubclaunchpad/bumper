@@ -88,14 +88,19 @@ func tick(g *Game) {
 	for {
 		time.Sleep(time.Millisecond * 17) // 60 Hz
 
-		slice := make([]models.Player, 0)
-		for _, val := range g.Arena.Players {
-			slice = append(slice, *val)
+		players := make([]models.Player, 0)
+		for _, player := range g.Arena.Players {
+			players = append(players, *player)
 		}
 
 		junks := make([]models.Junk, 0)
 		for _, junk := range g.Arena.Junk {
 			junks = append(junks, *junk)
+		}
+
+		holes := make([]models.Hole, 0)
+		for _, hole := range g.Arena.Holes {
+			holes = append(holes, *hole)
 		}
 
 		msg := Message{
@@ -105,9 +110,9 @@ func tick(g *Game) {
 				Junk    []models.Junk   `json:"junk"`
 				Players []models.Player `json:"players"`
 			}{
-				g.Arena.Holes,
+				holes,
 				junks,
-				slice,
+				players,
 			},
 		}
 		// update every client

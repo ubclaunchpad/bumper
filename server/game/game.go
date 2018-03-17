@@ -21,7 +21,7 @@ var lastID = 0
 type Arena struct {
 	Height  float64                            `json:"height"`
 	Width   float64                            `json:"width"`
-	Holes   []models.Hole                      `json:"holes"`
+	Holes   []*models.Hole                     `json:"holes"`
 	Junk    []*models.Junk                     `json:"junk"`
 	Players map[*websocket.Conn]*models.Player `json:"players"`
 }
@@ -34,7 +34,7 @@ func CreateArena(height float64, width float64) *Arena {
 	for i := 0; i < HoleCount; i++ {
 		position := a.generateCoord(models.MinHoleRadius)
 		hole := models.CreateHole(position)
-		a.Holes = append(a.Holes, hole)
+		a.Holes = append(a.Holes, &hole)
 	}
 
 	for i := 0; i < JunkCount; i++ {

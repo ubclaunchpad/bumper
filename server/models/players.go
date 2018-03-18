@@ -6,17 +6,18 @@ import (
 
 // Player related constants
 const (
-	LeftKey            = 37
-	RightKey           = 39
-	UpKey              = 38
-	DownKey            = 40
-	JunkBounceFactor   = -0.25
-	WallBounceFactor   = -1.5
-	PlayerRadius       = 25
-	PlayerAcceleration = 0.5
-	PlayerFriction     = 0.97
-	MaxVelocity        = 15
-	PointsPerJunk      = 100
+	LeftKey                = 37
+	RightKey               = 39
+	UpKey                  = 38
+	DownKey                = 40
+	JunkBounceFactor       = -0.25
+	VelocityTransferFactor = 0.75
+	WallBounceFactor       = -1.5
+	PlayerRadius           = 25
+	PlayerAcceleration     = 0.5
+	PlayerFriction         = 0.97
+	MaxVelocity            = 15
+	PointsPerJunk          = 100
 )
 
 // Player contains data and state about a player's object
@@ -97,9 +98,21 @@ func (p *Player) hitJunk() {
 }
 
 // HitPlayer calculates collision, update Player's position based on calculation of hitting another player
-func (p *Player) HitPlayer() {
-	p.Velocity.Dx *= JunkBounceFactor
-	p.Velocity.Dy *= JunkBounceFactor
+func (p *Player) HitPlayer(ph *Player) {
+	initalVelocity := p.Velocity
+
+	//Calculate player's new velocity
+	p.Velocity.Dx = (p.Velocity.Dx * -VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
+	p.Velocity.Dy = (p.Velocity.Dy * -VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
+	//We add one position update so that multiple collision events don't occur for a single bump
+	p.Position.X += p.Velocity.Dx
+	p.Position.Y += p.Velocity.Dy
+
+	//Calculate the player you hits new velocity (and again one position update)
+	ph.Velocity.Dx = (ph.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
+	ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
+	ph.Position.X += ph.Velocity.Dx
+	ph.Position.Y += ph.Velocity.Dy
 }
 
 // KeyDownHandler sets this players given key as pressed down

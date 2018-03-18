@@ -22,8 +22,8 @@ var lastID = 0
 type Arena struct {
 	Height  float64                            `json:"height"`
 	Width   float64                            `json:"width"`
-	Holes   []models.Hole                      `json:"holes"`
-	Junk    []models.Junk                      `json:"junk"`
+	Holes   []*models.Hole                     `json:"holes"`
+	Junk    []*models.Junk                     `json:"junk"`
 	Players map[*websocket.Conn]*models.Player `json:"players"`
 }
 
@@ -35,7 +35,7 @@ func CreateArena(height float64, width float64) *Arena {
 	for i := 0; i < HoleCount; i++ {
 		position := a.generateCoord(models.MinHoleRadius)
 		hole := models.CreateHole(position)
-		a.Holes = append(a.Holes, hole)
+		a.Holes = append(a.Holes, &hole)
 	}
 
 	for i := 0; i < JunkCount; i++ {
@@ -45,7 +45,7 @@ func CreateArena(height float64, width float64) *Arena {
 			Velocity: models.Velocity{Dx: 0, Dy: 0},
 			Color:    "white",
 			ID:       0}
-		a.Junk = append(a.Junk, junk)
+		a.Junk = append(a.Junk, &junk)
 	}
 
 	return &a
@@ -56,9 +56,9 @@ func (a *Arena) UpdatePositions() {
 	// for _, hole := range a.Holes {
 
 	// }
-	// for _, junk := range a.Junk {
-
-	// }
+	for _, junk := range a.Junk {
+		junk.UpdatePosition(a.Height, a.Width)
+	}
 	for _, player := range a.Players {
 		player.UpdatePosition(a.Height, a.Width)
 	}
@@ -77,7 +77,7 @@ func (a *Arena) AddPlayer(ws *websocket.Conn) {
 		Position: a.generateCoord(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
 		Color:    generateRandomColor(),
-		Angle:    0.0,
+		Angle:    math.Pi,
 		Controls: models.KeysPressed{false, false, false, false},
 	}
 	a.Players[ws] = &player
@@ -133,16 +133,15 @@ Duplicate calculations are kept track of using the memo map to store collisions 
 between player-to-player.
 */
 func (a *Arena) collisionPlayer() {
-	memo := make(map[int]int)
+	memo := make(map[*models.Player]*models.Player)
 	for _, player := range a.Players {
 		for _, playerHit := range a.Players {
-			if player == playerHit || memo[playerHit.ID] == playerHit.ID {
+			if player == playerHit || memo[playerHit] == player {
 				continue
 			}
 			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
-				memo[playerHit.ID] = player.ID
-				player.HitPlayer()
-				playerHit.HitPlayer()
+				memo[playerHit] = player
+				player.HitPlayer(playerHit)
 			}
 		}
 		for _, junk := range a.Junk {

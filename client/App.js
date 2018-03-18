@@ -47,7 +47,6 @@ export default class App extends React.Component {
 
   sendKeyPress(keyPressed, isPressed) {
     const pressMessage = {
-      playerID: 1, // TODO with player ID
       key: keyPressed,
       pressed: isPressed,
     };
@@ -210,7 +209,7 @@ export default class App extends React.Component {
       const ctx = this.canvas.getContext('2d');
       ctx.beginPath();
       ctx.rect(j.position.x, j.position.y, JUNK_SIZE, JUNK_SIZE);
-      ctx.fillStyle = 'white';
+      ctx.fillStyle = j.color;
       ctx.fill();
       ctx.closePath();
     });
@@ -225,6 +224,23 @@ export default class App extends React.Component {
       ctx.fillStyle = p.color;
       ctx.fill();
       ctx.closePath();
+  
+      ctx.beginPath();
+      ctx.moveTo(x + (PLAYER_RADIUS * Math.sin(p.angle)), y + (PLAYER_RADIUS * Math.cos(p.angle)));
+      ctx.lineTo(x - (PLAYER_RADIUS * Math.sin(p.angle)), y - (PLAYER_RADIUS * Math.cos(p.angle)));
+      ctx.strokeStyle = '#000000';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
+  
+      const backCenterX = x - ((PLAYER_RADIUS * Math.sin(p.angle)) / 2);
+      const backCenterY = y - ((PLAYER_RADIUS * Math.cos(p.angle)) / 2);
+      const backLength = (2.5 * ((PLAYER_RADIUS / 2) / Math.tan(45)));
+      ctx.beginPath();
+      ctx.moveTo(backCenterX - (backLength * Math.cos(p.angle)), backCenterY + (backLength * Math.sin(p.angle)));
+      ctx.lineTo(backCenterX + (backLength * Math.cos(p.angle)), backCenterY - (backLength * Math.sin(p.angle)));
+      ctx.strokeStyle = '#0000000';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
     });
   }
 

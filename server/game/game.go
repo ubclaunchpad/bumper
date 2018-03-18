@@ -76,7 +76,7 @@ func (a *Arena) AddPlayer(ws *websocket.Conn) {
 		Position: a.generateCoord(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
 		Color:    generateRandomColor(),
-		Angle:    0.0,
+		Angle:    math.Pi,
 		Controls: models.KeysPressed{false, false, false, false},
 	}
 	a.Players[ws] = &player

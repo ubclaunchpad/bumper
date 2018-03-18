@@ -1,6 +1,7 @@
 package game
 
 import (
+	"bytes"
 	"math"
 	"math/rand"
 
@@ -173,15 +174,16 @@ func (a *Arena) collisionHole() {
 	}
 }
 
-// TODO generate random hex value
+// generate random hex value
 func generateRandomColor() string {
-	// var buffer bytes.Buffer
-	// buffer.WriteString("#")
-	// for len(buffer) < 7 {
-	// 	c := string(rand.Float64()) //tostring
-	// 	buffer.WriteString(c)
-	// }
-	return "blue"
+	letters := [13]string{"3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
+	var buffer bytes.Buffer
+	buffer.WriteString("#")
+	for i := 0; i < 6; i++ {
+		c := letters[rand.Intn(12)]
+		buffer.WriteString(c)
+	}
+	return buffer.String()
 }
 
 // TODO generate player id check whether any current players have this id

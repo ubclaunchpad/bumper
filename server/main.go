@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -119,6 +120,7 @@ func tick(g *Game) {
 }
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	game := Game{
 		Arena: game.CreateArena(800, 1000),
 	}

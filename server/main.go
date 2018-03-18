@@ -42,6 +42,10 @@ Initializes the client connection to a map of clients
 Listens for messages and acts on different message formats
 */
 func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Header["Upgrade"] == nil {
+		return
+	}
+
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Fatal(err)

@@ -4,7 +4,7 @@ const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
 const address = process.env.NODE_ENV === 'production'
-  ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com:9090/connect'
+  ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com/connect'
   : 'ws://localhost:9090/connect';
 
 export default class App extends React.Component {

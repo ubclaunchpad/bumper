@@ -12,6 +12,10 @@ import (
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
+var (
+	ws *websocket.Conn
+)
+
 // Game represents a session
 type Game struct {
 	Arena *game.Arena
@@ -45,8 +49,8 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Header["Upgrade"] == nil {
 		return
 	}
-
-	ws, err := upgrader.Upgrade(w, r, nil)
+	var err error
+	ws, err = upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -93,11 +97,6 @@ func tick(g *Game) {
 	for {
 		time.Sleep(time.Millisecond * 17) // 60 Hz
 
-		players := make([]models.Player, 0)
-		for _, player := range g.Arena.Players {
-			players = append(players, *player)
-		}
-
 		junks := make([]models.Junk, 0)
 		for _, junk := range g.Arena.Junk {
 			junks = append(junks, *junk)
@@ -108,20 +107,31 @@ func tick(g *Game) {
 			holes = append(holes, *hole)
 		}
 
-		msg := Message{
-			Type: "update",
-			Data: struct {
-				Holes   []models.Hole   `json:"holes"`
-				Junk    []models.Junk   `json:"junk"`
-				Players []models.Player `json:"players"`
-			}{
-				holes,
-				junks,
-				players,
-			},
-		}
 		// update every client
 		for client := range g.Arena.Players {
+			opponents := g.Arena.Players
+			delete(opponents, client)
+
+			players := make([]models.Player, 0)
+			for _, player := range opponents {
+				players = append(players, *player)
+			}
+			player := *g.Arena.Players[client]
+			msg := Message{
+				Type: "update",
+				Data: struct {
+					Holes   []models.Hole   `json:"holes"`
+					Junk    []models.Junk   `json:"junk"`
+					Players []models.Player `json:"players"`
+					Player  models.Player   `json:"player"`
+				}{
+					holes,
+					junks,
+					players,
+					player,
+				},
+			}
+
 			err := client.WriteJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)

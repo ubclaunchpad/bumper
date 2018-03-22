@@ -44,7 +44,7 @@ func CreateArena(height float64, width float64) *Arena {
 			Position: position,
 			Velocity: models.Velocity{Dx: 0, Dy: 0},
 			Color:    "white",
-			ID:       0}
+			ID:       nil}
 		a.Junk = append(a.Junk, &junk)
 	}
 
@@ -134,7 +134,7 @@ between player-to-player.
 */
 func (a *Arena) collisionPlayer() {
 	memo := make(map[*models.Player]*models.Player)
-	for _, player := range a.Players {
+	for ws, player := range a.Players {
 		for _, playerHit := range a.Players {
 			if player == playerHit || memo[playerHit] == player {
 				continue
@@ -146,7 +146,7 @@ func (a *Arena) collisionPlayer() {
 		}
 		for _, junk := range a.Junk {
 			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
-				junk.HitBy(player)
+				junk.HitBy(player, ws)
 			}
 		}
 	}
@@ -164,11 +164,8 @@ func (a *Arena) collisionHole() {
 		}
 		for i, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
-				for _, playerPt := range a.Players {
-					if playerPt.ID == junk.ID {
-						playerPt.Points += models.PointsPerJunk
-					}
-				}
+				playerScored := a.Players[junk.ID]
+				playerScored.AddPoints(models.PointsPerJunk)
 
 				// remove that junk from the junk
 				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
@@ -205,6 +202,6 @@ func (a *Arena) generateJunk() {
 		Position: position,
 		Velocity: models.Velocity{Dx: 0, Dy: 0},
 		Color:    "white",
-		ID:       0}
+		ID:       nil}
 	a.Junk = append(a.Junk, &junk)
 }

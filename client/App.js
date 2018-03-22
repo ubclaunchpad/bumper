@@ -106,8 +106,7 @@ export default class App extends React.Component {
    * Performs on operation on the leaderboard
    * Param operation: CLEAR clears the leaderboard from the black canvas
    *                  DRAW draws an updated leaderboard on the canvas
-   * Requires: topFivePlayers[], an array with the name strings of the top five players,
-   *           in order from 1 to 5
+   * Requires: topFivePlayers[], an array with the top five players
    *           playerRank, an int of the rank of the player
    *           currPlayer, a string of the player's name
    *           playerColor, some representation of the player's color
@@ -115,13 +114,18 @@ export default class App extends React.Component {
    *           in order from 1 to 5
    *           currPlayerPoints, an int of the points the player currently has
    */
-  leaderboard() {
+  drawLeaderboard() {
     const NUM_RANKS = 6;
     const currPlayer = 'Player G';
     const currPlayerPoints = 100;
     const playerRank = 7; // This should be calculated based on an iteration through points
-    const topFivePlayers = ['Player A', 'Player B', 'Player C', 'Player D', 'Player E'];
-    const topFivePoints = [700, 600, 500, 400, 300, 200, 100];
+    const allPlayers = this.state.players.push(this.state.player);
+    const rankedPlayers = allPlayers.sort((a, b) => { 
+      return a.points - b.points;
+    });
+    const topFivePlayers = rankedPlayers.slice(4);
+    const topFivePlayersNames = topFivePlayers.map(p => p.color); //TODO fix this to be a name
+    const topFivePlayersPoints = topFivePlayers.map(p => p.points);
     const playerColor = '#1702ff';
     let printedPlayerRank = false;
 
@@ -159,21 +163,21 @@ export default class App extends React.Component {
         ctx.textAlign = 'left';
         xPos = rectX + (rectWidth / 2) - 80;
         yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(`${currRank}. ${topFivePlayers[index]}`, xPos, yPos);
+        ctx.fillText(`${currRank}. ${topFivePlayersNames[index]}`, xPos, yPos);
         ctx.textAlign = 'right';
         xPos = rectX + (rectWidth / 2) + 60;
         yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(topFivePoints[index], xPos, yPos);
+        ctx.fillText(topFivePlayersPoints[index], xPos, yPos);
         ctx.fillStyle = '#FFFFFF';
       } else { // Else, just print the rank
         ctx.textAlign = 'left';
         xPos = rectX + (rectWidth / 2) - 80;
         yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(`${currRank}. ${topFivePlayers[index]}`, xPos, yPos);
+        ctx.fillText(`${currRank}. ${topFivePlayersNames[index]}`, xPos, yPos);
         ctx.textAlign = 'right';
         xPos = rectX + (rectWidth / 2) + 60;
         yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(topFivePoints[index], xPos, yPos);
+        ctx.fillText(topFivePlayersPoints[index], xPos, yPos);
       }
     }
 
@@ -250,7 +254,7 @@ export default class App extends React.Component {
     this.drawHoles();
     this.drawJunk();
     this.drawPlayers();
-    this.leaderboard();
+    this.drawLeaderboard();
   }
 
   keyDownHandler(e) {

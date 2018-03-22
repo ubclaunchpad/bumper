@@ -22,7 +22,6 @@ const (
 
 // Player contains data and state about a player's object
 type Player struct {
-	ID       int         `json:"id"`
 	Position Position    `json:"position"`
 	Velocity Velocity    `json:"velocity"`
 	Color    string      `json:"color"`
@@ -37,6 +36,11 @@ type KeysPressed struct {
 	Left  bool `json:"left"`
 	Up    bool `json:"up"`
 	Down  bool `json:"down"`
+}
+
+// AddPoints adds numPoints to player p
+func (p *Player) AddPoints(numPoints int) {
+	p.Points = p.Points + numPoints
 }
 
 //Update Player's position based on calculations of position/velocity

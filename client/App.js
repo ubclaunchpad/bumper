@@ -1,5 +1,5 @@
 import React from 'react';
-
+import WelcomeModal from './components/WelcomeModal'
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
@@ -21,6 +21,7 @@ export default class App extends React.Component {
     }
 
     this.state = {
+      showWelcomeModal: true,
       isInitialized: false,
       junk: null,
       holes: null,
@@ -43,6 +44,10 @@ export default class App extends React.Component {
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
+  }
+
+  close() {
+    this.setState({ showWelcomeModal: false });
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -249,6 +254,10 @@ export default class App extends React.Component {
     return (
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
+        {
+          this.state.showWelcomeModal &&
+          <WelcomeModal onClose={(e) => this.close(e)} />
+        }
       </div>
     );
   }

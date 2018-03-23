@@ -140,7 +140,7 @@ func (a *Arena) collisionPlayer() {
 			}
 			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
 				memo[playerHit] = player
-				player.HitPlayer(playerHit)
+				player.HitPlayer(playerHit, a.Height, a.Width)
 			}
 		}
 		for _, junk := range a.Junk {
@@ -153,20 +153,24 @@ func (a *Arena) collisionPlayer() {
 
 func (a *Arena) collisionHole() {
 	for _, hole := range a.Holes {
-		for _, player := range a.Players {
+		for client, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-				// Player falls into hole
-				// TODO: implement events for player falling into hole, removing the player
+				// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
+				client.Close()
+				delete(a.Players, client)
 			}
 		}
-		for _, junk := range a.Junk {
+		for i, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
 				for _, playerPt := range a.Players {
+					// TODO: Players do not have ID's right now so this doesn't work
 					if playerPt.ID == junk.ID {
 						playerPt.Points += models.PointsPerJunk
 					}
 				}
-				// TODO: implement deleting junk
+
+				// remove that junk from the junk
+				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
 			}
 		}
 	}

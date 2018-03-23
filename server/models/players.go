@@ -106,7 +106,7 @@ func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
 	p.checkWalls(height, width)
 }
 
-// checkWalls
+// checkWalls check if the player is attempting to exit the walls, reverse they're direction
 func (p *Player) checkWalls(height float64, width float64) {
 	if p.Position.X+PlayerRadius > width {
 		p.Velocity.Dx *= WallBounceFactor

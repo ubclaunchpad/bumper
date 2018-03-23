@@ -15,7 +15,7 @@ const (
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
-var lastID = 0
+var lastID = 1
 
 // Arena container for play area information including all objects
 type Arena struct {
@@ -72,7 +72,7 @@ func (a *Arena) CollisionDetection() {
 // AddPlayer adds a new player to the arena
 func (a *Arena) AddPlayer(ws *websocket.Conn) {
 	player := models.Player{
-		ID:       0,
+		ID:       generateID(),
 		Position: a.generateCoord(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
 		Color:    generateRandomColor(),
@@ -156,6 +156,7 @@ func (a *Arena) collisionHole() {
 		for client, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
 				// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
+				// Also should award some points to the bumper... Not as straight forward as the junk
 				client.Close()
 				delete(a.Players, client)
 			}
@@ -163,7 +164,6 @@ func (a *Arena) collisionHole() {
 		for i, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
 				for _, playerPt := range a.Players {
-					// TODO: Players do not have ID's right now so this doesn't work
 					if playerPt.ID == junk.ID {
 						playerPt.Points += models.PointsPerJunk
 					}

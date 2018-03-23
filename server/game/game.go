@@ -171,6 +171,8 @@ func (a *Arena) collisionHole() {
 
 				// remove that junk from the junk
 				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
+				//create a new junk to hold the count steady
+				a.generateJunk()
 			}
 		}
 	}
@@ -192,4 +194,15 @@ func generateID() int {
 	id := lastID
 	lastID++
 	return id
+}
+
+// adds a junk in a random spot
+func (a *Arena) generateJunk() {
+	position := a.generateCoord(models.JunkRadius)
+	junk := models.Junk{
+		Position: position,
+		Velocity: models.Velocity{Dx: 0, Dy: 0},
+		Color:    "white",
+		ID:       0}
+	a.Junk = append(a.Junk, &junk)
 }

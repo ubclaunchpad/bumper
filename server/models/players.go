@@ -78,18 +78,7 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	p.Position.X += p.Velocity.Dx
 	p.Position.Y += p.Velocity.Dy
 
-	// Check wall collisions
-	if p.Position.X+PlayerRadius > width {
-		p.Velocity.Dx *= WallBounceFactor
-	} else if p.Position.X-PlayerRadius < 0 {
-		p.Velocity.Dx *= WallBounceFactor
-	}
-
-	if p.Position.Y+PlayerRadius > height {
-		p.Velocity.Dy *= WallBounceFactor
-	} else if p.Position.Y-PlayerRadius < 0 {
-		p.Velocity.Dy *= WallBounceFactor
-	}
+	p.checkWalls(height, width)
 }
 
 func (p *Player) hitJunk() {
@@ -98,7 +87,7 @@ func (p *Player) hitJunk() {
 }
 
 // HitPlayer calculates collision, update Player's position based on calculation of hitting another player
-func (p *Player) HitPlayer(ph *Player) {
+func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
 	initalVelocity := p.Velocity
 
 	//Calculate player's new velocity
@@ -113,6 +102,23 @@ func (p *Player) HitPlayer(ph *Player) {
 	ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
 	ph.Position.X += ph.Velocity.Dx
 	ph.Position.Y += ph.Velocity.Dy
+
+	p.checkWalls(height, width)
+}
+
+// checkWalls check if the player is attempting to exit the walls, reverse they're direction
+func (p *Player) checkWalls(height float64, width float64) {
+	if p.Position.X+PlayerRadius > width {
+		p.Velocity.Dx *= WallBounceFactor
+	} else if p.Position.X-PlayerRadius < 0 {
+		p.Velocity.Dx *= WallBounceFactor
+	}
+
+	if p.Position.Y+PlayerRadius > height {
+		p.Velocity.Dy *= WallBounceFactor
+	} else if p.Position.Y-PlayerRadius < 0 {
+		p.Velocity.Dy *= WallBounceFactor
+	}
 }
 
 // KeyDownHandler sets this players given key as pressed down

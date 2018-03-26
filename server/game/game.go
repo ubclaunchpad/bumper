@@ -16,7 +16,7 @@ const (
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
-var lastID = 0
+var lastID = 1
 
 // Arena container for play area information including all objects
 type Arena struct {
@@ -73,7 +73,7 @@ func (a *Arena) CollisionDetection() {
 // AddPlayer adds a new player to the arena
 func (a *Arena) AddPlayer(ws *websocket.Conn) {
 	player := models.Player{
-		ID:       0,
+		ID:       generateID(),
 		Position: a.generateCoord(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
 		Color:    generateRandomColor(),
@@ -141,7 +141,7 @@ func (a *Arena) collisionPlayer() {
 			}
 			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
 				memo[playerHit] = player
-				player.HitPlayer(playerHit)
+				player.HitPlayer(playerHit, a.Height, a.Width)
 			}
 		}
 		for _, junk := range a.Junk {
@@ -154,20 +154,26 @@ func (a *Arena) collisionPlayer() {
 
 func (a *Arena) collisionHole() {
 	for _, hole := range a.Holes {
-		for _, player := range a.Players {
+		for client, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-				// Player falls into hole
-				// TODO: implement events for player falling into hole, removing the player
+				// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
+				// Also should award some points to the bumper... Not as straight forward as the junk
+				client.Close()
+				delete(a.Players, client)
 			}
 		}
-		for _, junk := range a.Junk {
+		for i, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
 				for _, playerPt := range a.Players {
 					if playerPt.ID == junk.ID {
 						playerPt.Points += models.PointsPerJunk
 					}
 				}
-				// TODO: implement deleting junk
+
+				// remove that junk from the junk
+				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
+				//create a new junk to hold the count steady
+				a.generateJunk()
 			}
 		}
 	}
@@ -190,4 +196,15 @@ func generateID() int {
 	id := lastID
 	lastID++
 	return id
+}
+
+// adds a junk in a random spot
+func (a *Arena) generateJunk() {
+	position := a.generateCoord(models.JunkRadius)
+	junk := models.Junk{
+		Position: position,
+		Velocity: models.Velocity{Dx: 0, Dy: 0},
+		Color:    "white",
+		ID:       0}
+	a.Junk = append(a.Junk, &junk)
 }

@@ -107,28 +107,24 @@ func tick(g *Game) {
 			holes = append(holes, *hole)
 		}
 
+		players := make([]models.Player, 0)
+		for _, player := range g.Arena.Players {
+			players = append(players, *player)
+		}
+
 		// update every client
 		for client := range g.Arena.Players {
-			opponents := g.Arena.Players
-			delete(opponents, client)
 
-			players := make([]models.Player, 0)
-			for _, player := range opponents {
-				players = append(players, *player)
-			}
-			player := *g.Arena.Players[client]
 			msg := Message{
 				Type: "update",
 				Data: struct {
 					Holes   []models.Hole   `json:"holes"`
 					Junk    []models.Junk   `json:"junk"`
 					Players []models.Player `json:"players"`
-					Player  models.Player   `json:"player"`
 				}{
 					holes,
 					junks,
 					players,
-					player,
 				},
 			}
 

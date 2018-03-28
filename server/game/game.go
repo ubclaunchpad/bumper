@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"math"
 	"math/rand"
-	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/ubclaunchpad/bumper/server/models"
@@ -26,12 +25,11 @@ type Arena struct {
 	Holes   []*models.Hole                     `json:"holes"`
 	Junk    []*models.Junk                     `json:"junk"`
 	Players map[*websocket.Conn]*models.Player `json:"players"`
-	sync.RWMutex
 }
 
 // CreateArena constructor for arena initializes holes and junk
 func CreateArena(height float64, width float64) *Arena {
-	a := Arena{height, width, nil, nil, nil, sync.RWMutex{}}
+	a := Arena{height, width, nil, nil, nil}
 	a.Players = make(map[*websocket.Conn]*models.Player)
 
 	for i := 0; i < HoleCount; i++ {

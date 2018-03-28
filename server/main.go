@@ -107,21 +107,21 @@ func tick(g *Game) {
 			players = append(players, *player)
 		}
 
+		msg := Message{
+			Type: "update",
+			Data: struct {
+				Holes   []models.Hole   `json:"holes"`
+				Junk    []models.Junk   `json:"junk"`
+				Players []models.Player `json:"players"`
+			}{
+				holes,
+				junks,
+				players,
+			},
+		}
+
 		// update every client
 		for client := range g.Arena.Players {
-
-			msg := Message{
-				Type: "update",
-				Data: struct {
-					Holes   []models.Hole   `json:"holes"`
-					Junk    []models.Junk   `json:"junk"`
-					Players []models.Player `json:"players"`
-				}{
-					holes,
-					junks,
-					players,
-				},
-			}
 
 			err := client.WriteJSON(&msg)
 			if err != nil {

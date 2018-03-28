@@ -12,10 +12,6 @@ import (
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
-var (
-	ws *websocket.Conn
-)
-
 // Game represents a session
 type Game struct {
 	Arena *game.Arena
@@ -49,8 +45,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Header["Upgrade"] == nil {
 		return
 	}
-	var err error
-	ws, err = upgrader.Upgrade(w, r, nil)
+	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

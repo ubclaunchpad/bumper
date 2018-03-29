@@ -1,14 +1,27 @@
 import React from 'react';
 
 class WelcomeModal extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {inputName: ''};
+  }
+
+  
+  submitPlayerID
+
   render() {
     return (
       <div style={styles.backdrop}>
           <div style={styles.modal}>
-            Hello
-            <button onClick={this.props.onClose}>
-                close me
-            </button>
+            Welcome to Bumper
+            <div style={styles.buttonLayout}>
+              <button onClick={this.props.onClose}>
+                  close me
+              </button>
+              <button onClick={() => {this.setState({inputName: 1})}}>
+                  submit
+              </button>
+            </div>
           </div>
       </div>
     );
@@ -39,6 +52,9 @@ const styles = {
         height: window.innerHeight / 2,
         width: window.innerWidth / 2,
         zIndex: 10,
+      },
+      buttonLayout: {
+        flexDirection: 'row',
       },
 }
 

@@ -256,7 +256,7 @@ export default class App extends React.Component {
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
           this.state.showWelcomeModal &&
-          <WelcomeModal onClose={(e) => this.close(e)} />
+          <WelcomeModal onClose={() => this.close()} />
         }
       </div>
     );

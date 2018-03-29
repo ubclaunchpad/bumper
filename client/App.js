@@ -110,8 +110,7 @@ export default class App extends React.Component {
    */
 
   drawLeaderboard() {
-    const NUM_RANKS = 6;
-    const rankedPlayers = this.state.players.sort((a, b) => { 
+    const rankedPlayers = this.state.players.sort((a, b) => {
       if (b.points < a.points) return -1;
       if (b.points > a.points) return 1;
       if (a.color < b.color) return -1; // sort by color on ties
@@ -146,7 +145,7 @@ export default class App extends React.Component {
       ctx.textAlign = 'left';
       xPos = rectX + (rectWidth / 2) - 80;
       yPos = rectY + (rectHeight / 2) - 25 + 15 * i;
-      ctx.fillText(`${i+1}. Player ${player.color}`, xPos, yPos);
+      ctx.fillText(`${i + 1}. Player ${player.color}`, xPos, yPos);
       ctx.textAlign = 'right';
       xPos = rectX + (rectWidth / 2) + 60;
       yPos = rectY + (rectHeight / 2) - 25 + 15 * i;

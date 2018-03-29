@@ -39,6 +39,11 @@ type KeysPressed struct {
 	Down  bool `json:"down"`
 }
 
+// AddPoints adds numPoints to player p
+func (p *Player) AddPoints(numPoints int) {
+	p.Points = p.Points + numPoints
+}
+
 //Update Player's position based on calculations of position/velocity
 func (p *Player) UpdatePosition(height float64, width float64) {
 

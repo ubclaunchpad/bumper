@@ -42,13 +42,10 @@ Initializes the client connection to a map of clients
 Listens for messages and acts on different message formats
 */
 func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Header["Upgrade"] == nil {
-		return
-	}
-
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("%v\n", err)
+		return
 	}
 	defer ws.Close()
 
@@ -93,11 +90,6 @@ func tick(g *Game) {
 	for {
 		time.Sleep(time.Millisecond * 17) // 60 Hz
 
-		players := make([]models.Player, 0)
-		for _, player := range g.Arena.Players {
-			players = append(players, *player)
-		}
-
 		junks := make([]models.Junk, 0)
 		for _, junk := range g.Arena.Junk {
 			junks = append(junks, *junk)
@@ -106,6 +98,11 @@ func tick(g *Game) {
 		holes := make([]models.Hole, 0)
 		for _, hole := range g.Arena.Holes {
 			holes = append(holes, *hole)
+		}
+
+		players := make([]models.Player, 0)
+		for _, player := range g.Arena.Players {
+			players = append(players, *player)
 		}
 
 		msg := Message{
@@ -120,8 +117,10 @@ func tick(g *Game) {
 				players,
 			},
 		}
+
 		// update every client
 		for client := range g.Arena.Players {
+
 			err := client.WriteJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)

@@ -104,26 +104,19 @@ export default class App extends React.Component {
 
   /*
    * Performs on operation on the leaderboard
-   * Param operation: CLEAR clears the leaderboard from the black canvas
-   *                  DRAW draws an updated leaderboard on the canvas
-   * Requires: topFivePlayers[], an array with the name strings of the top five players,
-   *           in order from 1 to 5
-   *           playerRank, an int of the rank of the player
-   *           currPlayer, a string of the player's name
-   *           playerColor, some representation of the player's color
-   *           topFivePoints[], an array of ints corresponding to points of the top five players,
-   *           in order from 1 to 5
-   *           currPlayerPoints, an int of the points the player currently has
+   * DRAW draws an updated leaderboard on the canvas
+   * Requires: this.state.players an array with the players
+   * // TODO identify current player
    */
-  leaderboard() {
-    const NUM_RANKS = 6;
-    const currPlayer = 'Player G';
-    const currPlayerPoints = 100;
-    const playerRank = 7; // This should be calculated based on an iteration through points
-    const topFivePlayers = ['Player A', 'Player B', 'Player C', 'Player D', 'Player E'];
-    const topFivePoints = [700, 600, 500, 400, 300, 200, 100];
-    const playerColor = '#1702ff';
-    let printedPlayerRank = false;
+
+  drawLeaderboard() {
+    const rankedPlayers = this.state.players.sort((a, b) => {
+      if (b.points < a.points) return -1;
+      if (b.points > a.points) return 1;
+      if (a.color < b.color) return -1; // sort by color on ties
+      if (a.color > b.color) return 1;
+      return 0;
+    });
 
     const ctx = this.canvas.getContext('2d');
     ctx.beginPath();
@@ -147,49 +140,18 @@ export default class App extends React.Component {
 
     // Draw the ranks with corresponding player names and points:
     ctx.font = '10px Lucida Sans Unicode';
-    let index;
-    for (let currRank = 1; currRank < NUM_RANKS; currRank++) {
-      index = currRank - 1;
-      printedPlayerRank = false;
-
-      // If player is in the top 5, print its rank in its player color
-      if (playerRank === currRank) {
-        printedPlayerRank = true;
-        ctx.fillStyle = playerColor;
-        ctx.textAlign = 'left';
-        xPos = rectX + (rectWidth / 2) - 80;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(`${currRank}. ${topFivePlayers[index]}`, xPos, yPos);
-        ctx.textAlign = 'right';
-        xPos = rectX + (rectWidth / 2) + 60;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(topFivePoints[index], xPos, yPos);
-        ctx.fillStyle = '#FFFFFF';
-      } else { // Else, just print the rank
-        ctx.textAlign = 'left';
-        xPos = rectX + (rectWidth / 2) - 80;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(`${currRank}. ${topFivePlayers[index]}`, xPos, yPos);
-        ctx.textAlign = 'right';
-        xPos = rectX + (rectWidth / 2) + 60;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(topFivePoints[index], xPos, yPos);
-      }
-    }
-
-    if (!printedPlayerRank) { // Print the player's rank if it hasn't already been printed
-      index = NUM_RANKS - 1;
-      ctx.fillStyle = playerColor;
+    rankedPlayers.forEach((player, i) => {
+      ctx.fillStyle = player.color;
       ctx.textAlign = 'left';
       xPos = rectX + (rectWidth / 2) - 80;
-      yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-      ctx.fillText(`${playerRank}. ${currPlayer}`, xPos, yPos);
+      yPos = rectY + (rectHeight / 2) - 25 + 15 * i;
+      ctx.fillText(`${i + 1}. Player ${player.color}`, xPos, yPos);
       ctx.textAlign = 'right';
       xPos = rectX + (rectWidth / 2) + 60;
-      yPos =  rectY + (rectHeight / 2) - 25 + 15 * index;
-      ctx.fillText(currPlayerPoints, xPos, yPos);
+      yPos = rectY + (rectHeight / 2) - 25 + 15 * i;
+      ctx.fillText(player.points, xPos, yPos);
       ctx.fillStyle = '#FFFFFF';
-    }
+    });
     ctx.closePath();
   }
 
@@ -250,7 +212,7 @@ export default class App extends React.Component {
     this.drawHoles();
     this.drawJunk();
     this.drawPlayers();
-    this.leaderboard();
+    this.drawLeaderboard();
   }
 
   keyDownHandler(e) {

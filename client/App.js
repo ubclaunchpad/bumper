@@ -141,8 +141,7 @@ export default class App extends React.Component {
 
     // Draw the ranks with corresponding player names and points:
     ctx.font = '10px Lucida Sans Unicode';
-    for (let i = 0; i < rankedPlayers.length; i++) {
-      const player = rankedPlayers[i];
+    rankedPlayers.forEach((player, i) => {
       ctx.fillStyle = player.color;
       ctx.textAlign = 'left';
       xPos = rectX + (rectWidth / 2) - 80;
@@ -153,7 +152,7 @@ export default class App extends React.Component {
       yPos = rectY + (rectHeight / 2) - 25 + 15 * i;
       ctx.fillText(player.points, xPos, yPos);
       ctx.fillStyle = '#FFFFFF';
-    }
+    });
     ctx.closePath();
   }
 

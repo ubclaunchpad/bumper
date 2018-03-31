@@ -1,20 +1,21 @@
 import React from 'react';
 import App from '../App.js';
 
-class GameOverModal extends React.Component {
 
-    render() {
+// eslint-disable-next-line
+class GameOverModal extends React.Component {
+  render() {
     return (
       <div style={styles.backdrop}>
-        <div style={styles.modal} onload="loadText()">
-            <b>GAME OVER</b>
-            <span style={styles.modalBody}>
-            <b> Time alive: <span style={styles.modalInfo}> {this.props.data.finalTime} </span></b><br></br>
-            <b> Points earned: <span style={styles.modalInfo}>{this.props.data.finalPoints}</span></b><br></br>
-             <b> Final ranking: <span style={styles.modalInfo}>{this.props.data.finalRanking}</span></b>
-            </span>
+        <div style={styles.modal}>
+          <b>GAME OVER</b>
+          <span style={styles.modalBody}>
+            <b>Time alive:</b> <span>{this.props.data.finalTime}</span><br />
+            <b>Points earned:</b> <span>{this.props.data.finalPoints}</span><br />
+            <b>Final ranking:</b> <span>{this.props.data.finalRanking}</span>
+          </span>
           <button style={styles.restartButton} onClick={this.props.onClose}>
-                Restart game
+            Restart game
           </button>
         </div>
       </div>
@@ -52,9 +53,6 @@ const styles = {
   modalBody: {
     textAlign: 'left',
     padding: 10,
-  },
-  modalInfo: {
-    fontWeight: 'normal',
   },
   restartButton: {
     height: 30,

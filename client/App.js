@@ -5,8 +5,8 @@ const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
 // Testing constants:
-const ELAPSED_TIME = 100;
-const POINTS = 200;
+const FINAL_TIME = 100;
+const FINAL_POINTS = 200;
 const FINAL_RANKING = 1;
 
 const address = process.env.NODE_ENV === 'production'
@@ -28,7 +28,7 @@ export default class App extends React.Component {
 
     this.state = {
       isInitialized: false,
-      showGameOverModal: true, // Set true for testing; change to false
+      showGameOverModal: false, // Set true for testing; change to false
       junk: null,
       holes: null,
       players: null,
@@ -43,6 +43,7 @@ export default class App extends React.Component {
     this.draw = this.draw.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
+    this.openGameOverModal = this.openGameOverModal.bind(this);
 
     window.addEventListener('keydown', this.keyDownHandler);
     window.addEventListener('keyup', this.keyUpHandler);
@@ -50,10 +51,22 @@ export default class App extends React.Component {
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
+    this.openGameOverModal();
   }
 
-  close() {
-    this.setState({showGameOverModal: false});
+  openGameOverModal() {
+    this.setState({
+      showGameOverModal: true,
+      gameOverData: {
+        finalTime: FINAL_TIME,
+        finalPoints: FINAL_POINTS,
+        finalRanking: FINAL_RANKING,
+      }
+    })
+  }
+
+  refreshPage() {
+    window.location.reload();
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -79,9 +92,6 @@ export default class App extends React.Component {
         break;
       case 'update':
         this.update(msg.data);
-        break;
-      case 'death':
-        this.setState({ showGameOverModal: true});
         break;
       default:
         console.log(`unknown msg type ${msg.type}`);
@@ -264,7 +274,7 @@ export default class App extends React.Component {
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
-          this.state.showGameOverModal && <GameOverModal onClose={(e) => this.close(e)} />
+          this.state.showGameOverModal && <GameOverModal data={this.state.gameOverData} onClose={(e) => this.refreshPage(e)} />
         }
       </div>
     );

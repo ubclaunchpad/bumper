@@ -1,6 +1,4 @@
 import React from 'react';
-import App from '../App.js';
-
 
 // eslint-disable-next-line
 class GameOverModal extends React.Component {
@@ -9,9 +7,11 @@ class GameOverModal extends React.Component {
       <div style={styles.backdrop}>
         <div style={styles.modal}>
           <b>GAME OVER</b>
-          <div><b>Time alive:</b> <span>{this.props.data.finalTime}</span></div>
-          <b>Points earned:</b> <span>{this.props.data.finalPoints}</span>
-          <b>Final ranking:</b> <span>{this.props.data.finalRanking}</span>
+          <div>
+            <div><b>Time alive:</b> <span>{this.props.data.finalTime}</span></div>
+            <div><b>Points earned:</b> <span>{this.props.data.finalPoints}</span></div>
+            <div><b>Final ranking:</b> <span>{this.props.data.finalRanking}</span></div>
+          </div>
           <button style={styles.restartButton} onClick={() => window.location.reload()}>
             Restart game
           </button>
@@ -39,7 +39,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignSelf: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 5,
@@ -55,6 +55,5 @@ const styles = {
     fontFamily: 'Verdana',
   },
 };
-
 
 export default GameOverModal;

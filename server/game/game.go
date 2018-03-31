@@ -52,9 +52,12 @@ func CreateArena(height float64, width float64) *Arena {
 
 // UpdatePositions calculates the next state of each object
 func (a *Arena) UpdatePositions() {
-	// for _, hole := range a.Holes {
-
-	// }
+	for _, hole := range a.Holes {
+		hole.Update()
+		if hole.Life < 0 {
+			hole.StartNewLife(a.generateCoord(models.MaxHoleRadius))
+		}
+	}
 	for _, junk := range a.Junk {
 		junk.UpdatePosition(a.Height, a.Width)
 	}

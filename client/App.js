@@ -2,6 +2,7 @@ import React from 'react';
 
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
+const FRESH_HOLE_RADIUS = 5;
 
 const address = process.env.NODE_ENV === 'production'
   ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com:9090/connect'
@@ -195,12 +196,22 @@ export default class App extends React.Component {
 
   drawHoles() {
     this.state.holes.forEach((h) => {
-      const ctx = this.canvas.getContext('2d');
-      ctx.beginPath();
-      ctx.arc(h.position.x, h.position.y, h.radius, 0, Math.PI * 2);
-      ctx.fillStyle = 'white';
-      ctx.fill();
-      ctx.closePath();
+      console.log(h);
+      if (h.islive === true) {
+        const ctx = this.canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.arc(h.position.x, h.position.y, h.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.closePath();
+      } else {
+        const ctx = this.canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.arc(h.position.x, h.position.y, FRESH_HOLE_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = 'Yellow';
+        ctx.fill();
+        ctx.closePath();
+      }
     });
   }
 

@@ -1,5 +1,7 @@
 import React from 'react';
-import GameOverModal from './components/GameOverModal'
+
+import GameOverModal from './components/GameOverModal';
+import WelcomeModal from './components/WelcomeModal';
 
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
@@ -10,31 +12,24 @@ const FINAL_POINTS = 200;
 const FINAL_RANKING = 1;
 
 const address = process.env.NODE_ENV === 'production'
-  ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com:9090/connect'
+  ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com/connect'
   : 'ws://localhost:9090/connect';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    if (window.WebSocket) {
-      this.socket = new WebSocket(address);
-      this.socket.onopen = () => {
-        this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
-      };
-    } else {
-      console.log('websocket not available');
-      return;
-    }
 
     this.state = {
-      isInitialized: false,
+      showWelcomeModal: true,
       showGameOverModal: false,
+      isInitialized: false,
       junk: null,
       holes: null,
       players: null,
       player: null,
     };
 
+    this.sendSubmitPlayerID = this.sendSubmitPlayerID.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
     this.initializeGame = this.initializeGame.bind(this);
     this.sendKeyPress = this.sendKeyPress.bind(this);
@@ -43,15 +38,10 @@ export default class App extends React.Component {
     this.draw = this.draw.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
-    this.openGameOverModal = this.openGameOverModal.bind(this);
-
-    window.addEventListener('keydown', this.keyDownHandler);
-    window.addEventListener('keyup', this.keyUpHandler);
   }
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
-    this.openGameOverModal();
   }
 
   openGameOverModal() {
@@ -61,13 +51,30 @@ export default class App extends React.Component {
         finalTime: FINAL_TIME,
         finalPoints: FINAL_POINTS,
         finalRanking: FINAL_RANKING,
-      }
-    })
+      },
+    });
+  }
+
+  sendSubmitPlayerID(inputName){
+    const message = {
+      type: "initial",
+      data: inputName,
+    }
+
+    if (window.WebSocket) {
+      this.socket = new WebSocket(address + "?name=" + inputName);
+      this.socket.onopen = () => {
+        this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
+      };
+    } else {
+      console.log('websocket not available');
+      return;
+    }
+    this.setState({ showWelcomeModal: false });
   }
 
   sendKeyPress(keyPressed, isPressed) {
     const pressMessage = {
-      playerID: 1, // TODO with player ID
       key: keyPressed,
       pressed: isPressed,
     };
@@ -107,6 +114,8 @@ export default class App extends React.Component {
   update(data) {
     if (!this.state.isInitialized) {
       this.initializeGame(data);
+      window.addEventListener('keydown', this.keyDownHandler);
+      window.addEventListener('keyup', this.keyUpHandler);
       return;
     }
 
@@ -125,26 +134,19 @@ export default class App extends React.Component {
 
   /*
    * Performs on operation on the leaderboard
-   * Param operation: CLEAR clears the leaderboard from the black canvas
-   *                  DRAW draws an updated leaderboard on the canvas
-   * Requires: topFivePlayers[], an array with the name strings of the top five players,
-   *           in order from 1 to 5
-   *           playerRank, an int of the rank of the player
-   *           currPlayer, a string of the player's name
-   *           playerColor, some representation of the player's color
-   *           topFivePoints[], an array of ints corresponding to points of the top five players,
-   *           in order from 1 to 5
-   *           currPlayerPoints, an int of the points the player currently has
+   * DRAW draws an updated leaderboard on the canvas
+   * Requires: this.state.players an array with the players
+   * // TODO identify current player
    */
-  leaderboard() {
-    const NUM_RANKS = 6;
-    const currPlayer = 'Player G';
-    const currPlayerPoints = 100;
-    const playerRank = 7; // This should be calculated based on an iteration through points
-    const topFivePlayers = ['Player A', 'Player B', 'Player C', 'Player D', 'Player E'];
-    const topFivePoints = [700, 600, 500, 400, 300, 200, 100];
-    const playerColor = '#1702ff';
-    let printedPlayerRank = false;
+
+  drawLeaderboard() {
+    const rankedPlayers = this.state.players.sort((a, b) => {
+      if (b.points < a.points) return -1;
+      if (b.points > a.points) return 1;
+      if (a.color < b.color) return -1; // sort by color on ties
+      if (a.color > b.color) return 1;
+      return 0;
+    });
 
     const ctx = this.canvas.getContext('2d');
     ctx.beginPath();
@@ -168,49 +170,18 @@ export default class App extends React.Component {
 
     // Draw the ranks with corresponding player names and points:
     ctx.font = '10px Lucida Sans Unicode';
-    let index;
-    for (let currRank = 1; currRank < NUM_RANKS; currRank++) {
-      index = currRank - 1;
-      printedPlayerRank = false;
-
-      // If player is in the top 5, print its rank in its player color
-      if (playerRank === currRank) {
-        printedPlayerRank = true;
-        ctx.fillStyle = playerColor;
-        ctx.textAlign = 'left';
-        xPos = rectX + (rectWidth / 2) - 80;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(`${currRank}. ${topFivePlayers[index]}`, xPos, yPos);
-        ctx.textAlign = 'right';
-        xPos = rectX + (rectWidth / 2) + 60;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(topFivePoints[index], xPos, yPos);
-        ctx.fillStyle = '#FFFFFF';
-      } else { // Else, just print the rank
-        ctx.textAlign = 'left';
-        xPos = rectX + (rectWidth / 2) - 80;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(`${currRank}. ${topFivePlayers[index]}`, xPos, yPos);
-        ctx.textAlign = 'right';
-        xPos = rectX + (rectWidth / 2) + 60;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-        ctx.fillText(topFivePoints[index], xPos, yPos);
-      }
-    }
-
-    if (!printedPlayerRank) { // Print the player's rank if it hasn't already been printed
-      index = NUM_RANKS - 1;
-      ctx.fillStyle = playerColor;
+    rankedPlayers.forEach((player, i) => {
+      ctx.fillStyle = player.color;
       ctx.textAlign = 'left';
       xPos = rectX + (rectWidth / 2) - 80;
-      yPos = rectY + (rectHeight / 2) - 25 + 15 * index;
-      ctx.fillText(`${playerRank}. ${currPlayer}`, xPos, yPos);
+      yPos = rectY + (rectHeight / 2) - 25 + 15 * i;
+      ctx.fillText(`${i + 1}. Player ${player.color}`, xPos, yPos);
       ctx.textAlign = 'right';
       xPos = rectX + (rectWidth / 2) + 60;
-      yPos =  rectY + (rectHeight / 2) - 25 + 15 * index;
-      ctx.fillText(currPlayerPoints, xPos, yPos);
+      yPos = rectY + (rectHeight / 2) - 25 + 15 * i;
+      ctx.fillText(player.points, xPos, yPos);
       ctx.fillStyle = '#FFFFFF';
-    }
+    });
     ctx.closePath();
   }
 
@@ -230,7 +201,7 @@ export default class App extends React.Component {
       const ctx = this.canvas.getContext('2d');
       ctx.beginPath();
       ctx.rect(j.position.x, j.position.y, JUNK_SIZE, JUNK_SIZE);
-      ctx.fillStyle = 'white';
+      ctx.fillStyle = j.color;
       ctx.fill();
       ctx.closePath();
     });
@@ -245,6 +216,23 @@ export default class App extends React.Component {
       ctx.fillStyle = p.color;
       ctx.fill();
       ctx.closePath();
+  
+      ctx.beginPath();
+      ctx.moveTo(x + (PLAYER_RADIUS * Math.sin(p.angle)), y + (PLAYER_RADIUS * Math.cos(p.angle)));
+      ctx.lineTo(x - (PLAYER_RADIUS * Math.sin(p.angle)), y - (PLAYER_RADIUS * Math.cos(p.angle)));
+      ctx.strokeStyle = '#000000';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
+  
+      const backCenterX = x - ((PLAYER_RADIUS * Math.sin(p.angle)) / 2);
+      const backCenterY = y - ((PLAYER_RADIUS * Math.cos(p.angle)) / 2);
+      const backLength = (2.5 * ((PLAYER_RADIUS / 2) / Math.tan(45)));
+      ctx.beginPath();
+      ctx.moveTo(backCenterX - (backLength * Math.cos(p.angle)), backCenterY + (backLength * Math.sin(p.angle)));
+      ctx.lineTo(backCenterX + (backLength * Math.cos(p.angle)), backCenterY - (backLength * Math.sin(p.angle)));
+      ctx.strokeStyle = '#0000000';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
     });
   }
 
@@ -254,7 +242,7 @@ export default class App extends React.Component {
     this.drawHoles();
     this.drawJunk();
     this.drawPlayers();
-    this.leaderboard();
+    this.drawLeaderboard();
   }
 
   keyDownHandler(e) {
@@ -266,11 +254,16 @@ export default class App extends React.Component {
   }
 
   render() {
+    if (this.state.showGameOverModal) {
+      return <GameOverModal data={this.state.gameOverData} />;
+    }
+
     return (
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
-          this.state.showGameOverModal && <GameOverModal data={this.state.gameOverData} />
+          this.state.showWelcomeModal
+          && <WelcomeModal onSubmit={e => this.sendSubmitPlayerID(e)} />
         }
       </div>
     );

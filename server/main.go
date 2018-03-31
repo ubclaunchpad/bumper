@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -24,9 +25,8 @@ type Message struct {
 
 // KeyHandler is the schema for client/server key handling communication
 type KeyHandler struct {
-	PlayerID int  `json:"playerID"`
-	Key      int  `json:"key"`
-	Pressed  bool `json:"pressed"`
+	Key     int  `json:"key"`
+	Pressed bool `json:"pressed"`
 } //TODO move to player?
 
 var upgrader = websocket.Upgrader{
@@ -44,11 +44,14 @@ Listens for messages and acts on different message formats
 func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("%v\n", err)
+		return
 	}
 	defer ws.Close()
 
+	name := r.URL.Query().Get("name")
 	g.Arena.AddPlayer(ws)
+	g.Arena.Players[ws].Name = name
 
 	for {
 		var msg Message
@@ -72,7 +75,6 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			} else {
 				g.Arena.Players[ws].KeyUpHandler(kh.Key)
 			}
-
 		}
 	}
 }
@@ -89,9 +91,19 @@ func tick(g *Game) {
 	for {
 		time.Sleep(time.Millisecond * 17) // 60 Hz
 
-		slice := make([]models.Player, 0)
-		for _, val := range g.Arena.Players {
-			slice = append(slice, *val)
+		junks := make([]models.Junk, 0)
+		for _, junk := range g.Arena.Junk {
+			junks = append(junks, *junk)
+		}
+
+		holes := make([]models.Hole, 0)
+		for _, hole := range g.Arena.Holes {
+			holes = append(holes, *hole)
+		}
+
+		players := make([]models.Player, 0)
+		for _, player := range g.Arena.Players {
+			players = append(players, *player)
 		}
 
 		msg := Message{
@@ -101,13 +113,15 @@ func tick(g *Game) {
 				Junk    []models.Junk   `json:"junk"`
 				Players []models.Player `json:"players"`
 			}{
-				g.Arena.Holes,
-				g.Arena.Junk,
-				slice,
+				holes,
+				junks,
+				players,
 			},
 		}
+
 		// update every client
 		for client := range g.Arena.Players {
+
 			err := client.WriteJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)
@@ -119,6 +133,7 @@ func tick(g *Game) {
 }
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	game := Game{
 		Arena: game.CreateArena(800, 1000),
 	}

@@ -1,6 +1,7 @@
 package game
 
 import (
+	"bytes"
 	"math"
 	"math/rand"
 
@@ -15,14 +16,14 @@ const (
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
-var lastID = 0
+var lastID = 1
 
 // Arena container for play area information including all objects
 type Arena struct {
 	Height  float64                            `json:"height"`
 	Width   float64                            `json:"width"`
-	Holes   []models.Hole                      `json:"holes"`
-	Junk    []models.Junk                      `json:"junk"`
+	Holes   []*models.Hole                     `json:"holes"`
+	Junk    []*models.Junk                     `json:"junk"`
 	Players map[*websocket.Conn]*models.Player `json:"players"`
 }
 
@@ -34,7 +35,7 @@ func CreateArena(height float64, width float64) *Arena {
 	for i := 0; i < HoleCount; i++ {
 		position := a.generateCoord(models.MinHoleRadius)
 		hole := models.CreateHole(position)
-		a.Holes = append(a.Holes, hole)
+		a.Holes = append(a.Holes, &hole)
 	}
 
 	for i := 0; i < JunkCount; i++ {
@@ -43,8 +44,8 @@ func CreateArena(height float64, width float64) *Arena {
 			Position: position,
 			Velocity: models.Velocity{Dx: 0, Dy: 0},
 			Color:    "white",
-			ID:       0}
-		a.Junk = append(a.Junk, junk)
+			ID:       nil}
+		a.Junk = append(a.Junk, &junk)
 	}
 
 	return &a
@@ -55,9 +56,9 @@ func (a *Arena) UpdatePositions() {
 	// for _, hole := range a.Holes {
 
 	// }
-	// for _, junk := range a.Junk {
-
-	// }
+	for _, junk := range a.Junk {
+		junk.UpdatePosition(a.Height, a.Width)
+	}
 	for _, player := range a.Players {
 		player.UpdatePosition(a.Height, a.Width)
 	}
@@ -72,11 +73,11 @@ func (a *Arena) CollisionDetection() {
 // AddPlayer adds a new player to the arena
 func (a *Arena) AddPlayer(ws *websocket.Conn) {
 	player := models.Player{
-		ID:       0,
+		ID:       generateID(),
 		Position: a.generateCoord(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
 		Color:    generateRandomColor(),
-		Angle:    0.0,
+		Angle:    math.Pi,
 		Controls: models.KeysPressed{false, false, false, false},
 	}
 	a.Players[ws] = &player
@@ -132,21 +133,20 @@ Duplicate calculations are kept track of using the memo map to store collisions 
 between player-to-player.
 */
 func (a *Arena) collisionPlayer() {
-	memo := make(map[int]int)
-	for _, player := range a.Players {
+	memo := make(map[*models.Player]*models.Player)
+	for ws, player := range a.Players {
 		for _, playerHit := range a.Players {
-			if player == playerHit || memo[playerHit.ID] == playerHit.ID {
+			if player == playerHit || memo[playerHit] == player {
 				continue
 			}
 			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
-				memo[playerHit.ID] = player.ID
-				player.HitPlayer()
-				playerHit.HitPlayer()
+				memo[playerHit] = player
+				player.HitPlayer(playerHit, a.Height, a.Width)
 			}
 		}
 		for _, junk := range a.Junk {
 			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
-				junk.HitBy(player)
+				junk.HitBy(player, ws)
 			}
 		}
 	}
@@ -154,34 +154,38 @@ func (a *Arena) collisionPlayer() {
 
 func (a *Arena) collisionHole() {
 	for _, hole := range a.Holes {
-		for _, player := range a.Players {
+		for client, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-				// Player falls into hole
-				// TODO: implement events for player falling into hole, removing the player
+				// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
+				// Also should award some points to the bumper... Not as straight forward as the junk
+				client.Close()
+				delete(a.Players, client)
 			}
 		}
-		for _, junk := range a.Junk {
+		for i, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
-				for _, playerPt := range a.Players {
-					if playerPt.ID == junk.ID {
-						playerPt.Points += models.PointsPerJunk
-					}
-				}
-				// TODO: implement deleting junk
+				playerScored := a.Players[junk.ID]
+				playerScored.AddPoints(models.PointsPerJunk)
+
+				// remove that junk from the junk
+				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
+				//create a new junk to hold the count steady
+				a.generateJunk()
 			}
 		}
 	}
 }
 
-// TODO generate random hex value
+// generate random hex value
 func generateRandomColor() string {
-	// var buffer bytes.Buffer
-	// buffer.WriteString("#")
-	// for len(buffer) < 7 {
-	// 	c := string(rand.Float64()) //tostring
-	// 	buffer.WriteString(c)
-	// }
-	return "blue"
+	letters := [13]string{"3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
+	var buffer bytes.Buffer
+	buffer.WriteString("#")
+	for i := 0; i < 6; i++ {
+		c := letters[rand.Intn(12)]
+		buffer.WriteString(c)
+	}
+	return buffer.String()
 }
 
 // TODO generate player id check whether any current players have this id
@@ -189,4 +193,15 @@ func generateID() int {
 	id := lastID
 	lastID++
 	return id
+}
+
+// adds a junk in a random spot
+func (a *Arena) generateJunk() {
+	position := a.generateCoord(models.JunkRadius)
+	junk := models.Junk{
+		Position: position,
+		Velocity: models.Velocity{Dx: 0, Dy: 0},
+		Color:    "white",
+		ID:       nil}
+	a.Junk = append(a.Junk, &junk)
 }

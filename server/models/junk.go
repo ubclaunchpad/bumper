@@ -2,6 +2,8 @@ package models
 
 import (
 	"math"
+
+	"github.com/gorilla/websocket"
 )
 
 // Junk related constants
@@ -14,14 +16,14 @@ const (
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points
 type Junk struct {
-	Position Position `json:"position"`
-	Velocity Velocity `json:"velocity"`
-	Color    string   `json:"color"`
-	ID       int      `json:"int"`
+	Position Position        `json:"position"`
+	Velocity Velocity        `json:"velocity"`
+	Color    string          `json:"color"`
+	ID       *websocket.Conn `json:"id"`
 }
 
-//Update Junk's position based on calculations of position/velocity
-func (j *Junk) updatePosition(height float64, width float64) {
+// UpdatePosition Update Junk's position based on calculations of position/velocity
+func (j *Junk) UpdatePosition(height float64, width float64) {
 	if j.Position.X+j.Velocity.Dx > width-JunkRadius || j.Position.X+j.Velocity.Dx < JunkRadius {
 		j.Velocity.Dx = -j.Velocity.Dx
 	}
@@ -37,9 +39,9 @@ func (j *Junk) updatePosition(height float64, width float64) {
 }
 
 // HitBy Update Junks's velocity based on calculations of being hit by a player
-func (j *Junk) HitBy(p *Player) {
+func (j *Junk) HitBy(p *Player, ws *websocket.Conn) {
 	j.Color = p.Color //Assign junk to last recently hit player color
-	j.ID = p.ID       //Assign junk to last recently hit player id
+	j.ID = ws         //Assign junk to last recently hit player id (websocket)
 	if p.Velocity.Dx < 0 {
 		j.Velocity.Dx = math.Max(p.Velocity.Dx*BumpFactor, -MinimumBump)
 	} else {

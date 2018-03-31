@@ -6,21 +6,23 @@ import (
 
 // Player related constants
 const (
-	LeftKey            = 37
-	RightKey           = 39
-	UpKey              = 38
-	DownKey            = 40
-	JunkBounceFactor   = -0.25
-	WallBounceFactor   = -1.5
-	PlayerRadius       = 25
-	PlayerAcceleration = 0.5
-	PlayerFriction     = 0.97
-	MaxVelocity        = 15
-	PointsPerJunk      = 100
+	LeftKey                = 37
+	RightKey               = 39
+	UpKey                  = 38
+	DownKey                = 40
+	JunkBounceFactor       = -0.25
+	VelocityTransferFactor = 0.75
+	WallBounceFactor       = -1.5
+	PlayerRadius           = 25
+	PlayerAcceleration     = 0.5
+	PlayerFriction         = 0.97
+	MaxVelocity            = 15
+	PointsPerJunk          = 100
 )
 
 // Player contains data and state about a player's object
 type Player struct {
+	Name     string      `json:"name"`
 	ID       int         `json:"id"`
 	Position Position    `json:"position"`
 	Velocity Velocity    `json:"velocity"`
@@ -36,6 +38,11 @@ type KeysPressed struct {
 	Left  bool `json:"left"`
 	Up    bool `json:"up"`
 	Down  bool `json:"down"`
+}
+
+// AddPoints adds numPoints to player p
+func (p *Player) AddPoints(numPoints int) {
+	p.Points = p.Points + numPoints
 }
 
 //Update Player's position based on calculations of position/velocity
@@ -77,7 +84,36 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	p.Position.X += p.Velocity.Dx
 	p.Position.Y += p.Velocity.Dy
 
-	// Check wall collisions
+	p.checkWalls(height, width)
+}
+
+func (p *Player) hitJunk() {
+	p.Velocity.Dx *= JunkBounceFactor
+	p.Velocity.Dy *= JunkBounceFactor
+}
+
+// HitPlayer calculates collision, update Player's position based on calculation of hitting another player
+func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
+	initalVelocity := p.Velocity
+
+	//Calculate player's new velocity
+	p.Velocity.Dx = (p.Velocity.Dx * -VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
+	p.Velocity.Dy = (p.Velocity.Dy * -VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
+	//We add one position update so that multiple collision events don't occur for a single bump
+	p.Position.X += p.Velocity.Dx
+	p.Position.Y += p.Velocity.Dy
+
+	//Calculate the player you hits new velocity (and again one position update)
+	ph.Velocity.Dx = (ph.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
+	ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
+	ph.Position.X += ph.Velocity.Dx
+	ph.Position.Y += ph.Velocity.Dy
+
+	p.checkWalls(height, width)
+}
+
+// checkWalls check if the player is attempting to exit the walls, reverse they're direction
+func (p *Player) checkWalls(height float64, width float64) {
 	if p.Position.X+PlayerRadius > width {
 		p.Velocity.Dx *= WallBounceFactor
 	} else if p.Position.X-PlayerRadius < 0 {
@@ -89,17 +125,6 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	} else if p.Position.Y-PlayerRadius < 0 {
 		p.Velocity.Dy *= WallBounceFactor
 	}
-}
-
-func (p *Player) hitJunk() {
-	p.Velocity.Dx *= JunkBounceFactor
-	p.Velocity.Dy *= JunkBounceFactor
-}
-
-// HitPlayer calculates collision, update Player's position based on calculation of hitting another player
-func (p *Player) HitPlayer() {
-	p.Velocity.Dx *= JunkBounceFactor
-	p.Velocity.Dy *= JunkBounceFactor
 }
 
 // KeyDownHandler sets this players given key as pressed down

@@ -28,7 +28,7 @@ export default class App extends React.Component {
 
     this.state = {
       isInitialized: false,
-      showGameOverModal: false, // Set true for testing; change to false
+      showGameOverModal: false,
       junk: null,
       holes: null,
       players: null,

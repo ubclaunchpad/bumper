@@ -1,5 +1,5 @@
 import React from 'react';
-
+import WelcomeModal from './components/WelcomeModal'
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
@@ -10,17 +10,9 @@ const address = process.env.NODE_ENV === 'production'
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    if (window.WebSocket) {
-      this.socket = new WebSocket(address);
-      this.socket.onopen = () => {
-        this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
-      };
-    } else {
-      console.log('websocket not available');
-      return;
-    }
 
     this.state = {
+      showWelcomeModal: true,
       isInitialized: false,
       junk: null,
       holes: null,
@@ -28,6 +20,7 @@ export default class App extends React.Component {
       player: null,
     };
 
+    this.sendSubmitPlayerID = this.sendSubmitPlayerID.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
     this.initializeGame = this.initializeGame.bind(this);
     this.sendKeyPress = this.sendKeyPress.bind(this);
@@ -36,13 +29,35 @@ export default class App extends React.Component {
     this.draw = this.draw.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
+    
 
-    window.addEventListener('keydown', this.keyDownHandler);
-    window.addEventListener('keyup', this.keyUpHandler);
   }
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
+  }
+
+  close() {
+    this.setState({ showWelcomeModal: false });
+  }
+
+
+  sendSubmitPlayerID(inputName){
+    const message = {
+      type: "initial",
+      data: inputName,
+    }
+
+    if (window.WebSocket) {
+      this.socket = new WebSocket(address + "?name=" + inputName);
+      this.socket.onopen = () => {
+        this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
+      };
+    } else {
+      console.log('websocket not available');
+      return;
+    }
+    this.close();
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -86,6 +101,8 @@ export default class App extends React.Component {
   update(data) {
     if (!this.state.isInitialized) {
       this.initializeGame(data);
+      window.addEventListener('keydown', this.keyDownHandler);
+      window.addEventListener('keyup', this.keyUpHandler);
       return;
     }
 
@@ -227,6 +244,13 @@ export default class App extends React.Component {
     return (
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
+        {
+          this.state.showWelcomeModal &&
+          <WelcomeModal 
+            onClose={() => this.close()} 
+            onSubmit={(e) => this.sendSubmitPlayerID(e)}
+          />
+        }
       </div>
     );
   }

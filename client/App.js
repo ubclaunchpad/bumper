@@ -13,8 +13,6 @@ export default class App extends React.Component {
 
     this.state = {
       showWelcomeModal: true,
-      inputName: '',
-
       isInitialized: false,
       junk: null,
       holes: null,

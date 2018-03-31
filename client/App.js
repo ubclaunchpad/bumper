@@ -65,10 +65,6 @@ export default class App extends React.Component {
     })
   }
 
-  refreshPage() {
-    window.location.reload();
-  }
-
   sendKeyPress(keyPressed, isPressed) {
     const pressMessage = {
       playerID: 1, // TODO with player ID
@@ -274,7 +270,7 @@ export default class App extends React.Component {
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
-          this.state.showGameOverModal && <GameOverModal data={this.state.gameOverData} onClose={(e) => this.refreshPage(e)} />
+          this.state.showGameOverModal && <GameOverModal data={this.state.gameOverData} />
         }
       </div>
     );

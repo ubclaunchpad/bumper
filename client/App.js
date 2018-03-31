@@ -21,7 +21,7 @@ export default class App extends React.Component {
 
     this.state = {
       showWelcomeModal: true,
-      showGameOverModal: false,
+      showGameOverModal: true,
       isInitialized: false,
       junk: null,
       holes: null,

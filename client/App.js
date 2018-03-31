@@ -55,12 +55,7 @@ export default class App extends React.Component {
     });
   }
 
-  sendSubmitPlayerID(inputName){
-    const message = {
-      type: "initial",
-      data: inputName,
-    }
-
+  sendSubmitPlayerID(inputName) {
     if (window.WebSocket) {
       this.socket = new WebSocket(address + "?name=" + inputName);
       this.socket.onopen = () => {
@@ -70,7 +65,8 @@ export default class App extends React.Component {
       console.log('websocket not available');
       return;
     }
-    this.setState({ showWelcomeModal: false });
+
+    this.setState({ showWelcomeModal: false }); //  Close Modal
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -262,8 +258,10 @@ export default class App extends React.Component {
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
-          this.state.showWelcomeModal
-          && <WelcomeModal onSubmit={e => this.sendSubmitPlayerID(e)} />
+          this.state.showWelcomeModal &&
+          <WelcomeModal
+            onSubmit={e => this.sendSubmitPlayerID(e)}
+          />
         }
       </div>
     );

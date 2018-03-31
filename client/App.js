@@ -158,7 +158,6 @@ export default class App extends React.Component {
 
   drawHoles() {
     this.state.holes.forEach((h) => {
-      console.log(h);
       if (h.islive === true) {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();

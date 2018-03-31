@@ -1,7 +1,15 @@
 import React from 'react';
-import WelcomeModal from './components/WelcomeModal'
+
+import GameOverModal from './components/GameOverModal';
+import WelcomeModal from './components/WelcomeModal';
+
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
+
+// Testing constants:
+const FINAL_TIME = 100;
+const FINAL_POINTS = 200;
+const FINAL_RANKING = 1;
 
 const address = process.env.NODE_ENV === 'production'
   ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com/connect'
@@ -13,6 +21,7 @@ export default class App extends React.Component {
 
     this.state = {
       showWelcomeModal: true,
+      showGameOverModal: false,
       isInitialized: false,
       junk: null,
       holes: null,
@@ -35,6 +44,17 @@ export default class App extends React.Component {
     this.canvas = document.getElementById('ctx');
   }
 
+  openGameOverModal() {
+    this.setState({
+      showGameOverModal: true,
+      gameOverData: {
+        finalTime: FINAL_TIME,
+        finalPoints: FINAL_POINTS,
+        finalRanking: FINAL_RANKING,
+      },
+    });
+  }
+
   sendSubmitPlayerID(inputName) {
     if (window.WebSocket) {
       this.socket = new WebSocket(address + "?name=" + inputName);
@@ -45,6 +65,7 @@ export default class App extends React.Component {
       console.log('websocket not available');
       return;
     }
+
     this.setState({ showWelcomeModal: false }); //  Close Modal
   }
 
@@ -229,6 +250,10 @@ export default class App extends React.Component {
   }
 
   render() {
+    if (this.state.showGameOverModal) {
+      return <GameOverModal data={this.state.gameOverData} />;
+    }
+
     return (
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
@@ -255,4 +280,3 @@ const styles = {
     textAlign: 'center',
   },
 };
-

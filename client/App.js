@@ -29,25 +29,13 @@ export default class App extends React.Component {
     this.draw = this.draw.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
-    
-
   }
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
   }
 
-  close() {
-    this.setState({ showWelcomeModal: false });
-  }
-
-
-  sendSubmitPlayerID(inputName){
-    const message = {
-      type: "initial",
-      data: inputName,
-    }
-
+  sendSubmitPlayerID(inputName) {
     if (window.WebSocket) {
       this.socket = new WebSocket(address + "?name=" + inputName);
       this.socket.onopen = () => {
@@ -57,7 +45,7 @@ export default class App extends React.Component {
       console.log('websocket not available');
       return;
     }
-    this.close();
+    this.setState({ showWelcomeModal: false }); //  Close Modal
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -246,9 +234,9 @@ export default class App extends React.Component {
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
           this.state.showWelcomeModal &&
-          <WelcomeModal 
-            onClose={() => this.close()} 
-            onSubmit={(e) => this.sendSubmitPlayerID(e)}
+          <WelcomeModal
+            onClose={() => this.setState({ showWelcomeModal: false })}
+            onSubmit={e => this.sendSubmitPlayerID(e)}
           />
         }
       </div>

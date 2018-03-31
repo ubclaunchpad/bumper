@@ -21,6 +21,7 @@ const (
 
 // Player contains data and state about a player's object
 type Player struct {
+	Name     string      `json:"name"`
 	ID       int         `json:"id"`
 	Position Position    `json:"position"`
 	Velocity Velocity    `json:"velocity"`

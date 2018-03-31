@@ -73,6 +73,9 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				g.Arena.Players[ws].KeyUpHandler(kh.Key)
 			}
 
+		} else if msg.Type == "initial" {
+			g.Arena.Players[ws].Name = msg.Data.(string)
+
 		}
 	}
 }

@@ -4,21 +4,29 @@ class WelcomeModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {inputName: ''};
+    this.handleChange = this.handleChange.bind(this);
   }
 
-  
-  submitPlayerID
-
+  handleChange(e){
+    this.setState({inputName: e.target.value});
+  }
   render() {
     return (
       <div style={styles.backdrop}>
           <div style={styles.modal}>
             Welcome to Bumper
+            <div>
+              player name:
+              <input type="text" 
+                     value={this.state.inputName} 
+                     onChange={this.handleChange} 
+              />
+            </div>
             <div style={styles.buttonLayout}>
               <button onClick={this.props.onClose}>
-                  close me
+                  close
               </button>
-              <button onClick={() => {this.setState({inputName: 1})}}>
+              <button onClick={() => {this.props.onSubmit}}>
                   submit
               </button>
             </div>

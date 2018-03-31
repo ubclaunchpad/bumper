@@ -22,6 +22,8 @@ export default class App extends React.Component {
 
     this.state = {
       showWelcomeModal: true,
+      inputName: '',
+
       isInitialized: false,
       junk: null,
       holes: null,
@@ -48,6 +50,10 @@ export default class App extends React.Component {
 
   close() {
     this.setState({ showWelcomeModal: false });
+  }
+
+  submitPlayerID(){
+    
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -256,7 +262,7 @@ export default class App extends React.Component {
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
           this.state.showWelcomeModal &&
-          <WelcomeModal onClose={() => this.close()} />
+          <WelcomeModal onClose={() => this.close()} onSubmit={() => this.submitPlayerID()}/>
         }
       </div>
     );

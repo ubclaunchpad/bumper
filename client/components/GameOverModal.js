@@ -2,20 +2,30 @@ import React from 'react';
 import App from '../App.js';
 
 class GameOverModal extends React.Component {
+
+
       render() {
     return (
       <div style={styles.backdrop}>
-        <div style={styles.modal}>
-            <b>Elapsed time in game:</b>  <b>Points earned: </b> <b>Final ranking: </b>
-            
+        <div style={styles.modal} onload="loadText()">
+            <b>GAME OVER</b>
+            <span style={styles.modalBody}>
+            <b> Time alive:</b><br></br><span id ="elapsedTime"></span>
+            <b> Points earned: </b><br></br>
+             <b> Final ranking: </b>
+            </span>
           <button style={styles.restartButton} onClick={this.props.onClose}>
                 Restart game
           </button>
         </div>
       </div>
-        //document.getElementById("time").innerHTML = ELAPSED_TIME;
     );
   }
+}
+
+function loadText() {
+    let time = "1";
+    document.getElementById("elapsedTime").innerHTML = time;
 }
 
 const styles = {
@@ -42,11 +52,17 @@ const styles = {
     height: window.innerHeight / 3,
     width: window.innerWidth / 2,
     zIndex: 10,
-    fontSize: 25,
+    fontSize: 20,
+    fontFamily: 'Verdana',
+  },
+  modalBody: {
+    textAlign: 'left',
+    padding: 10,
   },
   restartButton: {
     height: 30,
     fontSize: 20,
+    fontFamily: 'Verdana',
   },
 };
 

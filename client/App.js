@@ -49,10 +49,9 @@ export default class App extends React.Component {
     }
 
     if (window.WebSocket) {
-      this.socket = new WebSocket(address);
+      this.socket = new WebSocket(address + "?name=" + inputName);
       this.socket.onopen = () => {
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
-        this.socket.send(JSON.stringify(message));
       };
     } else {
       console.log('websocket not available');
@@ -101,6 +100,7 @@ export default class App extends React.Component {
   }
 
   update(data) {
+    console.log(this.state.players)
     if (!this.state.isInitialized) {
       this.initializeGame(data);
       window.addEventListener('keydown', this.keyDownHandler);

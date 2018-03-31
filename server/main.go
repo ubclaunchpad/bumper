@@ -48,7 +48,9 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
+	name := r.URL.Query().Get("name")
 	g.Arena.AddPlayer(ws)
+	g.Arena.Players[ws].Name = name
 
 	for {
 		var msg Message
@@ -72,10 +74,6 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			} else {
 				g.Arena.Players[ws].KeyUpHandler(kh.Key)
 			}
-
-		} else if msg.Type == "initial" {
-			g.Arena.Players[ws].Name = msg.Data.(string)
-
 		}
 	}
 }

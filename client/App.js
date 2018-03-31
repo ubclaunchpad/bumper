@@ -100,7 +100,6 @@ export default class App extends React.Component {
   }
 
   update(data) {
-    console.log(this.state.players)
     if (!this.state.isInitialized) {
       this.initializeGame(data);
       window.addEventListener('keydown', this.keyDownHandler);

@@ -1,7 +1,13 @@
 import React from 'react';
+import GameOverModal from './components/GameOverModal'
 
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
+
+// Testing constants:
+const ELAPSED_TIME = 100;
+const POINTS = 200;
+const FINAL_RANKING = 1;
 
 const address = process.env.NODE_ENV === 'production'
   ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com:9090/connect'
@@ -22,6 +28,7 @@ export default class App extends React.Component {
 
     this.state = {
       isInitialized: false,
+      showGameOverModal: true, // Set true for testing; change to false
       junk: null,
       holes: null,
       players: null,
@@ -43,6 +50,10 @@ export default class App extends React.Component {
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
+  }
+
+  close() {
+    this.setState({showGameOverModal: false});
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -68,6 +79,9 @@ export default class App extends React.Component {
         break;
       case 'update':
         this.update(msg.data);
+        break;
+      case 'death':
+        this.setState({ showGameOverModal: true});
         break;
       default:
         console.log(`unknown msg type ${msg.type}`);
@@ -249,6 +263,9 @@ export default class App extends React.Component {
     return (
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
+        {
+          this.state.showGameOverModal && <GameOverModal onClose={(e) => this.close(e)} />
+        }
       </div>
     );
   }
@@ -266,4 +283,3 @@ const styles = {
     textAlign: 'center',
   },
 };
-

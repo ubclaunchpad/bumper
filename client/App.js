@@ -235,7 +235,6 @@ export default class App extends React.Component {
         {
           this.state.showWelcomeModal &&
           <WelcomeModal
-            onClose={() => this.setState({ showWelcomeModal: false })}
             onSubmit={e => this.sendSubmitPlayerID(e)}
           />
         }

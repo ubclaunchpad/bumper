@@ -25,9 +25,6 @@ class WelcomeModal extends React.Component {
             />
           </div>
           <div style={styles.buttonLayout}>
-            <button onClick={this.props.onClose}>
-                close
-            </button>
             <button onClick={() => this.props.onSubmit(this.state.inputName)}>
                 submit
             </button>

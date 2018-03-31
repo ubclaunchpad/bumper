@@ -76,7 +76,7 @@ func (a *Arena) AddPlayer(ws *websocket.Conn) {
 		ID:       generateID(),
 		Position: a.generateCoord(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
-		Color:    generateRandomColor(),
+		Color:    a.generateRandomColor(),
 		Angle:    math.Pi,
 		Controls: models.KeysPressed{false, false, false, false},
 	}
@@ -179,15 +179,27 @@ func (a *Arena) collisionHole() {
 }
 
 // generate random hex value
-func generateRandomColor() string {
-	letters := [13]string{"3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
-	var buffer bytes.Buffer
-	buffer.WriteString("#")
-	for i := 0; i < 6; i++ {
-		c := letters[rand.Intn(12)]
-		buffer.WriteString(c)
+func (a *Arena) generateRandomColor() string {
+	found := false
+	color := ""
+
+	for !found {
+		letters := [13]string{"3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
+		var buffer bytes.Buffer
+		buffer.WriteString("#")
+		for i := 0; i < 6; i++ {
+			c := letters[rand.Intn(12)]
+			buffer.WriteString(c)
+		}
+		color = buffer.String()
+		for _, p := range a.Players {
+			if p.Color == color {
+				break
+			}
+		}
+		found = true
 	}
-	return buffer.String()
+	return color
 }
 
 // TODO generate player id check whether any current players have this id

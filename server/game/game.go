@@ -1,6 +1,7 @@
 package game
 
 import (
+	"bytes"
 	"math"
 	"math/rand"
 
@@ -43,7 +44,7 @@ func CreateArena(height float64, width float64) *Arena {
 			Position: position,
 			Velocity: models.Velocity{Dx: 0, Dy: 0},
 			Color:    "white",
-			ID:       0}
+			ID:       nil}
 		a.Junk = append(a.Junk, &junk)
 	}
 
@@ -79,7 +80,7 @@ func (a *Arena) AddPlayer(ws *websocket.Conn) {
 		Position: a.generateCoord(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
 		Color:    generateRandomColor(),
-		Angle:    0.0,
+		Angle:    math.Pi,
 		Controls: models.KeysPressed{false, false, false, false},
 	}
 	a.Players[ws] = &player
@@ -136,7 +137,7 @@ between player-to-player.
 */
 func (a *Arena) collisionPlayer() {
 	memo := make(map[*models.Player]*models.Player)
-	for _, player := range a.Players {
+	for ws, player := range a.Players {
 		for _, playerHit := range a.Players {
 			if player == playerHit || memo[playerHit] == player {
 				continue
@@ -148,7 +149,7 @@ func (a *Arena) collisionPlayer() {
 		}
 		for _, junk := range a.Junk {
 			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
-				junk.HitBy(player)
+				junk.HitBy(player, ws)
 			}
 		}
 	}
@@ -166,11 +167,8 @@ func (a *Arena) collisionHole() {
 		}
 		for i, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
-				for _, playerPt := range a.Players {
-					if playerPt.ID == junk.ID {
-						playerPt.Points += models.PointsPerJunk
-					}
-				}
+				playerScored := a.Players[junk.ID]
+				playerScored.AddPoints(models.PointsPerJunk)
 
 				// remove that junk from the junk
 				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
@@ -181,15 +179,16 @@ func (a *Arena) collisionHole() {
 	}
 }
 
-// TODO generate random hex value
+// generate random hex value
 func generateRandomColor() string {
-	// var buffer bytes.Buffer
-	// buffer.WriteString("#")
-	// for len(buffer) < 7 {
-	// 	c := string(rand.Float64()) //tostring
-	// 	buffer.WriteString(c)
-	// }
-	return "blue"
+	letters := [13]string{"3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
+	var buffer bytes.Buffer
+	buffer.WriteString("#")
+	for i := 0; i < 6; i++ {
+		c := letters[rand.Intn(12)]
+		buffer.WriteString(c)
+	}
+	return buffer.String()
 }
 
 // TODO generate player id check whether any current players have this id
@@ -206,6 +205,6 @@ func (a *Arena) generateJunk() {
 		Position: position,
 		Velocity: models.Velocity{Dx: 0, Dy: 0},
 		Color:    "white",
-		ID:       0}
+		ID:       nil}
 	a.Junk = append(a.Junk, &junk)
 }

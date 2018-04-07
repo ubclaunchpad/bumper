@@ -12,7 +12,7 @@ class GameOverModal extends React.Component {
             <div><b>Points earned:</b> <span>{this.props.data.finalPoints}</span></div>
             <div><b>Final ranking:</b> <span>{this.props.data.finalRanking}</span></div>
           </div>
-          <button style={styles.restartButton} onClick={() => window.location.reload()}>
+          <button style={styles.restartButton} onClick={() => this.props.onRestart()}>
             Restart game
           </button>
         </div>
@@ -39,12 +39,12 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignSelf: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 5,
-    height: window.innerHeight / 3,
-    width: window.innerWidth / 3,
+    height: window.innerHeight / 2,
+    width: window.innerWidth / 2,
     zIndex: 10,
     fontSize: 20,
     fontFamily: 'Verdana',

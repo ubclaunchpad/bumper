@@ -3,7 +3,7 @@ import React from 'react';
 class WelcomeModal extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { inputName: '' };
+    this.state = { inputName: props.name };
     this.handleChange = this.handleChange.bind(this);
   }
 

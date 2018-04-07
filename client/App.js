@@ -20,6 +20,7 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
+      playerName: '',
       showWelcomeModal: true,
       showGameOverModal: false,
       isInitialized: false,
@@ -71,7 +72,10 @@ export default class App extends React.Component {
       return;
     }
 
-    this.setState({ showWelcomeModal: false }); //  Close Modal
+    this.setState({
+      showWelcomeModal: false,
+      playerName: inputName,
+    }); //  Close Modal
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -366,17 +370,21 @@ export default class App extends React.Component {
   }
 
   render() {
-    if (this.state.showGameOverModal) {
-      return <GameOverModal data={this.state.gameOverData} />;
-    }
-
     return (
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
           this.state.showWelcomeModal &&
           <WelcomeModal
+            name={this.state.playerName}
             onSubmit={e => this.sendSubmitPlayerID(e)}
+          />
+        }
+        {
+          this.state.showGameOverModal &&
+          <GameOverModal
+          data={this.state.gameOverData}
+          onRestart={() => this.setState({ showWelcomeModal: true, showGameOverModal: false })}
           />
         }
       </div>

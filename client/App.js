@@ -185,9 +185,24 @@ export default class App extends React.Component {
     this.state.holes.forEach((h) => {
       const ctx = this.canvas.getContext('2d');
       ctx.beginPath();
-      ctx.arc(h.position.x, h.position.y, h.radius, 0, Math.PI * 2);
-      ctx.fillStyle = 'white';
-      ctx.fill();
+      for(let i = 0; i < 720; i++) {
+        let angle = 0.1 * i;
+        let x = h.position.x + (1 + 1 * angle) * Math.cos(angle);
+        let y = h.position.y + (1 + 1 * angle) * Math.sin(angle);
+
+        // Find distance between the point (x, y) and the point (h.position.x, h.position.y)
+        let x1 = Math.abs(h.position.x - x);
+        let y1 = Math.abs(h.position.y - y);
+        let distance = Math.sqrt(Math.pow(x1,2)+Math.pow(y1,2));
+
+        // Only draw the line segment if it will correspond to a spiral with the correct radius
+        if(distance <= h.radius) { 
+          ctx.lineTo(x,y);
+        }
+      }
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth=1;
+      ctx.stroke();
       ctx.closePath();
     });
   }
@@ -232,6 +247,14 @@ export default class App extends React.Component {
     });
   }
 
+  drawBorder() {
+    const ctx = this.canvas.getContext('2d');
+    ctx.strokeStyle='#FFFFFF';
+    ctx.lineWidth=10;
+    ctx.strokeRect(0,0,1000,800);
+  }
+
+
   draw() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -239,6 +262,7 @@ export default class App extends React.Component {
     this.drawJunk();
     this.drawPlayers();
     this.drawLeaderboard();
+    this.drawBorder();
   }
 
   keyDownHandler(e) {

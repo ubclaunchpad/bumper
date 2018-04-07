@@ -27,6 +27,7 @@ export default class App extends React.Component {
       holes: null,
       players: null,
       player: null,
+      playerAbsolutePosition: null,
       arena: null,
       center: null,
     };
@@ -130,13 +131,14 @@ export default class App extends React.Component {
       // console.log(player.id);
       // console.log(this.state.player);
       if (player.id === this.state.player.id) {
-        console.log('found player');
+        // console.log('found player');
         playerPosition = player.position;
+        this.setState({ playerAbsolutePosition: playerPosition });
         player.position = this.state.center;
       }
     });
 
-    console.log(playerPosition);
+    // console.log(playerPosition);
 
     data.junk.forEach((junk) => {
       junk.position.x = junk.position.x - playerPosition.x;
@@ -255,14 +257,14 @@ export default class App extends React.Component {
       ctx.fillStyle = p.color;
       ctx.fill();
       ctx.closePath();
-  
+
       ctx.beginPath();
       ctx.moveTo(x + (PLAYER_RADIUS * Math.sin(p.angle)), y + (PLAYER_RADIUS * Math.cos(p.angle)));
       ctx.lineTo(x - (PLAYER_RADIUS * Math.sin(p.angle)), y - (PLAYER_RADIUS * Math.cos(p.angle)));
       ctx.strokeStyle = '#000000';
       ctx.strokeWidth = 5;
       ctx.stroke();
-  
+
       const backCenterX = x - ((PLAYER_RADIUS * Math.sin(p.angle)) / 2);
       const backCenterY = y - ((PLAYER_RADIUS * Math.cos(p.angle)) / 2);
       const backLength = (2.5 * ((PLAYER_RADIUS / 2) / Math.tan(45)));
@@ -275,6 +277,43 @@ export default class App extends React.Component {
     });
   }
 
+  drawWalls() {
+    if (this.state.playerAbsolutePosition) {
+      if (this.state.playerAbsolutePosition.x < this.state.center.x) {
+        const ctx = this.canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.rect(0, 0, this.state.center.x - this.state.playerAbsolutePosition.x, this.state.arena.height);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.closePath();
+      }
+      if (this.state.playerAbsolutePosition.x > this.state.arena.width - this.state.center.x) {
+        const ctx = this.canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.rect(this.state.arena.width, 0, this.state.center.x - this.state.playerAbsolutePosition.x, this.state.arena.height);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.closePath();
+      }
+      if (this.state.playerAbsolutePosition.y < this.state.center.y) {
+        const ctx = this.canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.rect(0, 0, this.state.arena.width, this.state.center.y - this.state.playerAbsolutePosition.y);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.closePath();
+      }
+      if (this.state.playerAbsolutePosition.y > this.state.arena.height - this.state.center.y) {
+        const ctx = this.canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.rect(0, this.state.arena.height, this.state.arena.width, this.state.center.y - this.state.playerAbsolutePosition.y);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+  }
+
   draw() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -282,6 +321,7 @@ export default class App extends React.Component {
     this.drawJunk();
     this.drawPlayers();
     this.drawLeaderboard();
+    this.drawWalls();
   }
 
   keyDownHandler(e) {

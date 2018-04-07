@@ -289,15 +289,6 @@ export default class App extends React.Component {
   }
 
   render() {
-    // if (this.state.showGameOverModal) {
-    //   return (
-    //     <GameOverModal
-    //       data={this.state.gameOverData}
-    //       onRestart={() => this.setState({ showWelcomeModal: true, showGameOverModal: false })}
-    //     />
-    //   );
-    // }
-
     return (
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />

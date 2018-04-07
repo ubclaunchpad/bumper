@@ -264,9 +264,9 @@ export default class App extends React.Component {
 
   drawBorder() {
     const ctx = this.canvas.getContext('2d');
-    ctx.strokeStyle='#FFFFFF';
-    ctx.lineWidth=10;
-    ctx.strokeRect(0,0,1000,800);
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 10;
+    ctx.strokeRect(0, 0, this.state.arena.width, this.state.arena.height);
   }
 
 

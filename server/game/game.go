@@ -11,8 +11,8 @@ import (
 
 // Game related constants
 const (
-	JunkCount          = 10
-	HoleCount          = 10
+	JunkCount          = 30
+	HoleCount          = 20
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
@@ -76,7 +76,7 @@ func (a *Arena) AddPlayer(ws *websocket.Conn) {
 		ID:       generateID(),
 		Position: a.generateCoord(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
-		Color:    generateRandomColor(),
+		Color:    a.generateRandomColor(),
 		Angle:    math.Pi,
 		Controls: models.KeysPressed{false, false, false, false},
 	}
@@ -156,10 +156,10 @@ func (a *Arena) collisionHole() {
 	for _, hole := range a.Holes {
 		for client, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-				// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
-				// Also should award some points to the bumper... Not as straight forward as the junk
-				client.Close()
+				// TODO: award some points to the bumper... Not as straight forward as the junk
+				// send update to client with player missing
 				delete(a.Players, client)
+				client.Close()
 			}
 		}
 		for i, junk := range a.Junk {
@@ -179,15 +179,27 @@ func (a *Arena) collisionHole() {
 }
 
 // generate random hex value
-func generateRandomColor() string {
-	letters := [13]string{"3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
-	var buffer bytes.Buffer
-	buffer.WriteString("#")
-	for i := 0; i < 6; i++ {
-		c := letters[rand.Intn(12)]
-		buffer.WriteString(c)
+func (a *Arena) generateRandomColor() string {
+	found := false
+	color := ""
+
+	for !found {
+		letters := [13]string{"3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
+		var buffer bytes.Buffer
+		buffer.WriteString("#")
+		for i := 0; i < 6; i++ {
+			c := letters[rand.Intn(12)]
+			buffer.WriteString(c)
+		}
+		color = buffer.String()
+		for _, p := range a.Players {
+			if p.Color == color {
+				break
+			}
+		}
+		found = true
 	}
-	return buffer.String()
+	return color
 }
 
 // TODO generate player id check whether any current players have this id

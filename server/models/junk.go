@@ -8,18 +8,20 @@ import (
 
 // Junk related constants
 const (
-	JunkFriction = 0.99
-	MinimumBump  = 1.5
-	BumpFactor   = 1.05
-	JunkRadius   = 8
+	JunkFriction      = 0.99
+	MinimumBump       = 0.5
+	BumpFactor        = 1.05
+	JunkRadius        = 8
+	JunkDebounceTicks = 10
 )
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points
 type Junk struct {
 	Position Position        `json:"position"`
-	Velocity Velocity        `json:"velocity"`
+	Velocity Velocity        `json:"velocity"` // Don't need to send me to the clients
 	Color    string          `json:"color"`
 	ID       *websocket.Conn `json:"id"`
+	Debounce float32         `json:"debounce"` // Don't need to send me to the clients
 }
 
 // UpdatePosition Update Junk's position based on calculations of position/velocity
@@ -36,23 +38,35 @@ func (j *Junk) UpdatePosition(height float64, width float64) {
 
 	j.Position.X += j.Velocity.Dx
 	j.Position.Y += j.Velocity.Dy
+
+	if j.Debounce > 0 {
+		j.Debounce--
+	} else {
+		j.Debounce = 0
+	}
 }
 
 // HitBy Update Junks's velocity based on calculations of being hit by a player
 func (j *Junk) HitBy(p *Player, ws *websocket.Conn) {
-	j.Color = p.Color //Assign junk to last recently hit player color
-	j.ID = ws         //Assign junk to last recently hit player id (websocket)
-	if p.Velocity.Dx < 0 {
-		j.Velocity.Dx = math.Max(p.Velocity.Dx*BumpFactor, -MinimumBump)
-	} else {
-		j.Velocity.Dx = math.Max(p.Velocity.Dx*BumpFactor, MinimumBump)
-	}
+	if j.Debounce == 0 {
+		j.Color = p.Color //Assign junk to last recently hit player color
+		j.ID = ws         //Assign junk to last recently hit player id (websocket)
 
-	if p.Velocity.Dy < 0 {
-		j.Velocity.Dy = math.Max(p.Velocity.Dy*BumpFactor, -MinimumBump)
-	} else {
-		j.Velocity.Dy = math.Max(p.Velocity.Dy*BumpFactor, MinimumBump)
-	}
+		if p.Velocity.Dx < 0 {
+			j.Velocity.Dx = math.Min(p.Velocity.Dx*BumpFactor, -MinimumBump)
+		} else {
+			j.Velocity.Dx = math.Max(p.Velocity.Dx*BumpFactor, MinimumBump)
+		}
 
-	p.hitJunk()
+		if p.Velocity.Dy < 0 {
+			j.Velocity.Dy = math.Min(p.Velocity.Dy*BumpFactor, -MinimumBump)
+		} else {
+			j.Velocity.Dy = math.Max(p.Velocity.Dy*BumpFactor, MinimumBump)
+		}
+
+		p.hitJunk()
+		j.Debounce = JunkDebounceTicks
+	} else {
+		//We don't want this collision till the debounce is down.
+	}
 }

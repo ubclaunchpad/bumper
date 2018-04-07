@@ -26,8 +26,8 @@ export default class App extends React.Component {
       junk: null,
       holes: null,
       players: null,
-      player: null,
       playerAbsolutePosition: null,
+      playerID: null,
       arena: null,
     };
 
@@ -89,7 +89,7 @@ export default class App extends React.Component {
   handleMessage(msg) {
     switch (msg.type) {
       case 'initial':
-        this.initializePlayerAndArena(msg.data);
+        this.initializeArena(msg.data);
         break;
       case 'update':
         this.update(msg.data);
@@ -100,11 +100,10 @@ export default class App extends React.Component {
     }
   }
 
-  initializePlayerAndArena(data) {
+  initializeArena(data) {
     this.setState({
-      arena: data.arena,
-      player: data.player,
-      center: { x: data.arena.width / 2, y: data.arena.height / 2}
+      arena: { width: data.arenawidth, height: data.arenaheight },
+      playerID: data.playerid,
     });
   }
 
@@ -127,9 +126,9 @@ export default class App extends React.Component {
 
     let playerPosition = null;
     data.players.forEach((player) => {
-      // console.log(player.id);
-      // console.log(this.state.player);
-      if (player.id === this.state.player.id) {
+      // console.log(player.color);
+      // console.log(this.state.playerID);
+      if (player.color === this.state.playerID) {
         // console.log('found player');
         playerPosition = player.position;
         this.setState({ playerAbsolutePosition: playerPosition });
@@ -152,7 +151,7 @@ export default class App extends React.Component {
       hole.position.y += (this.canvas.height / 2);
     });
     data.players.forEach((player) => {
-      if (player.id !== this.state.player.id) {
+      if (player.color !== this.state.playerID) {
         player.position.x -= playerPosition.x;
         player.position.y -= playerPosition.y;
         player.position.x += (this.canvas.width / 2);

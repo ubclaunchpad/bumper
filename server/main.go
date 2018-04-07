@@ -53,6 +53,25 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	g.Arena.AddPlayer(ws)
 	g.Arena.Players[ws].Name = name
 
+	initalMsg := Message{
+		Type: "initial",
+		Data: struct {
+			ArenaWidth  float64 `json:"arenawidth"`
+			ArenaHeight float64 `json:"arenaheight"`
+			PlayerID    string  `json:"playerid"`
+		}{
+			g.Arena.Width,
+			g.Arena.Height,
+			g.Arena.Players[ws].Color,
+		},
+	}
+	error := ws.WriteJSON(&initalMsg)
+	if error != nil {
+		log.Printf("error: %v", error)
+		ws.Close()
+		delete(g.Arena.Players, ws)
+	}
+
 	for {
 		var msg Message
 		err := ws.ReadJSON(&msg)

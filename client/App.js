@@ -26,7 +26,8 @@ export default class App extends React.Component {
       junk: null,
       holes: null,
       players: null,
-      player: null,
+      playerID: null,
+      arena: null,
     };
 
     this.sendSubmitPlayerID = this.sendSubmitPlayerID.bind(this);
@@ -87,7 +88,7 @@ export default class App extends React.Component {
   handleMessage(msg) {
     switch (msg.type) {
       case 'initial':
-        this.setState({ player: msg.data });
+        this.initializeArena(msg.data);
         break;
       case 'update':
         this.update(msg.data);
@@ -96,6 +97,13 @@ export default class App extends React.Component {
         console.log(`unknown msg type ${msg.type}`);
         break;
     }
+  }
+
+  initializeArena(data) {
+    this.setState({
+      arena: { width: data.arenawidth, height: data.arenaheight },
+      playerID: data.playerid,
+    });
   }
 
   initializeGame(data) {

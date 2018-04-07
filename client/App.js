@@ -103,7 +103,7 @@ export default class App extends React.Component {
 
   initializePlayerAndArena(data) {
     this.setState({
-      arena: data.arena, 
+      arena: data.arena,
       player: data.player,
       center: { x: data.arena.width / 2, y: data.arena.height / 2}
     });
@@ -134,7 +134,7 @@ export default class App extends React.Component {
         // console.log('found player');
         playerPosition = player.position;
         this.setState({ playerAbsolutePosition: playerPosition });
-        player.position = this.state.center;
+        player.position = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
       }
     });
 
@@ -143,21 +143,21 @@ export default class App extends React.Component {
     data.junk.forEach((junk) => {
       junk.position.x = junk.position.x - playerPosition.x;
       junk.position.y = junk.position.y - playerPosition.y;
-      junk.position.x = junk.position.x + this.state.center.x;
-      junk.position.y = junk.position.y + this.state.center.y;
+      junk.position.x = junk.position.x + (this.canvas.width / 2);
+      junk.position.y = junk.position.y + (this.canvas.height / 2);
     });
     data.holes.forEach((hole) => {
       hole.position.x = hole.position.x - playerPosition.x;
       hole.position.y = hole.position.y - playerPosition.y;
-      hole.position.x = hole.position.x + this.state.center.x;
-      hole.position.y = hole.position.y + this.state.center.y;
+      hole.position.x = hole.position.x + (this.canvas.width / 2);
+      hole.position.y = hole.position.y + (this.canvas.height / 2);
     });
     data.players.forEach((player) => {
       if (player.id !== this.state.player.id) {
         player.position.x = player.position.x - playerPosition.x;
         player.position.y = player.position.y - playerPosition.y;
-        player.position.x = player.position.x + this.state.center.x;
-        player.position.y = player.position.y + this.state.center.y;
+        player.position.x = player.position.x + (this.canvas.width / 2);
+        player.position.y = player.position.y + (this.canvas.height / 2);
       }
     });
     this.setState({
@@ -279,34 +279,34 @@ export default class App extends React.Component {
 
   drawWalls() {
     if (this.state.playerAbsolutePosition) {
-      if (this.state.playerAbsolutePosition.x < this.state.center.x) {
+      if (this.state.playerAbsolutePosition.x < (this.canvas.width / 2)) {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();
-        ctx.rect(0, 0, this.state.center.x - this.state.playerAbsolutePosition.x, this.state.arena.height);
+        ctx.rect(0, 0, (this.canvas.width / 2) - this.state.playerAbsolutePosition.x, this.state.arena.height);
         ctx.fillStyle = 'white';
         ctx.fill();
         ctx.closePath();
       }
-      if (this.state.playerAbsolutePosition.x > this.state.arena.width - this.state.center.x) {
+      if (this.state.playerAbsolutePosition.x > this.state.arena.width - (this.canvas.width / 2)) {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();
-        ctx.rect(this.state.arena.width, 0, this.state.center.x - this.state.playerAbsolutePosition.x, this.state.arena.height);
+        ctx.rect(this.state.arena.width, 0, (this.canvas.width / 2) - this.state.playerAbsolutePosition.x, this.state.arena.height);
         ctx.fillStyle = 'white';
         ctx.fill();
         ctx.closePath();
       }
-      if (this.state.playerAbsolutePosition.y < this.state.center.y) {
+      if (this.state.playerAbsolutePosition.y < (this.canvas.height / 2)) {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();
-        ctx.rect(0, 0, this.state.arena.width, this.state.center.y - this.state.playerAbsolutePosition.y);
+        ctx.rect(0, 0, this.state.arena.width, (this.canvas.height / 2) - this.state.playerAbsolutePosition.y);
         ctx.fillStyle = 'white';
         ctx.fill();
         ctx.closePath();
       }
-      if (this.state.playerAbsolutePosition.y > this.state.arena.height - this.state.center.y) {
+      if (this.state.playerAbsolutePosition.y > this.state.arena.height - (this.canvas.height / 2)) {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();
-        ctx.rect(0, this.state.arena.height, this.state.arena.width, this.state.center.y - this.state.playerAbsolutePosition.y);
+        ctx.rect(0, this.state.arena.height, this.state.arena.width, (this.canvas.height / 2) - this.state.playerAbsolutePosition.y);
         ctx.fillStyle = 'white';
         ctx.fill();
         ctx.closePath();

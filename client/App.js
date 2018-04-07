@@ -128,37 +128,54 @@ export default class App extends React.Component {
     }
 
     let playerPosition = null;
+    let playerOffest = null;
+
     data.players.forEach((player) => {
-      // console.log(player.color);
-      // console.log(this.state.playerID);
       if (player.color === this.state.playerID) {
-        // console.log('found player');
         playerPosition = player.position;
         this.setState({ playerAbsolutePosition: playerPosition });
-        player.position = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+
+        player.position = { x: playerPosition.x, y: playerPosition.y };
+        playerOffest = { x: playerPosition.x, y: playerPosition.y };
+        if (player.position.x > this.canvas.width / 2) {
+          if ((player.position.x < this.state.arena.width - (this.canvas.width / 2))) {
+            player.position.x = this.canvas.width / 2;
+            playerOffest.x = this.canvas.width / 2;
+          } else {
+            playerOffest.x = player.position.x - (this.state.arena.width - this.canvas.width);
+            player.position.x -= (this.state.arena.width - this.canvas.width);
+          }
+        }
+        if (player.position.y > this.canvas.height / 2) {
+          if ((player.position.y < this.state.arena.height - (this.canvas.height / 2))) {
+            player.position.y = this.canvas.height / 2;
+            playerOffest.y = this.canvas.height / 2;
+          } else {
+            playerOffest.y = player.position.y - (this.state.arena.height - this.canvas.height);
+            player.position.y -= (this.state.arena.height - this.canvas.height);
+          }
+        }
       }
     });
-
-    // console.log(playerPosition);
 
     data.junk.forEach((junk) => {
       junk.position.x -= playerPosition.x;
       junk.position.y -= playerPosition.y;
-      junk.position.x += (this.canvas.width / 2);
-      junk.position.y += (this.canvas.height / 2);
+      junk.position.x += playerOffest.x;
+      junk.position.y += playerOffest.y;
     });
     data.holes.forEach((hole) => {
       hole.position.x -= playerPosition.x;
       hole.position.y -= playerPosition.y;
-      hole.position.x += (this.canvas.width / 2);
-      hole.position.y += (this.canvas.height / 2);
+      hole.position.x += playerOffest.x;
+      hole.position.y += playerOffest.y;
     });
     data.players.forEach((player) => {
       if (player.color !== this.state.playerID) {
         player.position.x -= playerPosition.x;
         player.position.y -= playerPosition.y;
-        player.position.x += (this.canvas.width / 2);
-        player.position.y += (this.canvas.height / 2);
+        player.position.x += playerOffest.x;
+        player.position.y += playerOffest.y;
       }
     });
     this.setState({
@@ -298,45 +315,37 @@ export default class App extends React.Component {
       if (this.state.playerAbsolutePosition.x < (this.canvas.width / 2)) {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();
-        ctx.rect(0, 0, (this.canvas.width / 2) - this.state.playerAbsolutePosition.x, this.state.arena.height);
-        ctx.fillStyle = 'white';
+        ctx.rect(0, 0, 10, this.state.arena.height);
+        ctx.fillStyle = 'yellow';
         ctx.fill();
         ctx.closePath();
       }
       if (this.state.playerAbsolutePosition.x > this.state.arena.width - (this.canvas.width / 2)) {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();
-        ctx.rect(this.state.arena.width, 0, (this.canvas.width / 2) - this.state.playerAbsolutePosition.x, this.state.arena.height);
-        ctx.fillStyle = 'white';
+        ctx.rect(this.canvas.width - 10, 0, 10, this.state.arena.height);
+        ctx.fillStyle = 'yellow';
         ctx.fill();
         ctx.closePath();
       }
       if (this.state.playerAbsolutePosition.y < (this.canvas.height / 2)) {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();
-        ctx.rect(0, 0, this.state.arena.width, (this.canvas.height / 2) - this.state.playerAbsolutePosition.y);
-        ctx.fillStyle = 'white';
+        ctx.rect(0, 0, this.state.arena.width, 10);
+        ctx.fillStyle = 'yellow';
         ctx.fill();
         ctx.closePath();
       }
       if (this.state.playerAbsolutePosition.y > this.state.arena.height - (this.canvas.height / 2)) {
         const ctx = this.canvas.getContext('2d');
         ctx.beginPath();
-        ctx.rect(0, this.state.arena.height, this.state.arena.width, (this.canvas.height / 2) - this.state.playerAbsolutePosition.y);
-        ctx.fillStyle = 'white';
+        ctx.rect(0, this.canvas.height - 10, this.state.arena.width, 10);
+        ctx.fillStyle = 'yellow';
         ctx.fill();
         ctx.closePath();
       }
     }
   }
-
-  // drawBorder() {
-  //   const ctx = this.canvas.getContext('2d');
-  //   ctx.strokeStyle='#FFFFFF';
-  //   ctx.lineWidth=10;
-  //   ctx.strokeRect(0,0,1000,800);
-  // }
-
 
   draw() {
     const ctx = this.canvas.getContext('2d');
@@ -346,7 +355,6 @@ export default class App extends React.Component {
     this.drawPlayers();
     this.drawLeaderboard();
     this.drawWalls();
-    // this.drawBorder();
   }
 
   keyDownHandler(e) {

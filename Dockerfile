@@ -26,5 +26,5 @@ COPY --from=client /client/public/ .
 WORKDIR /app
 COPY --from=server /app/server .
 
-EXPOSE 80
+EXPOSE 9090
 ENTRYPOINT ./server

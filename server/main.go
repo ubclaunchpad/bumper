@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -52,6 +53,12 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	g.Arena.AddPlayer(ws)
 	g.Arena.Players[ws].Name = name
+
+	msg := Message{
+		"intial",
+		ws,
+	}
+	messageChannel <- msg
 
 	initalMsg := Message{
 		Type: "initial",
@@ -151,6 +158,16 @@ func tick(g *Game) {
 	}
 }
 
+var messageChannel = make(chan Message)
+
+func sendMessage() {
+	for {
+		msg := <-messageChannel
+		fmt.Println(msg.Type)
+		fmt.Println(msg.Data)
+	}
+}
+
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	game := Game{
@@ -159,6 +176,7 @@ func main() {
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.Handle("/connect", &game)
+	go sendMessage()
 	go run(&game)
 	go tick(&game)
 

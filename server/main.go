@@ -17,6 +17,12 @@ type Game struct {
 	Arena *game.Arena
 }
 
+// ArenaSize represents the size of the arena
+type ArenaSize struct {
+	Height float64 `json:"height"`
+	Width  float64 `json:"width"`
+}
+
 // Message is the schema for client/server communication
 type Message struct {
 	Type string      `json:"type"`
@@ -52,6 +58,25 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	g.Arena.AddPlayer(ws)
 	g.Arena.Players[ws].Name = name
+
+	arenaSize := ArenaSize{Width: g.Arena.Width, Height: g.Arena.Height}
+
+	initalMsg := Message{
+		Type: "initial",
+		Data: struct {
+			Arena  ArenaSize     `json:"arena"`
+			Player models.Player `json:"player"`
+		}{
+			arenaSize,
+			*g.Arena.Players[ws],
+		},
+	}
+	error := ws.WriteJSON(&initalMsg)
+	if error != nil {
+		log.Printf("error: %v", error)
+		ws.Close()
+		delete(g.Arena.Players, ws)
+	}
 
 	for {
 		var msg Message

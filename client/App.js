@@ -27,6 +27,8 @@ export default class App extends React.Component {
       holes: null,
       players: null,
       player: null,
+      arena: null,
+      center: null,
     };
 
     this.sendSubmitPlayerID = this.sendSubmitPlayerID.bind(this);
@@ -87,7 +89,7 @@ export default class App extends React.Component {
   handleMessage(msg) {
     switch (msg.type) {
       case 'initial':
-        this.setState({ player: msg.data });
+        this.initializePlayerAndArena(msg.data);
         break;
       case 'update':
         this.update(msg.data);
@@ -96,6 +98,14 @@ export default class App extends React.Component {
         console.log(`unknown msg type ${msg.type}`);
         break;
     }
+  }
+
+  initializePlayerAndArena(data) {
+    this.setState({
+      arena: data.arena, 
+      player: data.player,
+      center: { x: data.arena.width / 2, y: data.arena.height / 2}
+    });
   }
 
   initializeGame(data) {
@@ -115,6 +125,39 @@ export default class App extends React.Component {
       return;
     }
 
+    let playerPosition = null;
+    data.players.forEach((player) => {
+      // console.log(player.id);
+      // console.log(this.state.player);
+      if (player.id === this.state.player.id) {
+        console.log('found player');
+        playerPosition = player.position;
+        player.position = this.state.center;
+      }
+    });
+
+    console.log(playerPosition);
+
+    data.junk.forEach((junk) => {
+      junk.position.x = junk.position.x - playerPosition.x;
+      junk.position.y = junk.position.y - playerPosition.y;
+      junk.position.x = junk.position.x + this.state.center.x;
+      junk.position.y = junk.position.y + this.state.center.y;
+    });
+    data.holes.forEach((hole) => {
+      hole.position.x = hole.position.x - playerPosition.x;
+      hole.position.y = hole.position.y - playerPosition.y;
+      hole.position.x = hole.position.x + this.state.center.x;
+      hole.position.y = hole.position.y + this.state.center.y;
+    });
+    data.players.forEach((player) => {
+      if (player.id !== this.state.player.id) {
+        player.position.x = player.position.x - playerPosition.x;
+        player.position.y = player.position.y - playerPosition.y;
+        player.position.x = player.position.x + this.state.center.x;
+        player.position.y = player.position.y + this.state.center.y;
+      }
+    });
     this.setState({
       junk: data.junk,
       holes: data.holes,

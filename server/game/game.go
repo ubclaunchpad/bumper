@@ -156,10 +156,10 @@ func (a *Arena) collisionHole() {
 	for _, hole := range a.Holes {
 		for client, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-				// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
-				// Also should award some points to the bumper... Not as straight forward as the junk
-				client.Close()
+				// TODO: award some points to the bumper... Not as straight forward as the junk
+				// send update to client with player missing
 				delete(a.Players, client)
+				client.Close()
 			}
 		}
 		for i, junk := range a.Junk {

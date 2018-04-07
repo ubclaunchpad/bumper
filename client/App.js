@@ -62,6 +62,9 @@ export default class App extends React.Component {
       this.socket.onopen = () => {
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
       };
+      this.socket.onclose = () => {
+        this.openGameOverModal();
+      }
     } else {
       console.log('websocket not available');
       return;
@@ -179,7 +182,7 @@ export default class App extends React.Component {
       ctx.textAlign = 'left';
       xPos = rectX + (rectWidth / 2) - 80;
       yPos = rectY + (rectHeight / 2) - 25 + 15 * i;
-      ctx.fillText(`${i + 1}. Player ${player.color}`, xPos, yPos);
+      ctx.fillText(`${i + 1}. ${player.name}`, xPos, yPos);
       ctx.textAlign = 'right';
       xPos = rectX + (rectWidth / 2) + 60;
       yPos = rectY + (rectHeight / 2) - 25 + 15 * i;

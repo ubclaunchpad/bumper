@@ -29,7 +29,6 @@ export default class App extends React.Component {
       player: null,
       playerAbsolutePosition: null,
       arena: null,
-      center: null,
     };
 
     this.sendSubmitPlayerID = this.sendSubmitPlayerID.bind(this);
@@ -141,23 +140,23 @@ export default class App extends React.Component {
     // console.log(playerPosition);
 
     data.junk.forEach((junk) => {
-      junk.position.x = junk.position.x - playerPosition.x;
-      junk.position.y = junk.position.y - playerPosition.y;
-      junk.position.x = junk.position.x + (this.canvas.width / 2);
-      junk.position.y = junk.position.y + (this.canvas.height / 2);
+      junk.position.x -= playerPosition.x;
+      junk.position.y -= playerPosition.y;
+      junk.position.x += (this.canvas.width / 2);
+      junk.position.y += (this.canvas.height / 2);
     });
     data.holes.forEach((hole) => {
-      hole.position.x = hole.position.x - playerPosition.x;
-      hole.position.y = hole.position.y - playerPosition.y;
-      hole.position.x = hole.position.x + (this.canvas.width / 2);
-      hole.position.y = hole.position.y + (this.canvas.height / 2);
+      hole.position.x -= playerPosition.x;
+      hole.position.y -= playerPosition.y;
+      hole.position.x += (this.canvas.width / 2);
+      hole.position.y += (this.canvas.height / 2);
     });
     data.players.forEach((player) => {
       if (player.id !== this.state.player.id) {
-        player.position.x = player.position.x - playerPosition.x;
-        player.position.y = player.position.y - playerPosition.y;
-        player.position.x = player.position.x + (this.canvas.width / 2);
-        player.position.y = player.position.y + (this.canvas.height / 2);
+        player.position.x -= playerPosition.x;
+        player.position.y -= playerPosition.y;
+        player.position.x += (this.canvas.width / 2);
+        player.position.y += (this.canvas.height / 2);
       }
     });
     this.setState({

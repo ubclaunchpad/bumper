@@ -20,8 +20,9 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
+      playerName: '',
       showWelcomeModal: true,
-      showGameOverModal: true,
+      showGameOverModal: false,
       isInitialized: false,
       junk: null,
       holes: null,
@@ -66,7 +67,10 @@ export default class App extends React.Component {
       return;
     }
 
-    this.setState({ showWelcomeModal: false }); //  Close Modal
+    this.setState({
+      showWelcomeModal: false,
+      playerName: inputName,
+    }); //  Close Modal
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -212,14 +216,14 @@ export default class App extends React.Component {
       ctx.fillStyle = p.color;
       ctx.fill();
       ctx.closePath();
-  
+
       ctx.beginPath();
       ctx.moveTo(x + (PLAYER_RADIUS * Math.sin(p.angle)), y + (PLAYER_RADIUS * Math.cos(p.angle)));
       ctx.lineTo(x - (PLAYER_RADIUS * Math.sin(p.angle)), y - (PLAYER_RADIUS * Math.cos(p.angle)));
       ctx.strokeStyle = '#000000';
       ctx.strokeWidth = 5;
       ctx.stroke();
-  
+
       const backCenterX = x - ((PLAYER_RADIUS * Math.sin(p.angle)) / 2);
       const backCenterY = y - ((PLAYER_RADIUS * Math.cos(p.angle)) / 2);
       const backLength = (2.5 * ((PLAYER_RADIUS / 2) / Math.tan(45)));
@@ -251,7 +255,12 @@ export default class App extends React.Component {
 
   render() {
     if (this.state.showGameOverModal) {
-      return <GameOverModal data={this.state.gameOverData} />;
+      return (
+        <GameOverModal
+          data={this.state.gameOverData}
+          onRestart={() => this.setState({ showWelcomeModal: true, showGameOverModal: false })}
+        />
+      );
     }
 
     return (
@@ -260,6 +269,7 @@ export default class App extends React.Component {
         {
           this.state.showWelcomeModal &&
           <WelcomeModal
+            name={this.state.playerName}
             onSubmit={e => this.sendSubmitPlayerID(e)}
           />
         }

@@ -164,8 +164,10 @@ func (a *Arena) collisionHole() {
 		}
 		for i, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
-				playerScored := a.Players[junk.ID]
-				playerScored.AddPoints(models.PointsPerJunk)
+				if a.Players[junk.ID] != nil {
+					playerScored := a.Players[junk.ID]
+					playerScored.AddPoints(models.PointsPerJunk)
+				}
 
 				// remove that junk from the junk
 				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)

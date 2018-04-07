@@ -143,8 +143,8 @@ func main() {
 	go run(&game)
 	go tick(&game)
 
-	log.Println("Starting server on localhost")
-	err := http.ListenAndServe(":80", nil)
+	log.Println("Starting server on localhost:9090")
+	err := http.ListenAndServe(":9090", nil)
 	if err != nil {
 		log.Fatal("Error starting server")
 	}

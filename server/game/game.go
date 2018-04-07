@@ -11,8 +11,8 @@ import (
 
 // Game related constants
 const (
-	JunkCount          = 10
-	HoleCount          = 10
+	JunkCount          = 30
+	HoleCount          = 20
 	MinDistanceBetween = models.MaxHoleRadius
 )
 

@@ -154,7 +154,7 @@ func tick(g *Game) {
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	game := Game{
-		Arena: game.CreateArena(800, 1000),
+		Arena: game.CreateArena(2400, 2800),
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))

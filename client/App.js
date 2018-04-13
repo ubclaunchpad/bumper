@@ -302,6 +302,9 @@ export default class App extends React.Component {
 
       const backLength = ((PLAYER_RADIUS / 2));
 
+      const wingTopX = x - ((PLAYER_RADIUS * sinAngle) / 2);
+      const wingTopY = y - ((PLAYER_RADIUS * cosAngle) / 2);
+
       //TESTING
       //Circle
       // ctx.beginPath();
@@ -354,7 +357,20 @@ export default class App extends React.Component {
       ctx.fill();
       ctx.closePath();
 
+
+
+      const wingTopRightX = wingTopX - (backLength * cosAngle);
+      const wingTopRightY = wingTopY + (backLength * sinAngle);
+      const wingBotRightX = backCenterX - (backLength * cosAngle);
+      const wingBotRightY = backCenterY + (backLength * sinAngle);
       //TODO: Rocket Right Wing
+      // ctx.beginPath();
+      // ctx.moveTo(wingTopRightX, wingTopRightY);
+      // ctx.lineTo(wingBotRightX, wingBotRightY);
+      // ctx.strokeStyle = '#FFFFFF';
+      // ctx.strokeWidth = 5; 
+      // ctx.stroke();
+      // ctx.closePath();
       //TODO: Rocket Left Wing
       //TODO: Rocket Bottom piece
       //TODO: Rocket Window

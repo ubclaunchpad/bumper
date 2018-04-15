@@ -162,14 +162,16 @@ func (a *Arena) collisionHole() {
 				if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
 					// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
 					// Also should award some points to the bumper... Not as straight forward as the junk
-					delete(a.Players, client)
 					client.Close()
+					delete(a.Players, client)
 				}
 			}
 			for i, junk := range a.Junk {
 				if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
 					playerScored := a.Players[junk.ID]
-					playerScored.AddPoints(models.PointsPerJunk)
+					if playerScored != nil {
+						playerScored.AddPoints(models.PointsPerJunk)
+					}
 
 					// remove that junk from the junk
 					a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)

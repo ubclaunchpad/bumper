@@ -252,7 +252,7 @@ export default class App extends React.Component {
     this.state.holes.forEach((h) => {
       const ctx = this.canvas.getContext('2d');
       ctx.beginPath();
-      for(let i = 0; i < 720; i++) {
+      for (let i = 0; i < 720; i++) {
         let angle = 0.1 * i;
         let x = h.position.x + (1 + 1 * angle) * Math.cos(angle);
         let y = h.position.y + (1 + 1 * angle) * Math.sin(angle);
@@ -267,7 +267,7 @@ export default class App extends React.Component {
           ctx.lineTo(x,y);
         }
       }
-      ctx.strokeStyle = 'white';
+      ctx.strokeStyle = h.islive ? 'white' : 'rgba(255, 255, 255, 0.5)';
       ctx.lineWidth=1;
       ctx.stroke();
       ctx.closePath();

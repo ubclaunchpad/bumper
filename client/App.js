@@ -290,31 +290,31 @@ export default class App extends React.Component {
       const ctx = this.canvas.getContext('2d');
       const { x, y } = p.position;
 
-      //Constants
+      // Constants
       const sinAngle = Math.sin(p.angle);
       const cosAngle = Math.cos(p.angle);
 
       // const frontCenterX = x + (PLAYER_RADIUS * sinAngle);
       // const frontCenterY = y + (PLAYER_RADIUS * cosAngle);
 
-      const backCenterX = x - ((PLAYER_RADIUS * sinAngle) / 4*3);
-      const backCenterY = y - ((PLAYER_RADIUS * cosAngle) / 4*3);
+      const backCenterX = x - ((PLAYER_RADIUS * sinAngle) / 4 * 3);
+      const backCenterY = y - ((PLAYER_RADIUS * cosAngle) / 4 * 3);
 
-      const backLength = ((PLAYER_RADIUS / 2));
+      const backLength = (PLAYER_RADIUS / 2);
 
-      const wingTopX = x - ((PLAYER_RADIUS * sinAngle) / 2);
-      const wingTopY = y - ((PLAYER_RADIUS * cosAngle) / 2);
+      // const wingTopX = x - ((PLAYER_RADIUS * sinAngle) / 2);
+      // const wingTopY = y - ((PLAYER_RADIUS * cosAngle) / 2);
 
-      //TESTING
-      //Circle
+      // TESTING
+      // Circle
       // ctx.beginPath();
       // ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
       // ctx.fillStyle = '#FFFFFF';
       // ctx.fill();
       // ctx.closePath();
 
-      //TESTING
-      //Center Line
+      // TESTING
+      // Center Line
       // ctx.beginPath();
       // ctx.moveTo(frontCenterX, frontCenterY);
       // ctx.lineTo(x - (PLAYER_RADIUS * sinAngle), y - (PLAYER_RADIUS * cosAngle));
@@ -326,56 +326,52 @@ export default class App extends React.Component {
       Start drawing Rocket Chassis, starts from bottom right to the bottom left,
       draw toward the rocket tip then back to the bottom right to complete the shape and fill
       */
-      //Coordinates of the Rocket Tip
-      const rocketTipX = x + (PLAYER_RADIUS * sinAngle)*1.2;
-      const rocketTipY = y + (PLAYER_RADIUS * cosAngle)*1.2;
-      //Control Points for Bezier Curve from/toward the Rocket Tip
-      const rocketTipModifierRightX = x + (PLAYER_RADIUS * Math.sin(p.angle - Math.PI / 4 ));
-      const rocketTipModifierRightY = y + (PLAYER_RADIUS * Math.cos(p.angle - Math.PI / 4 ));
-      const rocketTipModifierLeftX = x + (PLAYER_RADIUS  * Math.sin(p.angle + Math.PI / 4 ));
-      const rocketTipModifierLeftY = y + (PLAYER_RADIUS  * Math.cos(p.angle + Math.PI / 4 ));
-      //Center-Right Coordinates of Rocket   
-      const rightCenterX = x + (PLAYER_RADIUS * Math.sin(p.angle - Math.PI / 2 ));
-      const rightCenterY = y + (PLAYER_RADIUS * Math.cos(p.angle - Math.PI / 2 ));
-      //Center-Left Coordinates of Rocket
-      const leftCenterX = x + (PLAYER_RADIUS  * Math.sin(p.angle + Math.PI / 2 ));
-      const leftCenterY = y + (PLAYER_RADIUS  * Math.cos(p.angle + Math.PI / 2 ));
-      //Base Coordinates
+      // Coordinates of the Rocket Tip
+      const rocketTipX = x + (PLAYER_RADIUS * sinAngle * 1.2);
+      const rocketTipY = y + (PLAYER_RADIUS * cosAngle * 1.2);
+      // Control Points for Bezier Curve from/toward the Rocket Tip
+      const rocketTipModifierRightX = x + (PLAYER_RADIUS * Math.sin(p.angle - Math.PI / 4));
+      const rocketTipModifierRightY = y + (PLAYER_RADIUS * Math.cos(p.angle - Math.PI / 4));
+      const rocketTipModifierLeftX = x + (PLAYER_RADIUS * Math.sin(p.angle + Math.PI / 4));
+      const rocketTipModifierLeftY = y + (PLAYER_RADIUS * Math.cos(p.angle + Math.PI / 4));
+      // Center-Right Coordinates of Rocket
+      const rightCenterX = x + (PLAYER_RADIUS * Math.sin(p.angle - Math.PI / 2));
+      const rightCenterY = y + (PLAYER_RADIUS * Math.cos(p.angle - Math.PI / 2));
+      // Center-Left Coordinates of Rocket
+      const leftCenterX = x + (PLAYER_RADIUS * Math.sin(p.angle + Math.PI / 2));
+      const leftCenterY = y + (PLAYER_RADIUS * Math.cos(p.angle + Math.PI / 2));
+      // Base Coordinates
       const rocketBottomRightX = backCenterX - (backLength * cosAngle);
       const rocketBottomRightY = backCenterY + (backLength * sinAngle);
       const rocketBottomLeftX = backCenterX + (backLength * cosAngle);
       const rocketBottomLeftY = backCenterY - (backLength * sinAngle);
-      //Rocket Base
+      // Rocket Base
       ctx.beginPath();
-      ctx.moveTo(rocketBottomRightX, rocketBottomRightY); //bottom right side
-      ctx.lineTo(rocketBottomLeftX, rocketBottomLeftY); //bottom left side
-      //Left Side
-      ctx.bezierCurveTo(leftCenterX, leftCenterY, rocketTipModifierLeftX, rocketTipModifierLeftY, rocketTipX, rocketTipY); //chassis left side
-      //Right Side
-      ctx.bezierCurveTo(rocketTipModifierRightX, rocketTipModifierRightY, rightCenterX, rightCenterY, rocketBottomRightX, rocketBottomRightY); //chassis right side
+      ctx.moveTo(rocketBottomRightX, rocketBottomRightY); // bottom right side
+      ctx.lineTo(rocketBottomLeftX, rocketBottomLeftY); // bottom left side
+      // Left Side
+      ctx.bezierCurveTo(leftCenterX, leftCenterY, rocketTipModifierLeftX, rocketTipModifierLeftY, rocketTipX, rocketTipY); // chassis left side
+      // Right Side
+      ctx.bezierCurveTo(rocketTipModifierRightX, rocketTipModifierRightY, rightCenterX, rightCenterY, rocketBottomRightX, rocketBottomRightY); // chassis right side
       ctx.fillStyle = p.color;
       ctx.fill();
       ctx.closePath();
 
-
-
-      const wingTopRightX = wingTopX - (backLength * cosAngle);
-      const wingTopRightY = wingTopY + (backLength * sinAngle);
-      const wingBotRightX = backCenterX - (backLength * cosAngle);
-      const wingBotRightY = backCenterY + (backLength * sinAngle);
-      //TODO: Rocket Right Wing
+      // const wingTopRightX = wingTopX - (backLength * cosAngle);
+      // const wingTopRightY = wingTopY + (backLength * sinAngle);
+      // const wingBotRightX = backCenterX - (backLength * cosAngle);
+      // const wingBotRightY = backCenterY + (backLength * sinAngle);
+      // TODO: Rocket Right Wing
       // ctx.beginPath();
       // ctx.moveTo(wingTopRightX, wingTopRightY);
       // ctx.lineTo(wingBotRightX, wingBotRightY);
       // ctx.strokeStyle = '#FFFFFF';
-      // ctx.strokeWidth = 5; 
+      // ctx.strokeWidth = 5;
       // ctx.stroke();
       // ctx.closePath();
-      //TODO: Rocket Left Wing
-      //TODO: Rocket Bottom piece
-      //TODO: Rocket Window
-
-
+      // TODO: Rocket Left Wing
+      // TODO: Rocket Bottom piece
+      // TODO: Rocket Window
     });
   }
 

@@ -75,7 +75,7 @@ export default class App extends React.Component {
     this.setState({
       showWelcomeModal: false,
       playerName: inputName,
-    }); //  Close Modal
+    });
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -132,7 +132,7 @@ export default class App extends React.Component {
     }
 
     let playerPosition = null;
-    let playerOffest = null;
+    let playerOffset = null;
 
     data.players.forEach((player) => {
       if (player.color === this.state.playerID) {
@@ -140,22 +140,22 @@ export default class App extends React.Component {
         this.setState({ playerAbsolutePosition: playerPosition });
 
         player.position = { x: playerPosition.x, y: playerPosition.y };
-        playerOffest = { x: playerPosition.x, y: playerPosition.y };
+        playerOffset = { x: playerPosition.x, y: playerPosition.y };
         if (player.position.x > this.canvas.width / 2) {
           if ((player.position.x < this.state.arena.width - (this.canvas.width / 2))) {
             player.position.x = this.canvas.width / 2;
-            playerOffest.x = this.canvas.width / 2;
+            playerOffset.x = this.canvas.width / 2;
           } else {
-            playerOffest.x = player.position.x - (this.state.arena.width - this.canvas.width);
+            playerOffset.x = player.position.x - (this.state.arena.width - this.canvas.width);
             player.position.x -= (this.state.arena.width - this.canvas.width);
           }
         }
         if (player.position.y > this.canvas.height / 2) {
           if ((player.position.y < this.state.arena.height - (this.canvas.height / 2))) {
             player.position.y = this.canvas.height / 2;
-            playerOffest.y = this.canvas.height / 2;
+            playerOffset.y = this.canvas.height / 2;
           } else {
-            playerOffest.y = player.position.y - (this.state.arena.height - this.canvas.height);
+            playerOffset.y = player.position.y - (this.state.arena.height - this.canvas.height);
             player.position.y -= (this.state.arena.height - this.canvas.height);
           }
         }
@@ -165,21 +165,21 @@ export default class App extends React.Component {
     data.junk.forEach((junk) => {
       junk.position.x -= playerPosition.x;
       junk.position.y -= playerPosition.y;
-      junk.position.x += playerOffest.x;
-      junk.position.y += playerOffest.y;
+      junk.position.x += playerOffset.x;
+      junk.position.y += playerOffset.y;
     });
     data.holes.forEach((hole) => {
       hole.position.x -= playerPosition.x;
       hole.position.y -= playerPosition.y;
-      hole.position.x += playerOffest.x;
-      hole.position.y += playerOffest.y;
+      hole.position.x += playerOffset.x;
+      hole.position.y += playerOffset.y;
     });
     data.players.forEach((player) => {
       if (player.color !== this.state.playerID) {
         player.position.x -= playerPosition.x;
         player.position.y -= playerPosition.y;
-        player.position.x += playerOffest.x;
-        player.position.y += playerOffest.y;
+        player.position.x += playerOffset.x;
+        player.position.y += playerOffset.y;
       }
     });
     this.setState({

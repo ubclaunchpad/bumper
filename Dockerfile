@@ -1,8 +1,9 @@
 # Build and minify React client
 FROM node:carbon AS client
 WORKDIR /client
-ADD client .
+ADD client/package.json .
 RUN npm install
+ADD client .
 RUN npm run build
 
 # Build server

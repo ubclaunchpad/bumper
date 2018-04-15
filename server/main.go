@@ -49,7 +49,28 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
+	name := r.URL.Query().Get("name")
 	g.Arena.AddPlayer(ws)
+	g.Arena.Players[ws].Name = name
+
+	initalMsg := Message{
+		Type: "initial",
+		Data: struct {
+			ArenaWidth  float64 `json:"arenawidth"`
+			ArenaHeight float64 `json:"arenaheight"`
+			PlayerID    string  `json:"playerid"`
+		}{
+			g.Arena.Width,
+			g.Arena.Height,
+			g.Arena.Players[ws].Color,
+		},
+	}
+	error := ws.WriteJSON(&initalMsg)
+	if error != nil {
+		log.Printf("error: %v", error)
+		ws.Close()
+		delete(g.Arena.Players, ws)
+	}
 
 	for {
 		var msg Message
@@ -73,7 +94,6 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			} else {
 				g.Arena.Players[ws].KeyUpHandler(kh.Key)
 			}
-
 		}
 	}
 }
@@ -134,7 +154,7 @@ func tick(g *Game) {
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	game := Game{
-		Arena: game.CreateArena(800, 1000),
+		Arena: game.CreateArena(2400, 2800),
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))

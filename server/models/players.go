@@ -22,6 +22,7 @@ const (
 
 // Player contains data and state about a player's object
 type Player struct {
+	Name     string      `json:"name"`
 	ID       int         `json:"id"`
 	Position Position    `json:"position"`
 	Velocity Velocity    `json:"velocity"`
@@ -114,15 +115,19 @@ func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
 // checkWalls check if the player is attempting to exit the walls, reverse they're direction
 func (p *Player) checkWalls(height float64, width float64) {
 	if p.Position.X+PlayerRadius > width {
+		p.Position.X = width - PlayerRadius - 1
 		p.Velocity.Dx *= WallBounceFactor
 	} else if p.Position.X-PlayerRadius < 0 {
 		p.Velocity.Dx *= WallBounceFactor
+		p.Position.X = PlayerRadius + 1
 	}
 
 	if p.Position.Y+PlayerRadius > height {
 		p.Velocity.Dy *= WallBounceFactor
+		p.Position.Y = height - PlayerRadius - 1
 	} else if p.Position.Y-PlayerRadius < 0 {
 		p.Velocity.Dy *= WallBounceFactor
+		p.Position.Y = PlayerRadius + 1
 	}
 }
 

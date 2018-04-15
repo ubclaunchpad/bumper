@@ -3,8 +3,18 @@ import React from 'react';
 class WelcomeModal extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { inputName: props.name };
+    this.state = {
+      inputName: props.name,
+    };
+
     this.handleChange = this.handleChange.bind(this);
+  }
+
+  componentDidMount() {
+    window.addEventListener('keyup', (e) => {
+      e.preventDefault();
+      if (e.keyCode === 13) document.getElementById('btn').click();
+    });
   }
 
   handleChange(e) {
@@ -25,7 +35,7 @@ class WelcomeModal extends React.Component {
             />
           </div>
           <div style={styles.buttonLayout}>
-            <button onClick={() => this.props.onSubmit(this.state.inputName)}>
+            <button id="btn" onClick={() => this.props.onSubmit(this.state.inputName)}>
                 submit
             </button>
           </div>

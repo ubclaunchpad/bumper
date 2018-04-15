@@ -60,13 +60,13 @@ export default class App extends React.Component {
 
   sendSubmitPlayerID(inputName) {
     if (window.WebSocket) {
-      this.socket = new WebSocket(address + "?name=" + inputName);
+      this.socket = new WebSocket(`${address}?name=${inputName}`);
       this.socket.onopen = () => {
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
       };
       this.socket.onclose = () => {
         this.openGameOverModal();
-      }
+      };
     } else {
       console.log('websocket not available');
       return;

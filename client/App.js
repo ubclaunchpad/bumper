@@ -6,11 +6,6 @@ import WelcomeModal from './components/WelcomeModal';
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
-// Testing constants:
-const FINAL_TIME = 100;
-const FINAL_POINTS = 200;
-const FINAL_RANKING = 1;
-
 const address = process.env.NODE_ENV === 'production'
   ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com/connect'
   : 'ws://localhost:9090/connect';

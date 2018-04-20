@@ -2,15 +2,6 @@ import React from 'react';
 
 // eslint-disable-next-line
 class GameOverModal extends React.Component {
-  constructor(props) {
-    super(props);
-    this.data = {
-      finalTime: props.finalTime,
-      finalPoints: props.finalPoints,
-      finalRanking: props.finalRanking,
-    };
-  }
-
   render() {
     return (
       <div style={styles.backdrop}>

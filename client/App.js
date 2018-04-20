@@ -48,11 +48,17 @@ export default class App extends React.Component {
   }
 
   openGameOverModal() {
+    let thisPlayer;
+    this.state.players.forEach((player) => {
+      if (player.color === this.state.playerID) {
+        thisPlayer = player;
+      }
+    });
     this.setState({
       showGameOverModal: true,
       gameOverData: {
         finalTime: FINAL_TIME,
-        finalPoints: FINAL_POINTS,
+        finalPoints: thisPlayer ? thisPlayer.points : 0,
         finalRanking: FINAL_RANKING,
       },
     });

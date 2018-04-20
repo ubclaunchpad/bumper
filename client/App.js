@@ -30,6 +30,7 @@ export default class App extends React.Component {
       playerAbsolutePosition: null,
       playerID: null,
       playerRank: 0,
+      timeStarted: null,
       arena: null,
     };
 
@@ -58,7 +59,7 @@ export default class App extends React.Component {
     this.setState({
       showGameOverModal: true,
       gameOverData: {
-        finalTime: FINAL_TIME,
+        finalTime: Math.floor((new Date() - this.state.timeStarted) / 1000),
         finalPoints: thisPlayer ? thisPlayer.points : 0,
         finalRanking: this.state.playerRank,
       },
@@ -118,6 +119,7 @@ export default class App extends React.Component {
     this.setState({
       arena: { width: data.arenawidth, height: data.arenaheight },
       playerID: data.playerid,
+      timeStarted: new Date(),
     });
   }
 

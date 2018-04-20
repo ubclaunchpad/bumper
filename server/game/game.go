@@ -53,9 +53,12 @@ func CreateArena(height float64, width float64) *Arena {
 
 // UpdatePositions calculates the next state of each object
 func (a *Arena) UpdatePositions() {
-	// for _, hole := range a.Holes {
-
-	// }
+	for _, hole := range a.Holes {
+		hole.Update()
+		if hole.Life < 0 {
+			hole.StartNewLife(a.generateCoord(models.MaxHoleRadius))
+		}
+	}
 	for _, junk := range a.Junk {
 		junk.UpdatePosition(a.Height, a.Width)
 	}
@@ -154,25 +157,27 @@ func (a *Arena) collisionPlayer() {
 
 func (a *Arena) collisionHole() {
 	for _, hole := range a.Holes {
-		for client, player := range a.Players {
-			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-				// TODO: award some points to the bumper... Not as straight forward as the junk
-				// send update to client with player missing
-				delete(a.Players, client)
-				client.Close()
-			}
-		}
-		for i, junk := range a.Junk {
-			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
-				if a.Players[junk.ID] != nil {
-					playerScored := a.Players[junk.ID]
-					playerScored.AddPoints(models.PointsPerJunk)
+		if hole.Alive {
+			for client, player := range a.Players {
+				if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
+					// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
+					// Also should award some points to the bumper... Not as straight forward as the junk
+					client.Close()
+					delete(a.Players, client)
 				}
+			}
+			for i, junk := range a.Junk {
+				if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
+					playerScored := a.Players[junk.ID]
+					if playerScored != nil {
+						playerScored.AddPoints(models.PointsPerJunk)
+					}
 
-				// remove that junk from the junk
-				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
-				//create a new junk to hold the count steady
-				a.generateJunk()
+					// remove that junk from the junk
+					a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
+					//create a new junk to hold the count steady
+					a.generateJunk()
+				}
 			}
 		}
 	}

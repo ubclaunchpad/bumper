@@ -63,9 +63,6 @@ export default class App extends React.Component {
       this.socket.onopen = () => {
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
       };
-      this.socket.onclose = () => {
-        this.openGameOverModal();
-      }
     } else {
       console.log('websocket not available');
       return;
@@ -95,9 +92,15 @@ export default class App extends React.Component {
   handleMessage(msg) {
     switch (msg.type) {
       case 'initial':
+        console.log('RECEIVED INITIAL MESSAGE from server');
         this.initializeArena(msg.data);
         break;
+      case 'death':
+        console.log('RECEIVED DEATH MESSAGE from server');
+        this.openGameOverModal();
+        break;
       case 'update':
+        console.log('RECEIVED UPDATE MESSAGE from server');
         this.update(msg.data);
         break;
       default:

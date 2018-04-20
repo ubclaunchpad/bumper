@@ -18,12 +18,6 @@ type Game struct {
 	Arena *game.Arena
 }
 
-// Message is the schema for client/server communication
-type Message struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
-}
-
 // KeyHandler is the schema for client/server key handling communication
 type KeyHandler struct {
 	Key     int  `json:"key"`
@@ -54,33 +48,14 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	g.Arena.AddPlayer(ws)
 	g.Arena.Players[ws].Name = name
 
-	msg := Message{
-		"intial",
+	msg := models.Message{
+		"initial",
 		ws,
 	}
-	messageChannel <- msg
-
-	initalMsg := Message{
-		Type: "initial",
-		Data: struct {
-			ArenaWidth  float64 `json:"arenawidth"`
-			ArenaHeight float64 `json:"arenaheight"`
-			PlayerID    string  `json:"playerid"`
-		}{
-			g.Arena.Width,
-			g.Arena.Height,
-			g.Arena.Players[ws].Color,
-		},
-	}
-	error := ws.WriteJSON(&initalMsg)
-	if error != nil {
-		log.Printf("error: %v", error)
-		ws.Close()
-		delete(g.Arena.Players, ws)
-	}
+	game.MessageChannel <- msg
 
 	for {
-		var msg Message
+		var msg models.Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("error: %v", err)
@@ -132,7 +107,7 @@ func tick(g *Game) {
 			players = append(players, *player)
 		}
 
-		msg := Message{
+		msg := models.Message{
 			Type: "update",
 			Data: struct {
 				Holes   []models.Hole   `json:"holes"`
@@ -158,25 +133,59 @@ func tick(g *Game) {
 	}
 }
 
-var messageChannel = make(chan Message)
-
-func sendMessage() {
+func sendMessage(g *Game) {
 	for {
-		msg := <-messageChannel
+		msg := <-game.MessageChannel
+
+		switch msg.Type {
+		case "initial":
+			ws := msg.Data.(*websocket.Conn)
+			initalMsg := models.Message{
+				Type: "initial",
+				Data: struct {
+					ArenaWidth  float64 `json:"arenawidth"`
+					ArenaHeight float64 `json:"arenaheight"`
+					PlayerID    string  `json:"playerid"`
+				}{
+					g.Arena.Width,
+					g.Arena.Height,
+					g.Arena.Players[ws].Color,
+				},
+			}
+			error := ws.WriteJSON(&initalMsg)
+			if error != nil {
+				log.Printf("error: %v", error)
+				ws.Close()
+				delete(g.Arena.Players, ws)
+			}
+		case "death":
+			fmt.Println("GOT DEATH message in channel")
+			ws := msg.Data.(*websocket.Conn)
+			deathMsg := models.Message{
+				Type: "death",
+				Data: nil,
+			}
+			error := ws.WriteJSON(&deathMsg)
+			if error != nil {
+				log.Printf("error: %v", error)
+				ws.Close()
+				delete(g.Arena.Players, ws)
+			}
+		}
 		fmt.Println(msg.Type)
-		fmt.Println(msg.Data)
 	}
 }
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
+	game.MessageChannel = make(chan models.Message)
 	game := Game{
 		Arena: game.CreateArena(800, 1000),
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.Handle("/connect", &game)
-	go sendMessage()
+	go sendMessage(&game)
 	go run(&game)
 	go tick(&game)
 

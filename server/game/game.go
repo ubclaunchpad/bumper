@@ -17,6 +17,7 @@ const (
 )
 
 var lastID = 1
+var MessageChannel chan models.Message
 
 // Arena container for play area information including all objects
 type Arena struct {
@@ -158,8 +159,13 @@ func (a *Arena) collisionHole() {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
 				// TODO: award some points to the bumper... Not as straight forward as the junk
 				// send update to client with player missing
+
+				deathMsg := models.Message{
+					Type: "death",
+					Data: client,
+				}
+				MessageChannel <- deathMsg
 				delete(a.Players, client)
-				client.Close()
 			}
 		}
 		for i, junk := range a.Junk {

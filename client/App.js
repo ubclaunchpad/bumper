@@ -29,6 +29,7 @@ export default class App extends React.Component {
       players: null,
       playerAbsolutePosition: null,
       playerID: null,
+      playerRank: 0,
       arena: null,
     };
 
@@ -59,7 +60,7 @@ export default class App extends React.Component {
       gameOverData: {
         finalTime: FINAL_TIME,
         finalPoints: thisPlayer ? thisPlayer.points : 0,
-        finalRanking: FINAL_RANKING,
+        finalRanking: this.state.playerRank,
       },
     });
   }
@@ -215,6 +216,14 @@ export default class App extends React.Component {
       if (a.color < b.color) return -1; // sort by color on ties
       if (a.color > b.color) return 1;
       return 0;
+    });
+
+    rankedPlayers.forEach((player) => {
+      if (player.color === this.state.playerID) {
+        this.setState({
+          playerRank: rankedPlayers.indexOf(player) + 1,
+        });
+      }
     });
 
     const ctx = this.canvas.getContext('2d');

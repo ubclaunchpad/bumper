@@ -59,7 +59,7 @@ export default class App extends React.Component {
     this.setState({
       showGameOverModal: true,
       gameOverData: {
-        finalTime: Math.floor((new Date() - this.state.timeStarted) / 1000),
+        finalTime: new Date((new Date() - this.state.timeStarted)),
         finalPoints: thisPlayer ? thisPlayer.points : 0,
         finalRanking: this.state.playerRank,
       },

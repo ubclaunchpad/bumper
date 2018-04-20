@@ -8,7 +8,7 @@ class GameOverModal extends React.Component {
         <div style={styles.modal}>
           <b>GAME OVER</b>
           <div>
-            <div><b>Time alive:</b> <span>{this.props.data.finalTime}</span> Seconds</div>
+            <div><b>Time alive:</b> <span>{this.props.data.finalTime.getMinutes() + ':' + this.props.data.finalTime.getSeconds()}</span></div>
             <div><b>Points earned:</b> <span>{this.props.data.finalPoints}</span></div>
             <div><b>Final ranking:</b> <span>{this.props.data.finalRanking}</span></div>
           </div>

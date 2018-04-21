@@ -171,6 +171,7 @@ func sendMessage(g *Game) {
 				ws.Close()
 				delete(g.Arena.Players, ws)
 			}
+			delete(g.Arena.Players, ws)
 		}
 		fmt.Println(msg.Type)
 	}

@@ -165,7 +165,6 @@ func (a *Arena) collisionHole() {
 					Data: client,
 				}
 				MessageChannel <- deathMsg
-				delete(a.Players, client)
 			}
 		}
 		for i, junk := range a.Junk {

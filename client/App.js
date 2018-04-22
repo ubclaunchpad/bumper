@@ -58,20 +58,33 @@ export default class App extends React.Component {
   }
 
   sendSubmitPlayerID(inputName) {
+    console.log(window.WebSocket);
     if (window.WebSocket) {
-      this.socket = new WebSocket(address + "?name=" + inputName);
+      this.socket = new WebSocket(address + '?name=' + inputName);
       this.socket.onopen = () => {
+        console.log('Connection with server open.');
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
+        this.sendSpawnMessage(inputName);
       };
-    } else {
-      console.log('websocket not available');
-      return;
     }
-
     this.setState({
       showWelcomeModal: false,
       playerName: inputName,
     }); //  Close Modal
+  }
+
+  sendSpawnMessage(inputName) {
+    const spawnMessage = {
+      name: inputName,
+    };
+    const message = {
+      type: 'spawn',
+      data: JSON.stringify(spawnMessage),
+    };
+
+    if (this.socket.readyState === 1) {
+      this.socket.send(JSON.stringify(message));
+    }
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -101,6 +114,7 @@ export default class App extends React.Component {
         break;
       case 'update':
         console.log('RECEIVED UPDATE MESSAGE from server');
+        console.log(msg);
         this.update(msg.data);
         break;
       default:
@@ -132,7 +146,7 @@ export default class App extends React.Component {
       window.addEventListener('keyup', this.keyUpHandler);
       return;
     }
-
+    console.log(this.state);
     this.setState({
       junk: data.junk,
       holes: data.holes,

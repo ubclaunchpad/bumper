@@ -24,6 +24,11 @@ type KeyHandler struct {
 	Pressed bool `json:"pressed"`
 } //TODO move to player?
 
+// SpawnHandler is the schema for client/server key handling communication
+type SpawnHandler struct {
+	Name string `json:"name"`
+} //TODO move to player?
+
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		log.Printf("Accepting client from remote address %v\n", r.RemoteAddr)
@@ -44,16 +49,6 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	name := r.URL.Query().Get("name")
-	g.Arena.AddPlayer(ws)
-	g.Arena.Players[ws].Name = name
-
-	msg := models.Message{
-		"initial",
-		ws,
-	}
-	game.MessageChannel <- msg
-
 	for {
 		var msg models.Message
 		err := ws.ReadJSON(&msg)
@@ -61,6 +56,23 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Printf("error: %v", err)
 			delete(g.Arena.Players, ws)
 			break
+		}
+		if msg.Type == "spawn" {
+			var spawn SpawnHandler
+			err = json.Unmarshal([]byte(msg.Data.(string)), &spawn)
+			if err != nil {
+				log.Printf("error: %v", err)
+				continue
+			}
+			name := spawn.Name
+			g.Arena.AddPlayer(ws)
+			g.Arena.Players[ws].Name = name
+
+			msg := models.Message{
+				"initial",
+				ws,
+			}
+			game.MessageChannel <- msg
 		}
 
 		if msg.Type == "keyHandler" {
@@ -70,13 +82,15 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				log.Printf("error: %v", err)
 				continue
 			}
-
-			if kh.Pressed == true {
-				g.Arena.Players[ws].KeyDownHandler(kh.Key)
-			} else {
-				g.Arena.Players[ws].KeyUpHandler(kh.Key)
+			if _, ok := g.Arena.Players[ws]; ok {
+				if kh.Pressed == true {
+					g.Arena.Players[ws].KeyDownHandler(kh.Key)
+				} else {
+					g.Arena.Players[ws].KeyUpHandler(kh.Key)
+				}
 			}
 		}
+
 	}
 }
 
@@ -122,8 +136,10 @@ func tick(g *Game) {
 
 		// update every client
 		for client := range g.Arena.Players {
-
+			p := g.Arena.Players[client]
+			p.SocketLock.Lock()
 			err := client.WriteJSON(&msg)
+			p.SocketLock.Unlock()
 			if err != nil {
 				log.Printf("error: %v", err)
 				client.Close()
@@ -152,7 +168,9 @@ func sendMessage(g *Game) {
 					g.Arena.Players[ws].Color,
 				},
 			}
+			g.Arena.Players[ws].SocketLock.Lock()
 			error := ws.WriteJSON(&initalMsg)
+			g.Arena.Players[ws].SocketLock.Unlock()
 			if error != nil {
 				log.Printf("error: %v", error)
 				ws.Close()
@@ -165,7 +183,9 @@ func sendMessage(g *Game) {
 				Type: "death",
 				Data: nil,
 			}
+			g.Arena.Players[ws].SocketLock.Lock()
 			error := ws.WriteJSON(&deathMsg)
+			g.Arena.Players[ws].SocketLock.Unlock()
 			if error != nil {
 				log.Printf("error: %v", error)
 				ws.Close()

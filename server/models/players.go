@@ -2,6 +2,7 @@ package models
 
 import (
 	"math"
+	"sync"
 )
 
 // Player related constants
@@ -22,14 +23,15 @@ const (
 
 // Player contains data and state about a player's object
 type Player struct {
-	Name     string      `json:"name"`
-	ID       int         `json:"id"`
-	Position Position    `json:"position"`
-	Velocity Velocity    `json:"velocity"`
-	Color    string      `json:"color"`
-	Angle    float64     `json:"angle"`
-	Controls KeysPressed `json:"controls"`
-	Points   int         `json:"points"`
+	Name       string      `json:"name"`
+	ID         int         `json:"id"`
+	Position   Position    `json:"position"`
+	Velocity   Velocity    `json:"velocity"`
+	Color      string      `json:"color"`
+	Angle      float64     `json:"angle"`
+	Controls   KeysPressed `json:"controls"`
+	Points     int         `json:"points"`
+	SocketLock *sync.Mutex `json:"lock"`
 }
 
 // KeysPressed contains a boolean about each key, true if it's down

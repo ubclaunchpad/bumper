@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"math"
 	"math/rand"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/ubclaunchpad/bumper/server/models"
@@ -74,12 +75,13 @@ func (a *Arena) CollisionDetection() {
 // AddPlayer adds a new player to the arena
 func (a *Arena) AddPlayer(ws *websocket.Conn) {
 	player := models.Player{
-		ID:       generateID(),
-		Position: a.generateCoord(models.PlayerRadius),
-		Velocity: models.Velocity{0, 0},
-		Color:    a.generateRandomColor(),
-		Angle:    math.Pi,
-		Controls: models.KeysPressed{false, false, false, false},
+		ID:         generateID(),
+		Position:   a.generateCoord(models.PlayerRadius),
+		Velocity:   models.Velocity{0, 0},
+		Color:      a.generateRandomColor(),
+		Angle:      math.Pi,
+		Controls:   models.KeysPressed{false, false, false, false},
+		SocketLock: &sync.Mutex{},
 	}
 	a.Players[ws] = &player
 }

@@ -17,22 +17,24 @@ const (
 
 // Hole contains the data for a hole's position and size
 type Hole struct {
-	Position    Position `json:"position"`
-	Radius      float64  `json:"radius"`
-	Alive       bool     `json:"islive"`
-	Life        float64  `json:"life"`
-	StaringLife float64  `json:"born"`
+	Position      Position `json:"position"`
+	Radius        float64  `json:"radius"`
+	GravityRadius float64  `json:"gravrad"`
+	Alive         bool     `json:"islive"`
+	Life          float64  `json:"life"`
+	StaringLife   float64  `json:"born"`
 }
 
 // CreateHole initializes and returns an instance of a Hole
 func CreateHole(position Position) Hole {
 	life := math.Floor(rand.Float64()*((MaxHoleLife-MinHoleLife)+1)) + MinHoleLife
 	return Hole{
-		Position:    position,
-		Radius:      math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius,
-		Life:        life,
-		Alive:       false,
-		StaringLife: life,
+		Position:      position,
+		Radius:        math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius,
+		GravityRadius: MaxHoleRadius * 4,
+		Life:          life,
+		Alive:         false,
+		StaringLife:   life,
 	}
 }
 

@@ -164,6 +164,8 @@ func (a *Arena) collisionHole() {
 					// Also should award some points to the bumper... Not as straight forward as the junk
 					client.Close()
 					delete(a.Players, client)
+				} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
+					player.ApplyGravity(hole.Position)
 				}
 			}
 			for i, junk := range a.Junk {

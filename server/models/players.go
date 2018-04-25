@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -110,6 +111,27 @@ func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
 	ph.Position.Y += ph.Velocity.Dy
 
 	p.checkWalls(height, width)
+}
+
+// ApplyGravity applys a vector towards given position
+func (p *Player) ApplyGravity(pos Position) {
+	gravityVector := Velocity{0, 0}
+	if p.Position.X < pos.X {
+		gravityVector.Dx = pos.X - p.Position.X
+	} else {
+		gravityVector.Dx = pos.X - p.Position.X
+	}
+
+	if p.Position.Y < pos.Y {
+		gravityVector.Dy = pos.Y - p.Position.Y
+	} else {
+		gravityVector.Dy = pos.Y - p.Position.Y
+	}
+
+	fmt.Println(gravityVector)
+	gravityVector.normalize()
+	p.Position.X += gravityVector.Dx * 0.5
+	p.Position.Y += gravityVector.Dy * 0.5
 }
 
 // checkWalls check if the player is attempting to exit the walls, reverse they're direction

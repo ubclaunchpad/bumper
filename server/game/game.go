@@ -71,6 +71,7 @@ func (a *Arena) UpdatePositions() {
 func (a *Arena) CollisionDetection() {
 	a.collisionPlayer()
 	a.collisionHole()
+	a.collisionJunk()
 }
 
 // AddPlayer adds a new player to the arena
@@ -182,6 +183,22 @@ func (a *Arena) collisionHole() {
 				} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
 					junk.ApplyGravity(hole)
 				}
+			}
+		}
+	}
+}
+
+// Checks for junk on junk collisions
+func (a *Arena) collisionJunk() {
+	memo := make(map[*models.Junk]*models.Junk)
+	for _, junk := range a.Junk {
+		for _, junkHit := range a.Junk {
+			if junk == junkHit || memo[junkHit] == junk {
+				continue
+			}
+			if areCirclesColliding(junk.Position, models.JunkRadius, junkHit.Position, models.JunkRadius) {
+				memo[junkHit] = junk
+				junk.HitJunk(junkHit)
 			}
 		}
 	}

@@ -290,7 +290,7 @@ export default class App extends React.Component {
     this.state.junk.forEach((j) => {
       const ctx = this.canvas.getContext('2d');
       ctx.beginPath();
-      ctx.rect(j.position.x, j.position.y, JUNK_SIZE, JUNK_SIZE);
+      ctx.rect(j.position.x - (JUNK_SIZE / 2), j.position.y - (JUNK_SIZE / 2), JUNK_SIZE, JUNK_SIZE);
       ctx.fillStyle = j.color;
       ctx.fill();
       ctx.closePath();

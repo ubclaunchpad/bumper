@@ -8,21 +8,23 @@ import (
 
 // Junk related constants
 const (
-	JunkFriction       = 0.99
-	MinimumBump        = 0.5
-	BumpFactor         = 1.05
-	JunkRadius         = 8
-	JunkDebounceTicks  = 10
-	junkGravityDamping = 0.025
+	JunkFriction        = 0.99
+	MinimumBump         = 0.5
+	BumpFactor          = 1.05
+	JunkRadius          = 11
+	JunkDebounceTicks   = 15
+	JunkVTransferFactor = 0.5
+	junkGravityDamping  = 0.025
 )
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points
 type Junk struct {
-	Position Position        `json:"position"`
-	Velocity Velocity        `json:"velocity"` // Don't need to send me to the clients
-	Color    string          `json:"color"`
-	ID       *websocket.Conn `json:"id"`
-	Debounce float32         `json:"debounce"` // Don't need to send me to the clients
+	Position  Position        `json:"position"`
+	Velocity  Velocity        `json:"velocity"` // Don't need to send me to the clients
+	Color     string          `json:"color"`
+	ID        *websocket.Conn `json:"id"`
+	Debounce  float32         `json:"debounce"` // Don't need to send me to the clients
+	jDebounce float32         // Don't need to send me to the clients
 }
 
 // UpdatePosition Update Junk's position based on calculations of position/velocity
@@ -44,6 +46,12 @@ func (j *Junk) UpdatePosition(height float64, width float64) {
 		j.Debounce--
 	} else {
 		j.Debounce = 0
+	}
+
+	if j.jDebounce > 0 {
+		j.jDebounce--
+	} else {
+		j.jDebounce = 0
 	}
 }
 
@@ -67,6 +75,26 @@ func (j *Junk) HitBy(p *Player, ws *websocket.Conn) {
 
 		p.hitJunk()
 		j.Debounce = JunkDebounceTicks
+	} else {
+		//We don't want this collision till the debounce is down.
+	}
+}
+
+// HitJunk Update Junks's velocity based on calculations of being hit by another Junk
+func (j *Junk) HitJunk(jh *Junk) {
+	if j.jDebounce == 0 {
+		initalVelocity := j.Velocity
+
+		//Calculate this junks's new velocity
+		j.Velocity.Dx = (j.Velocity.Dx * -JunkVTransferFactor) + (jh.Velocity.Dx * JunkVTransferFactor)
+		j.Velocity.Dy = (j.Velocity.Dy * -JunkVTransferFactor) + (jh.Velocity.Dy * JunkVTransferFactor)
+
+		//Calculate other junk's new velocity
+		jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)
+		jh.Velocity.Dy = (jh.Velocity.Dy * -JunkVTransferFactor) + (initalVelocity.Dy * JunkVTransferFactor)
+
+		j.jDebounce = JunkDebounceTicks
+		jh.jDebounce = JunkDebounceTicks
 	} else {
 		//We don't want this collision till the debounce is down.
 	}

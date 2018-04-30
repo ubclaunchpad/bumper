@@ -7,12 +7,13 @@ import (
 
 // Hole related constants
 const (
-	MinHoleRadius = 15
-	MaxHoleRadius = 45
-	HzToSeconds   = 60
-	MinHoleLife   = 25 * HzToSeconds
-	MaxHoleLife   = 75 * HzToSeconds
-	HoleInfancy   = 2 * HzToSeconds
+	MinHoleRadius       = 15
+	MaxHoleRadius       = 45
+	gravityRadiusFactor = 5
+	HzToSeconds         = 60
+	MinHoleLife         = 25 * HzToSeconds
+	MaxHoleLife         = 75 * HzToSeconds
+	HoleInfancy         = 2 * HzToSeconds
 )
 
 // Hole contains the data for a hole's position and size
@@ -28,10 +29,11 @@ type Hole struct {
 // CreateHole initializes and returns an instance of a Hole
 func CreateHole(position Position) Hole {
 	life := math.Floor(rand.Float64()*((MaxHoleLife-MinHoleLife)+1)) + MinHoleLife
+	radius := math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius
 	return Hole{
 		Position:      position,
-		Radius:        math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius,
-		GravityRadius: MaxHoleRadius * 4,
+		Radius:        radius,
+		GravityRadius: radius * gravityRadiusFactor,
 		Life:          life,
 		Alive:         false,
 		StaringLife:   life,
@@ -47,6 +49,7 @@ func (h *Hole) Update() {
 	}
 	if h.Radius < MaxHoleRadius*1.2 {
 		h.Radius += 0.02
+		h.GravityRadius += 0.03
 	}
 }
 
@@ -56,5 +59,6 @@ func (h *Hole) StartNewLife(position Position) {
 	h.Life = math.Floor(rand.Float64()*((MaxHoleLife-MinHoleLife)+1)) + MinHoleLife
 	h.StaringLife = h.Life
 	h.Radius = math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius
+	h.GravityRadius = h.Radius * gravityRadiusFactor
 	h.Position = position
 }

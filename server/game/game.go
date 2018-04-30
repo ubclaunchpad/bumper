@@ -106,7 +106,7 @@ func (a *Arena) generateCoord(objectRadius float64) models.Position {
 
 func (a *Arena) isPositionValid(position models.Position) bool {
 	for _, hole := range a.Holes {
-		if areCirclesColliding(hole.Position, hole.Radius, position, MinDistanceBetween) {
+		if areCirclesColliding(hole.Position, hole.GravityRadius, position, MinDistanceBetween) {
 			return false
 		}
 	}
@@ -165,7 +165,7 @@ func (a *Arena) collisionHole() {
 					client.Close()
 					delete(a.Players, client)
 				} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
-					player.ApplyGravity(hole.Position)
+					player.ApplyGravity(hole)
 				}
 			}
 			for i, junk := range a.Junk {
@@ -179,6 +179,8 @@ func (a *Arena) collisionHole() {
 					a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
 					//create a new junk to hold the count steady
 					a.generateJunk()
+				} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
+					junk.ApplyGravity(hole)
 				}
 			}
 		}

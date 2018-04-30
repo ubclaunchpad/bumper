@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -19,6 +18,7 @@ const (
 	PlayerFriction         = 0.97
 	MaxVelocity            = 15
 	PointsPerJunk          = 100
+	gravityDamping         = 0.075
 )
 
 // Player contains data and state about a player's object
@@ -114,24 +114,27 @@ func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
 }
 
 // ApplyGravity applys a vector towards given position
-func (p *Player) ApplyGravity(pos Position) {
+func (p *Player) ApplyGravity(h *Hole) {
 	gravityVector := Velocity{0, 0}
-	if p.Position.X < pos.X {
-		gravityVector.Dx = pos.X - p.Position.X
+
+	if p.Position.X < h.Position.X {
+		gravityVector.Dx = h.Position.X - p.Position.X
 	} else {
-		gravityVector.Dx = pos.X - p.Position.X
+		gravityVector.Dx = h.Position.X - p.Position.X
 	}
 
-	if p.Position.Y < pos.Y {
-		gravityVector.Dy = pos.Y - p.Position.Y
+	if p.Position.Y < h.Position.Y {
+		gravityVector.Dy = h.Position.Y - p.Position.Y
 	} else {
-		gravityVector.Dy = pos.Y - p.Position.Y
+		gravityVector.Dy = h.Position.Y - p.Position.Y
 	}
 
-	fmt.Println(gravityVector)
+	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()
-	p.Position.X += gravityVector.Dx * 0.5
-	p.Position.Y += gravityVector.Dy * 0.5
+
+	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
+	p.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * gravityDamping
+	p.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * gravityDamping
 }
 
 // checkWalls check if the player is attempting to exit the walls, reverse they're direction

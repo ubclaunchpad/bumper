@@ -395,7 +395,7 @@ export default class App extends React.Component {
         {
           this.state.showGameOverModal &&
           <GameOverModal
-            data={this.state.gameOverData}
+            {...this.state.gameOverData}
             onRestart={() => this.setState({ showWelcomeModal: true, showGameOverModal: false })}
           />
         }

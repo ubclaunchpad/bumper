@@ -8,9 +8,9 @@ class GameOverModal extends React.Component {
         <div style={styles.modal}>
           <b>GAME OVER</b>
           <div>
-            <div><b>Time alive:</b> <span>{this.props.data.finalTime.getMinutes()}:{(this.props.data.finalTime.getSeconds() < 10 ? `0${this.props.data.finalTime.getSeconds()}` : this.props.data.finalTime.getSeconds())}</span></div>
-            <div><b>Points earned:</b> <span>{this.props.data.finalPoints}</span></div>
-            <div><b>Final ranking:</b> <span>{this.props.data.finalRanking}</span></div>
+            <div><b>Time alive:</b> <span>{this.props.finalTime.getMinutes()}:{(this.props.finalTime.getSeconds() < 10 ? `0${this.props.finalTime.getSeconds()}` : this.props.finalTime.getSeconds())}</span></div>
+            <div><b>Points earned:</b> <span>{this.props.finalPoints}</span></div>
+            <div><b>Final ranking:</b> <span>{this.props.finalRanking}</span></div>
           </div>
           <button style={styles.restartButton} onClick={() => this.props.onRestart()}>
             Restart game

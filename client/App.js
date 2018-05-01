@@ -45,12 +45,8 @@ export default class App extends React.Component {
   }
 
   openGameOverModal() {
-    let thisPlayer;
-    this.state.players.forEach((player) => {
-      if (player.color === this.state.playerID) {
-        thisPlayer = player;
-      }
-    });
+    const thisPlayer = this.state.players.find(p => p.color === this.state.playerID);
+
     this.setState({
       showGameOverModal: true,
       gameOverData: {
@@ -215,12 +211,9 @@ export default class App extends React.Component {
       return 0;
     });
 
-    rankedPlayers.forEach((player) => {
-      if (player.color === this.state.playerID) {
-        this.setState({
-          playerRank: rankedPlayers.indexOf(player) + 1,
-        });
-      }
+    const thisPlayer = rankedPlayers.find(p => p.color === this.state.playerID);
+    this.setState({
+      playerRank: rankedPlayers.indexOf(thisPlayer) + 1,
     });
 
     const ctx = this.canvas.getContext('2d');

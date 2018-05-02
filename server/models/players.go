@@ -19,6 +19,7 @@ const (
 	PlayerFriction         = 0.97
 	MaxVelocity            = 15
 	PointsPerJunk          = 100
+	gravityDamping         = 0.075
 )
 
 // Player contains data and state about a player's object
@@ -112,6 +113,30 @@ func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
 	ph.Position.Y += ph.Velocity.Dy
 
 	p.checkWalls(height, width)
+}
+
+// ApplyGravity applys a vector towards given position
+func (p *Player) ApplyGravity(h *Hole) {
+	gravityVector := Velocity{0, 0}
+
+	if p.Position.X < h.Position.X {
+		gravityVector.Dx = h.Position.X - p.Position.X
+	} else {
+		gravityVector.Dx = h.Position.X - p.Position.X
+	}
+
+	if p.Position.Y < h.Position.Y {
+		gravityVector.Dy = h.Position.Y - p.Position.Y
+	} else {
+		gravityVector.Dy = h.Position.Y - p.Position.Y
+	}
+
+	inverseMagnitude := 1.0 / gravityVector.magnitude()
+	gravityVector.normalize()
+
+	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
+	p.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * gravityDamping
+	p.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * gravityDamping
 }
 
 // checkWalls check if the player is attempting to exit the walls, reverse they're direction

@@ -201,7 +201,7 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	game.MessageChannel = make(chan models.Message)
 	game := Game{
-		Arena: game.CreateArena(800, 1000),
+		Arena: game.CreateArena(2400, 2800),
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))

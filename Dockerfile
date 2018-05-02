@@ -1,8 +1,9 @@
 # Build and minify React client
 FROM node:carbon AS client
 WORKDIR /client
-ADD client .
+ADD client/package.json .
 RUN npm install
+ADD client .
 RUN npm run build
 
 # Build server
@@ -25,5 +26,5 @@ COPY --from=client /client/public/ .
 WORKDIR /app
 COPY --from=server /app/server .
 
-EXPOSE 80
+EXPOSE 9090
 ENTRYPOINT ./server

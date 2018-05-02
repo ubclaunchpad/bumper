@@ -3,6 +3,6 @@ version: '3'
 services:
   bumper:
     build: .
-    network_mode: "host"
+    # network_mode: "host"
     ports:
-      - "80:80"
+      - "80:9090"

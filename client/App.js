@@ -60,7 +60,7 @@ export default class App extends React.Component {
   sendSubmitPlayerID(inputName) {
     console.log(window.WebSocket);
     if (window.WebSocket) {
-      this.socket = new WebSocket(address + '?name=' + inputName);
+      this.socket = new WebSocket(`${address}?name=${inputName}`);
       this.socket.onopen = () => {
         console.log('Connection with server open.');
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));

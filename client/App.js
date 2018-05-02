@@ -6,11 +6,6 @@ import WelcomeModal from './components/WelcomeModal';
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
-// Testing constants:
-const FINAL_TIME = 100;
-const FINAL_POINTS = 200;
-const FINAL_RANKING = 1;
-
 const address = process.env.NODE_ENV === 'production'
   ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com/connect'
   : 'ws://localhost:9090/connect';
@@ -29,6 +24,8 @@ export default class App extends React.Component {
       players: null,
       playerAbsolutePosition: null,
       playerID: null,
+      playerRank: 0,
+      timeStarted: null,
       arena: null,
     };
 
@@ -48,12 +45,18 @@ export default class App extends React.Component {
   }
 
   openGameOverModal() {
+    let thisPlayer;
+    this.state.players.forEach((player) => {
+      if (player.color === this.state.playerID) {
+        thisPlayer = player;
+      }
+    });
     this.setState({
       showGameOverModal: true,
       gameOverData: {
-        finalTime: FINAL_TIME,
-        finalPoints: FINAL_POINTS,
-        finalRanking: FINAL_RANKING,
+        finalTime: new Date((new Date() - this.state.timeStarted)),
+        finalPoints: thisPlayer ? thisPlayer.points : 0,
+        finalRanking: this.state.playerRank,
       },
     });
   }
@@ -111,6 +114,7 @@ export default class App extends React.Component {
     this.setState({
       arena: { width: data.arenawidth, height: data.arenaheight },
       playerID: data.playerid,
+      timeStarted: new Date(),
     });
   }
 
@@ -211,6 +215,14 @@ export default class App extends React.Component {
       return 0;
     });
 
+    rankedPlayers.forEach((player) => {
+      if (player.color === this.state.playerID) {
+        this.setState({
+          playerRank: rankedPlayers.indexOf(player) + 1,
+        });
+      }
+    });
+
     const ctx = this.canvas.getContext('2d');
     ctx.beginPath();
     const rectHeight = 130;
@@ -278,7 +290,7 @@ export default class App extends React.Component {
     this.state.junk.forEach((j) => {
       const ctx = this.canvas.getContext('2d');
       ctx.beginPath();
-      ctx.rect(j.position.x, j.position.y, JUNK_SIZE, JUNK_SIZE);
+      ctx.rect(j.position.x - (JUNK_SIZE / 2), j.position.y - (JUNK_SIZE / 2), JUNK_SIZE, JUNK_SIZE);
       ctx.fillStyle = j.color;
       ctx.fill();
       ctx.closePath();

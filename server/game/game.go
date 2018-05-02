@@ -71,6 +71,7 @@ func (a *Arena) UpdatePositions() {
 func (a *Arena) CollisionDetection() {
 	a.collisionPlayer()
 	a.collisionHole()
+	a.collisionJunk()
 }
 
 // AddPlayer adds a new player to the arena
@@ -106,7 +107,7 @@ func (a *Arena) generateCoord(objectRadius float64) models.Position {
 
 func (a *Arena) isPositionValid(position models.Position) bool {
 	for _, hole := range a.Holes {
-		if areCirclesColliding(hole.Position, hole.Radius, position, MinDistanceBetween) {
+		if areCirclesColliding(hole.Position, hole.GravityRadius, position, MinDistanceBetween) {
 			return false
 		}
 	}
@@ -164,6 +165,8 @@ func (a *Arena) collisionHole() {
 					// Also should award some points to the bumper... Not as straight forward as the junk
 					client.Close()
 					delete(a.Players, client)
+				} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
+					player.ApplyGravity(hole)
 				}
 			}
 			for i, junk := range a.Junk {
@@ -177,7 +180,25 @@ func (a *Arena) collisionHole() {
 					a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
 					//create a new junk to hold the count steady
 					a.generateJunk()
+				} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
+					junk.ApplyGravity(hole)
 				}
+			}
+		}
+	}
+}
+
+// Checks for junk on junk collisions
+func (a *Arena) collisionJunk() {
+	memo := make(map[*models.Junk]*models.Junk)
+	for _, junk := range a.Junk {
+		for _, junkHit := range a.Junk {
+			if junk == junkHit || memo[junkHit] == junk {
+				continue
+			}
+			if areCirclesColliding(junk.Position, models.JunkRadius, junkHit.Position, models.JunkRadius) {
+				memo[junkHit] = junk
+				junk.HitJunk(junkHit)
 			}
 		}
 	}

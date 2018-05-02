@@ -3,14 +3,17 @@ import React from 'react';
 // eslint-disable-next-line
 class GameOverModal extends React.Component {
   render() {
+    const minutes = this.props.finalTime.getMinutes();
+    const seconds = this.props.finalTime.getSeconds();
+    const timeString = `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
     return (
       <div style={styles.backdrop}>
         <div style={styles.modal}>
           <b>GAME OVER</b>
           <div>
-            <div><b>Time alive:</b> <span>{this.props.data.finalTime.getMinutes()}:{(this.props.data.finalTime.getSeconds() < 10 ? `0${this.props.data.finalTime.getSeconds()}` : this.props.data.finalTime.getSeconds())}</span></div>
-            <div><b>Points earned:</b> <span>{this.props.data.finalPoints}</span></div>
-            <div><b>Final ranking:</b> <span>{this.props.data.finalRanking}</span></div>
+            <div><b>Time alive:</b> <span>{timeString}</span></div>
+            <div><b>Points earned:</b> <span>{this.props.finalPoints}</span></div>
+            <div><b>Final ranking:</b> <span>{this.props.finalRanking}</span></div>
           </div>
           <button style={styles.restartButton} onClick={() => this.props.onRestart()}>
             Restart game

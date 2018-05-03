@@ -252,23 +252,23 @@ export default class App extends React.Component {
     this.state.holes.forEach((h) => {
       const ctx = this.canvas.getContext('2d');
       ctx.beginPath();
-      for(let i = 0; i < 720; i++) {
-        let angle = 0.1 * i;
-        let x = h.position.x + (1 + 1 * angle) * Math.cos(angle);
-        let y = h.position.y + (1 + 1 * angle) * Math.sin(angle);
+      for (let i = 0; i < 720; i += 1) {
+        const angle = 0.1 * i;
+        const x = h.position.x + (1 + 1 * angle) * Math.cos(angle);
+        const y = h.position.y + (1 + 1 * angle) * Math.sin(angle);
 
         // Find distance between the point (x, y) and the point (h.position.x, h.position.y)
-        let x1 = Math.abs(h.position.x - x);
-        let y1 = Math.abs(h.position.y - y);
-        let distance = Math.sqrt(Math.pow(x1,2)+Math.pow(y1,2));
+        const x1 = Math.abs(h.position.x - x);
+        const y1 = Math.abs(h.position.y - y);
+        const distance = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));
 
         // Only draw the line segment if it will correspond to a spiral with the correct radius
-        if(distance <= h.radius) { 
-          ctx.lineTo(x,y);
+        if (distance <= h.radius) {
+          ctx.lineTo(x, y);
         }
       }
       ctx.strokeStyle = 'white';
-      ctx.lineWidth=1;
+      ctx.lineWidth = 1;
       ctx.stroke();
       ctx.closePath();
     });
@@ -302,8 +302,8 @@ export default class App extends React.Component {
 
       const backLength = (PLAYER_RADIUS / 2);
 
-      // const wingTopX = x - ((PLAYER_RADIUS * sinAngle) / 2);
-      // const wingTopY = y - ((PLAYER_RADIUS * cosAngle) / 2);
+      const wingTopX = x - ((PLAYER_RADIUS * sinAngle) / 2);
+      const wingTopY = y - ((PLAYER_RADIUS * cosAngle) / 2);
 
       // TESTING
       // Circle
@@ -357,18 +357,18 @@ export default class App extends React.Component {
       ctx.fill();
       ctx.closePath();
 
-      // const wingTopRightX = wingTopX - (backLength * cosAngle);
-      // const wingTopRightY = wingTopY + (backLength * sinAngle);
-      // const wingBotRightX = backCenterX - (backLength * cosAngle);
-      // const wingBotRightY = backCenterY + (backLength * sinAngle);
+      const wingTopRightX = wingTopX - (backLength * cosAngle);
+      const wingTopRightY = wingTopY + (backLength * sinAngle);
+      const wingBotRightX = backCenterX - (backLength * cosAngle);
+      const wingBotRightY = backCenterY + (backLength * sinAngle);
       // TODO: Rocket Right Wing
-      // ctx.beginPath();
-      // ctx.moveTo(wingTopRightX, wingTopRightY);
-      // ctx.lineTo(wingBotRightX, wingBotRightY);
-      // ctx.strokeStyle = '#FFFFFF';
-      // ctx.strokeWidth = 5;
-      // ctx.stroke();
-      // ctx.closePath();
+      ctx.beginPath();
+      ctx.moveTo(wingTopRightX, wingTopRightY);
+      ctx.lineTo(wingBotRightX, wingBotRightY);
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
+      ctx.closePath();
       // TODO: Rocket Left Wing
       // TODO: Rocket Bottom piece
       // TODO: Rocket Window
@@ -444,8 +444,8 @@ export default class App extends React.Component {
         {
           this.state.showGameOverModal &&
           <GameOverModal
-          data={this.state.gameOverData}
-          onRestart={() => this.setState({ showWelcomeModal: true, showGameOverModal: false })}
+            data={this.state.gameOverData}
+            onRestart={() => this.setState({ showWelcomeModal: true, showGameOverModal: false })}
           />
         }
       </div>

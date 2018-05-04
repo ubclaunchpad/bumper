@@ -3,7 +3,7 @@ import React from 'react';
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
 
-const PLAYER_RADIUS = 25;
+const PLAYER_RADIUS = 100;
 const JUNK_SIZE = 15;
 
 // Testing constants:
@@ -302,16 +302,16 @@ export default class App extends React.Component {
 
       const backLength = (PLAYER_RADIUS / 2);
 
-      const wingTopX = x - ((PLAYER_RADIUS * sinAngle) / 2);
-      const wingTopY = y - ((PLAYER_RADIUS * cosAngle) / 2);
+      const wingTopX = x - ((PLAYER_RADIUS * sinAngle) / 3);
+      const wingTopY = y - ((PLAYER_RADIUS * cosAngle) / 3);
 
       // TESTING
       // Circle
-      // ctx.beginPath();
-      // ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
-      // ctx.fillStyle = '#FFFFFF';
-      // ctx.fill();
-      // ctx.closePath();
+      ctx.beginPath();
+      ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+      ctx.closePath();
 
       // TESTING
       // Center Line
@@ -357,19 +357,46 @@ export default class App extends React.Component {
       ctx.fill();
       ctx.closePath();
 
-      const wingTopRightX = wingTopX - (backLength * cosAngle);
-      const wingTopRightY = wingTopY + (backLength * sinAngle);
+      /*
+      Start drawing Rocket Wings, the top of the wing is drawn first, moving toward the base of the rocket and then
+      toward the outer part of the wing before going back toward the front side and closing at the top of the wing again.
+      */
+      const wingOuterTopX = x - ((PLAYER_RADIUS * sinAngle) / 4);
+      const wingOuterTopY = y - ((PLAYER_RADIUS * cosAngle) / 4);
+      const wingOuterBottomX = x - ((PLAYER_RADIUS * sinAngle) * 5 / 4);
+      const wingOuterBottomY = y - ((PLAYER_RADIUS * cosAngle) * 5 / 4);
+      // const wingTopX = x - ((PLAYER_RADIUS * sinAngle) / 3);
+      // const wingTopY = y - ((PLAYER_RADIUS * cosAngle) / 3);
+
+      const wingTopRightX = wingTopX - (PLAYER_RADIUS*7/10 * cosAngle); // 7/10 IS PROPORTION TINGS MANUALLY SET TO LOOK GOOD
+      const wingTopRightY = wingTopY + (PLAYER_RADIUS*7/10 * sinAngle);
       const wingBotRightX = backCenterX - (backLength * cosAngle);
       const wingBotRightY = backCenterY + (backLength * sinAngle);
+
+      
+
+      const wingTopLeftX = wingTopX + (PLAYER_RADIUS*7/10 * cosAngle);
+      const wingTopLeftY = wingTopY - (PLAYER_RADIUS*7/10 * sinAngle);
+      const wingBotLeftX = backCenterX + (backLength * cosAngle);
+      const wingBotLeftY = backCenterY - (backLength * sinAngle);
       // TODO: Rocket Right Wing
       ctx.beginPath();
       ctx.moveTo(wingTopRightX, wingTopRightY);
       ctx.lineTo(wingBotRightX, wingBotRightY);
-      ctx.strokeStyle = '#FFFFFF';
+      ctx.strokeStyle = '#FF0000';
       ctx.strokeWidth = 5;
       ctx.stroke();
       ctx.closePath();
+
       // TODO: Rocket Left Wing
+      ctx.beginPath();
+      ctx.moveTo(wingTopLeftX, wingTopLeftY);
+      ctx.lineTo(wingBotLeftX, wingBotLeftY);
+      ctx.strokeStyle = '#FF0000';
+      ctx.strokeWidth = 5;
+      ctx.stroke();
+      ctx.closePath();
+
       // TODO: Rocket Bottom piece
       // TODO: Rocket Window
     });

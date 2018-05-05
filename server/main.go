@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -177,7 +176,6 @@ func sendMessage(g *Game) {
 				delete(g.Arena.Players, ws)
 			}
 		case "death":
-			fmt.Println("GOT DEATH message in channel")
 			ws := msg.Data.(*websocket.Conn)
 			deathMsg := models.Message{
 				Type: "death",
@@ -193,7 +191,6 @@ func sendMessage(g *Game) {
 			}
 			delete(g.Arena.Players, ws)
 		}
-		fmt.Println(msg.Type)
 	}
 }
 

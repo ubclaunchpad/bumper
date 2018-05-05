@@ -58,11 +58,9 @@ export default class App extends React.Component {
   }
 
   sendSubmitPlayerID(inputName) {
-    console.log(window.WebSocket);
     if (window.WebSocket) {
       this.socket = new WebSocket(`${address}?name=${inputName}`);
       this.socket.onopen = () => {
-        console.log('Connection with server open.');
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
         this.sendSpawnMessage(inputName);
       };
@@ -105,20 +103,15 @@ export default class App extends React.Component {
   handleMessage(msg) {
     switch (msg.type) {
       case 'initial':
-        console.log('RECEIVED INITIAL MESSAGE from server');
         this.initializeArena(msg.data);
         break;
       case 'death':
-        console.log('RECEIVED DEATH MESSAGE from server');
         this.openGameOverModal();
         break;
       case 'update':
-        console.log('RECEIVED UPDATE MESSAGE from server');
-        console.log(msg);
         this.update(msg.data);
         break;
       default:
-        console.log(`unknown msg type ${msg.type}`);
         break;
     }
   }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"math"
 	"math/rand"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/ubclaunchpad/bumper/server/models"
@@ -17,6 +18,7 @@ const (
 )
 
 var lastID = 1
+var MessageChannel chan models.Message
 
 // Arena container for play area information including all objects
 type Arena struct {
@@ -77,12 +79,13 @@ func (a *Arena) CollisionDetection() {
 // AddPlayer adds a new player to the arena
 func (a *Arena) AddPlayer(ws *websocket.Conn) {
 	player := models.Player{
-		ID:       generateID(),
-		Position: a.generateCoord(models.PlayerRadius),
-		Velocity: models.Velocity{0, 0},
-		Color:    a.generateRandomColor(),
-		Angle:    math.Pi,
-		Controls: models.KeysPressed{false, false, false, false},
+		ID:         generateID(),
+		Position:   a.generateCoord(models.PlayerRadius),
+		Velocity:   models.Velocity{0, 0},
+		Color:      a.generateRandomColor(),
+		Angle:      math.Pi,
+		Controls:   models.KeysPressed{false, false, false, false},
+		SocketLock: &sync.Mutex{},
 	}
 	a.Players[ws] = &player
 }
@@ -163,12 +166,16 @@ func (a *Arena) collisionHole() {
 				if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
 					// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
 					// Also should award some points to the bumper... Not as straight forward as the junk
-					client.Close()
-					delete(a.Players, client)
+					deathMsg := models.Message{
+						Type: "death",
+						Data: client,
+					}
+					MessageChannel <- deathMsg
 				} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
 					player.ApplyGravity(hole)
 				}
 			}
+
 			for i, junk := range a.Junk {
 				if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
 					playerScored := a.Players[junk.ID]

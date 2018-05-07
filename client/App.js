@@ -295,45 +295,31 @@ export default class App extends React.Component {
       const ctx = this.canvas.getContext('2d');
       const { x, y } = p.position;
 
+      // Proportions
+      const proportionBackCenter = 3 / 4;
+      const proportionWingOuterTop = 4 / 7;
+      const proportionWingOuterBottom = 5 / 6;
+      const proportionWingOuterDistance = 4 / 5;
+      const proportionWingTopInnerDistance = 7 / 10;
       // Constants
       const sinAngle = Math.sin(p.angle);
       const cosAngle = Math.cos(p.angle);
-
-      // const frontCenterX = x + (PLAYER_RADIUS * sinAngle);
-      // const frontCenterY = y + (PLAYER_RADIUS * cosAngle);
-
-      const backCenterX = x - ((PLAYER_RADIUS * sinAngle) / 4 * 3);
-      const backCenterY = y - ((PLAYER_RADIUS * cosAngle) / 4 * 3);
-
+      const playerRadiusSinAngle = PLAYER_RADIUS * sinAngle;
+      const playerRadiusCosAngle = PLAYER_RADIUS * cosAngle;
+      const backCenterX = x - (playerRadiusSinAngle * proportionBackCenter); // determines location of the base of the rocket
+      const backCenterY = y - (playerRadiusCosAngle * proportionBackCenter);
       const backLength = (PLAYER_RADIUS / 2);
-
-      const wingTopX = x - ((PLAYER_RADIUS * sinAngle) / 3);
-      const wingTopY = y - ((PLAYER_RADIUS * cosAngle) / 3);
-
-      // TESTING
-      // Circle
-      // ctx.beginPath();
-      // ctx.arc(x, y, PLAYER_RADIUS, 0, Math.PI * 2);
-      // ctx.fillStyle = '#FFFFFF';
-      // ctx.fill();
-      // ctx.closePath();
-
-      // TESTING
-      // Center Line
-      // ctx.beginPath();
-      // ctx.moveTo(frontCenterX, frontCenterY);
-      // ctx.lineTo(x - (PLAYER_RADIUS * sinAngle), y - (PLAYER_RADIUS * cosAngle));
-      // ctx.strokeStyle = '#FFFFFF';
-      // ctx.strokeWidth = 5;
-      // ctx.stroke();
-
+      const backLengthSinAngle = backLength * sinAngle;
+      const backLengthCosAngle = backLength * cosAngle;
+      const wingTopX = x - (playerRadiusSinAngle / 3); // determines location of the top of the wing
+      const wingTopY = y - (playerRadiusCosAngle / 3);
       /*
       Start drawing Rocket Chassis, starts from bottom right to the bottom left,
       draw toward the rocket tip then back to the bottom right to complete the shape and fill
       */
       // Coordinates of the Rocket Tip
-      const rocketTipX = x + (PLAYER_RADIUS * sinAngle * 1.2);
-      const rocketTipY = y + (PLAYER_RADIUS * cosAngle * 1.2);
+      const rocketTipX = x + (playerRadiusSinAngle * 1.2);
+      const rocketTipY = y + (playerRadiusCosAngle * 1.2);
       // Control Points for Bezier Curve from/toward the Rocket Tip
       const rocketTipModifierRightX = x + (PLAYER_RADIUS * Math.sin(p.angle - Math.PI / 4));
       const rocketTipModifierRightY = y + (PLAYER_RADIUS * Math.cos(p.angle - Math.PI / 4));
@@ -346,68 +332,58 @@ export default class App extends React.Component {
       const leftCenterX = x + (PLAYER_RADIUS * Math.sin(p.angle + Math.PI / 2));
       const leftCenterY = y + (PLAYER_RADIUS * Math.cos(p.angle + Math.PI / 2));
       // Base Coordinates
-      const rocketBottomRightX = backCenterX - (backLength * cosAngle);
-      const rocketBottomRightY = backCenterY + (backLength * sinAngle);
-      const rocketBottomLeftX = backCenterX + (backLength * cosAngle);
-      const rocketBottomLeftY = backCenterY - (backLength * sinAngle);
-      // Rocket Base
+      const rocketBottomRightX = backCenterX - backLengthCosAngle;
+      const rocketBottomRightY = backCenterY + backLengthSinAngle;
+      const rocketBottomLeftX = backCenterX + backLengthCosAngle;
+      const rocketBottomLeftY = backCenterY - backLengthSinAngle;
+      // Draw Rocket Bottom
       ctx.beginPath();
       ctx.moveTo(rocketBottomRightX, rocketBottomRightY); // bottom right side
       ctx.lineTo(rocketBottomLeftX, rocketBottomLeftY); // bottom left side
-      // Left Side
+      // Draw Left Side
       ctx.bezierCurveTo(leftCenterX, leftCenterY, rocketTipModifierLeftX, rocketTipModifierLeftY, rocketTipX, rocketTipY); // chassis left side
-      // Right Side
+      // Draw Right Side
       ctx.bezierCurveTo(rocketTipModifierRightX, rocketTipModifierRightY, rightCenterX, rightCenterY, rocketBottomRightX, rocketBottomRightY); // chassis right side
       ctx.fillStyle = p.color;
       ctx.fill();
       ctx.closePath();
-
       /*
       Start drawing Rocket Wings, the top of the wing is drawn first, moving toward the base of the rocket and then
       toward the outer part of the wing before going back toward the front side and closing at the top of the wing again.
       */
-
       // Helper points along the vertical axis of the player model.
-      const wingOuterTopX = x - ((PLAYER_RADIUS * sinAngle) * 4 / 7);
-      const wingOuterTopY = y - ((PLAYER_RADIUS * cosAngle) * 4 / 7);
-      const wingOuterBottomX = x - ((PLAYER_RADIUS * sinAngle) * 5 / 6);
-      const wingOuterBottomY = y - ((PLAYER_RADIUS * cosAngle) * 5 / 6);
-
+      const wingOuterTopX = x - (playerRadiusSinAngle * proportionWingOuterTop); // Point that sets the height level of the top outer part of the wings
+      const wingOuterTopY = y - (playerRadiusCosAngle * proportionWingOuterTop);
+      const wingOuterBottomX = x - (playerRadiusSinAngle * proportionWingOuterBottom);// Point that sets the height level of the bottom outer part of the wings
+      const wingOuterBottomY = y - (playerRadiusCosAngle * proportionWingOuterBottom);
       // Exact points for the right side of the wing
-      const wingTopRightX = wingTopX - (PLAYER_RADIUS * 7 / 10 * cosAngle); // 7/10 IS PROPORTION TINGS MANUALLY SET TO LOOK GOOD
-      const wingTopRightY = wingTopY + (PLAYER_RADIUS * 7 / 10 * sinAngle);
-      const wingBotRightX = backCenterX - (backLength * cosAngle);
-      const wingBotRightY = backCenterY + (backLength * sinAngle);
-
-      const wingOuterTopRightX = wingOuterTopX - (PLAYER_RADIUS * cosAngle * 4 / 5);
-      const wingOuterTopRightY = wingOuterTopY + (PLAYER_RADIUS * sinAngle * 4 / 5);
-      const wingOuterBottomRightX = wingOuterBottomX - (PLAYER_RADIUS * cosAngle * 4 / 5);
-      const wingOuterBottomRightY = wingOuterBottomY + (PLAYER_RADIUS * sinAngle * 4 / 5);
-
+      const wingTopRightX = wingTopX - (playerRadiusCosAngle * proportionWingTopInnerDistance); // inner top right corner
+      const wingTopRightY = wingTopY + (playerRadiusSinAngle * proportionWingTopInnerDistance);
+      const wingBotRightX = rocketBottomRightX; // inner bottom right corner
+      const wingBotRightY = rocketBottomRightY;
+      const wingOuterTopRightX = wingOuterTopX - (playerRadiusCosAngle * proportionWingOuterDistance); // outer top right corner
+      const wingOuterTopRightY = wingOuterTopY + (playerRadiusSinAngle * proportionWingOuterDistance);
+      const wingOuterBottomRightX = wingOuterBottomX - (playerRadiusCosAngle * proportionWingOuterDistance); // outer bottom right corner
+      const wingOuterBottomRightY = wingOuterBottomY + (playerRadiusSinAngle * proportionWingOuterDistance);
       // Exact points for the left side of the wing
-      const wingTopLeftX = wingTopX + (PLAYER_RADIUS * 7 / 10 * cosAngle);
-      const wingTopLeftY = wingTopY - (PLAYER_RADIUS * 7 / 10 * sinAngle);
-      const wingBotLeftX = backCenterX + (backLength * cosAngle);
-      const wingBotLeftY = backCenterY - (backLength * sinAngle);
-
-      const wingOuterTopLeftX = wingOuterTopX + (PLAYER_RADIUS * cosAngle * 4 / 5);
-      const wingOuterTopLeftY = wingOuterTopY - (PLAYER_RADIUS * sinAngle * 4 / 5);
-      const wingOuterBottomLeftX = wingOuterBottomX + (PLAYER_RADIUS * cosAngle * 4 / 5);
-      const wingOuterBottomLeftY = wingOuterBottomY - (PLAYER_RADIUS * sinAngle * 4 / 5);
-      // Rocket Right Wing
+      const wingTopLeftX = wingTopX + (playerRadiusCosAngle * proportionWingTopInnerDistance); // inner top left corner
+      const wingTopLeftY = wingTopY - (playerRadiusSinAngle * proportionWingTopInnerDistance);
+      const wingBotLeftX = rocketBottomLeftX; // inner bottom left corner
+      const wingBotLeftY = rocketBottomLeftY;
+      const wingOuterTopLeftX = wingOuterTopX + (playerRadiusCosAngle * proportionWingOuterDistance); // outer top left corner
+      const wingOuterTopLeftY = wingOuterTopY - (playerRadiusSinAngle * proportionWingOuterDistance);
+      const wingOuterBottomLeftX = wingOuterBottomX + (playerRadiusCosAngle * proportionWingOuterDistance); // outer bottom left corner
+      const wingOuterBottomLeftY = wingOuterBottomY - (playerRadiusSinAngle * proportionWingOuterDistance);
+      // Draw Rocket Right Wing
       ctx.beginPath();
       ctx.moveTo(wingTopRightX, wingTopRightY);
       ctx.lineTo(wingBotRightX, wingBotRightY);
       ctx.lineTo(wingOuterBottomRightX, wingOuterBottomRightY);
       ctx.lineTo(wingOuterTopRightX, wingOuterTopRightY);
-      // ctx.strokeStyle = '#FF0000';
-      // ctx.strokeWidth = 5;
-      // ctx.stroke();
       ctx.fillStyle = p.color;
       ctx.fill();
       ctx.closePath();
-
-      // Rocket Left Wing
+      // Draw Rocket Left Wing
       ctx.beginPath();
       ctx.moveTo(wingTopLeftX, wingTopLeftY);
       ctx.lineTo(wingBotLeftX, wingBotLeftY);

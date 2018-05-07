@@ -59,22 +59,30 @@ export default class App extends React.Component {
 
   sendSubmitPlayerID(inputName) {
     if (window.WebSocket) {
-      this.socket = new WebSocket(address + "?name=" + inputName);
+      this.socket = new WebSocket(`${address}?name=${inputName}`);
       this.socket.onopen = () => {
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
+        this.sendSpawnMessage(inputName);
       };
-      this.socket.onclose = () => {
-        this.openGameOverModal();
-      }
-    } else {
-      console.log('websocket not available');
-      return;
     }
-
     this.setState({
       showWelcomeModal: false,
       playerName: inputName,
     }); //  Close Modal
+  }
+
+  sendSpawnMessage(inputName) {
+    const spawnMessage = {
+      name: inputName,
+    };
+    const message = {
+      type: 'spawn',
+      data: JSON.stringify(spawnMessage),
+    };
+
+    if (this.socket.readyState === 1) {
+      this.socket.send(JSON.stringify(message));
+    }
   }
 
   sendKeyPress(keyPressed, isPressed) {
@@ -97,11 +105,13 @@ export default class App extends React.Component {
       case 'initial':
         this.initializeArena(msg.data);
         break;
+      case 'death':
+        this.openGameOverModal();
+        break;
       case 'update':
         this.update(msg.data);
         break;
       default:
-        console.log(`unknown msg type ${msg.type}`);
         break;
     }
   }

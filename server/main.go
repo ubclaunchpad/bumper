@@ -17,16 +17,15 @@ type Game struct {
 	Arena *game.Arena
 }
 
-// Message is the schema for client/server communication
-type Message struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
-}
-
 // KeyHandler is the schema for client/server key handling communication
 type KeyHandler struct {
 	Key     int  `json:"key"`
 	Pressed bool `json:"pressed"`
+} //TODO move to player?
+
+// SpawnHandler is the schema for client/server key handling communication
+type SpawnHandler struct {
+	Name string `json:"name"`
 } //TODO move to player?
 
 var upgrader = websocket.Upgrader{
@@ -49,36 +48,30 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	name := r.URL.Query().Get("name")
-	g.Arena.AddPlayer(ws)
-	g.Arena.Players[ws].Name = name
-
-	initalMsg := Message{
-		Type: "initial",
-		Data: struct {
-			ArenaWidth  float64 `json:"arenawidth"`
-			ArenaHeight float64 `json:"arenaheight"`
-			PlayerID    string  `json:"playerid"`
-		}{
-			g.Arena.Width,
-			g.Arena.Height,
-			g.Arena.Players[ws].Color,
-		},
-	}
-	error := ws.WriteJSON(&initalMsg)
-	if error != nil {
-		log.Printf("error: %v", error)
-		ws.Close()
-		delete(g.Arena.Players, ws)
-	}
-
 	for {
-		var msg Message
+		var msg models.Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("error: %v", err)
 			delete(g.Arena.Players, ws)
 			break
+		}
+		if msg.Type == "spawn" {
+			var spawn SpawnHandler
+			err = json.Unmarshal([]byte(msg.Data.(string)), &spawn)
+			if err != nil {
+				log.Printf("error: %v", err)
+				continue
+			}
+			name := spawn.Name
+			g.Arena.AddPlayer(ws)
+			g.Arena.Players[ws].Name = name
+
+			msg := models.Message{
+				"initial",
+				ws,
+			}
+			game.MessageChannel <- msg
 		}
 
 		if msg.Type == "keyHandler" {
@@ -88,13 +81,15 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				log.Printf("error: %v", err)
 				continue
 			}
-
-			if kh.Pressed == true {
-				g.Arena.Players[ws].KeyDownHandler(kh.Key)
-			} else {
-				g.Arena.Players[ws].KeyUpHandler(kh.Key)
+			if _, ok := g.Arena.Players[ws]; ok {
+				if kh.Pressed == true {
+					g.Arena.Players[ws].KeyDownHandler(kh.Key)
+				} else {
+					g.Arena.Players[ws].KeyUpHandler(kh.Key)
+				}
 			}
 		}
+
 	}
 }
 
@@ -125,7 +120,7 @@ func tick(g *Game) {
 			players = append(players, *player)
 		}
 
-		msg := Message{
+		msg := models.Message{
 			Type: "update",
 			Data: struct {
 				Holes   []models.Hole   `json:"holes"`
@@ -140,8 +135,10 @@ func tick(g *Game) {
 
 		// update every client
 		for client := range g.Arena.Players {
-
+			p := g.Arena.Players[client]
+			p.SocketLock.Lock()
 			err := client.WriteJSON(&msg)
+			p.SocketLock.Unlock()
 			if err != nil {
 				log.Printf("error: %v", err)
 				client.Close()
@@ -151,14 +148,62 @@ func tick(g *Game) {
 	}
 }
 
+func sendMessage(g *Game) {
+	for {
+		msg := <-game.MessageChannel
+
+		switch msg.Type {
+		case "initial":
+			ws := msg.Data.(*websocket.Conn)
+			initalMsg := models.Message{
+				Type: "initial",
+				Data: struct {
+					ArenaWidth  float64 `json:"arenawidth"`
+					ArenaHeight float64 `json:"arenaheight"`
+					PlayerID    string  `json:"playerid"`
+				}{
+					g.Arena.Width,
+					g.Arena.Height,
+					g.Arena.Players[ws].Color,
+				},
+			}
+			g.Arena.Players[ws].SocketLock.Lock()
+			error := ws.WriteJSON(&initalMsg)
+			g.Arena.Players[ws].SocketLock.Unlock()
+			if error != nil {
+				log.Printf("error: %v", error)
+				ws.Close()
+				delete(g.Arena.Players, ws)
+			}
+		case "death":
+			ws := msg.Data.(*websocket.Conn)
+			deathMsg := models.Message{
+				Type: "death",
+				Data: nil,
+			}
+			g.Arena.Players[ws].SocketLock.Lock()
+			error := ws.WriteJSON(&deathMsg)
+			g.Arena.Players[ws].SocketLock.Unlock()
+			if error != nil {
+				log.Printf("error: %v", error)
+				ws.Close()
+				delete(g.Arena.Players, ws)
+			}
+			delete(g.Arena.Players, ws)
+		}
+	}
+}
+
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
+	game.MessageChannel = make(chan models.Message)
 	game := Game{
 		Arena: game.CreateArena(2400, 2800),
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.Handle("/connect", &game)
+	go sendMessage(&game)
 	go run(&game)
 	go tick(&game)
 

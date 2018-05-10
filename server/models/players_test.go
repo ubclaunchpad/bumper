@@ -6,7 +6,7 @@ func TestAddPoints(t *testing.T) {
 	p := new(Player)
 
 	p.AddPoints(10)
-	if p.Points != 10 {
-		t.Error("Error adding points")
-	}
+	// if p.Points != 10 {
+	t.Error("Error adding points")
+	// }
 }

@@ -14,5 +14,5 @@ before_install:
   - dep ensure
 
 script: 
-  - go test -race ./...
+  - go test -race -coverprofile=coverage.out ./...
   - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken "$COVERALLS_TOKEN"

@@ -168,35 +168,37 @@ func (a *Arena) playerCollisions() {
 
 func (a *Arena) holeCollisions() {
 	for _, hole := range a.Holes {
-		if hole.IsAlive {
-			for client, player := range a.Players {
-				if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-					// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
-					// Also should award some points to the bumper... Not as straight forward as the junk
-					deathMsg := models.Message{
-						Type: "death",
-						Data: client,
-					}
-					MessageChannel <- deathMsg
-				} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
-					player.ApplyGravity(hole)
+		if !hole.IsAlive {
+			continue
+		}
+
+		for client, player := range a.Players {
+			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
+				// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
+				// Also should award some points to the bumper... Not as straight forward as the junk
+				deathMsg := models.Message{
+					Type: "death",
+					Data: client,
 				}
+				MessageChannel <- deathMsg
+			} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
+				player.ApplyGravity(hole)
 			}
+		}
 
-			for i, junk := range a.Junk {
-				if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
-					playerScored := a.Players[junk.ID]
-					if playerScored != nil {
-						playerScored.AddPoints(models.PointsPerJunk)
-					}
-
-					// remove that junk from the junk
-					a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
-					//create a new junk to hold the count steady
-					a.generateJunk()
-				} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
-					junk.ApplyGravity(hole)
+		for i, junk := range a.Junk {
+			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
+				playerScored := a.Players[junk.ID]
+				if playerScored != nil {
+					playerScored.AddPoints(models.PointsPerJunk)
 				}
+
+				// remove that junk from the junk
+				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
+				//create a new junk to hold the count steady
+				a.generateJunk()
+			} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
+				junk.ApplyGravity(hole)
 			}
 		}
 	}

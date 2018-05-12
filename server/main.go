@@ -146,10 +146,10 @@ func messageEmitter(g *Game) {
 			}
 
 			g.Arena.Players[ws].Mutex.Lock()
-			error := ws.WriteJSON(&initalMsg)
+			err := ws.WriteJSON(&initalMsg)
 			g.Arena.Players[ws].Mutex.Unlock()
-			if error != nil {
-				log.Printf("error: %v", error)
+			if err != nil {
+				log.Printf("error: %v", err)
 				ws.Close()
 				delete(g.Arena.Players, ws)
 			}

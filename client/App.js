@@ -109,6 +109,7 @@ export default class App extends React.Component {
         this.openGameOverModal();
         break;
       case 'update':
+        console.log(msg.data);
         this.update(msg.data);
         break;
       default:
@@ -282,8 +283,8 @@ export default class App extends React.Component {
           ctx.lineTo(x, y);
         }
       }
-      ctx.strokeStyle = h.islive ? 'white' : 'rgba(255, 255, 255, 0.5)';
-      ctx.lineWidth=1;
+      ctx.strokeStyle = h.isAlive ? 'white' : 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 1;
       ctx.stroke();
       ctx.closePath();
     });

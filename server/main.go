@@ -17,17 +17,6 @@ type Game struct {
 	Arena *game.Arena
 }
 
-// KeyHandler is the schema for client/server key handling communication
-type KeyHandler struct {
-	Key     int  `json:"key"`
-	Pressed bool `json:"pressed"`
-} //TODO move to player?
-
-// SpawnHandler is the schema for client/server key handling communication
-type SpawnHandler struct {
-	Name string `json:"name"`
-} //TODO move to player?
-
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		log.Printf("Accepting client from remote address %v\n", r.RemoteAddr)
@@ -57,7 +46,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if msg.Type == "spawn" {
-			var spawn SpawnHandler
+			var spawn models.SpawnHandlerMessage
 			err = json.Unmarshal([]byte(msg.Data.(string)), &spawn)
 			if err != nil {
 				log.Printf("error: %v", err)
@@ -75,14 +64,14 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if msg.Type == "keyHandler" {
-			var kh KeyHandler
+			var kh models.KeyHandlerMessage
 			err = json.Unmarshal([]byte(msg.Data.(string)), &kh)
 			if err != nil {
 				log.Printf("error: %v", err)
 				continue
 			}
 			if _, ok := g.Arena.Players[ws]; ok {
-				if kh.Pressed == true {
+				if kh.IsPressed == true {
 					g.Arena.Players[ws].KeyDownHandler(kh.Key)
 				} else {
 					g.Arena.Players[ws].KeyUpHandler(kh.Key)
@@ -138,7 +127,7 @@ func tick(g *Game) {
 	}
 }
 
-func sendMessage(g *Game) {
+func messageEmitter(g *Game) {
 	for {
 		msg := <-game.MessageChannel
 
@@ -147,16 +136,13 @@ func sendMessage(g *Game) {
 			ws := msg.Data.(*websocket.Conn)
 			initalMsg := models.Message{
 				Type: "initial",
-				Data: struct {
-					ArenaWidth  float64 `json:"arenawidth"`
-					ArenaHeight float64 `json:"arenaheight"`
-					PlayerID    string  `json:"playerid"`
-				}{
+				Data: models.ConnectionMessage{
 					g.Arena.Width,
 					g.Arena.Height,
 					g.Arena.Players[ws].Color,
 				},
 			}
+
 			g.Arena.Players[ws].Mutex.Lock()
 			error := ws.WriteJSON(&initalMsg)
 			g.Arena.Players[ws].Mutex.Unlock()
@@ -193,7 +179,7 @@ func main() {
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.Handle("/connect", &game)
-	go sendMessage(&game)
+	go messageEmitter(&game)
 	go run(&game)
 	go tick(&game)
 

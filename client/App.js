@@ -85,10 +85,10 @@ export default class App extends React.Component {
     }
   }
 
-  sendKeyPress(keyPressed, isPressed) {
+  sendKeyPress(key, isPressed) {
     const pressMessage = {
-      key: keyPressed,
-      pressed: isPressed,
+      key,
+      isPressed,
     };
     const message = {
       type: 'keyHandler',
@@ -118,8 +118,8 @@ export default class App extends React.Component {
 
   initializeArena(data) {
     this.setState({
-      arena: { width: data.arenawidth, height: data.arenaheight },
-      playerID: data.playerid,
+      arena: { width: data.arenaWidth, height: data.arenaHeight },
+      playerID: data.playerID,
       timeStarted: new Date(),
     });
   }

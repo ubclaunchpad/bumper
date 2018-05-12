@@ -4,12 +4,6 @@ import (
 	"math"
 )
 
-// Message is the schema for client/server communication
-type Message struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
-}
-
 // Position x y position
 type Position struct {
 	X float64 `json:"x"`

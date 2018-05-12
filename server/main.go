@@ -178,7 +178,7 @@ func messageEmitter(g *Game) {
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	MessageChannel = make(chan models.Message)
+	MessageChannel = make(chan models.Message, 50)
 
 	arena.MessageChannel = MessageChannel
 	game := Game{

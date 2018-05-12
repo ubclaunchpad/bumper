@@ -2,6 +2,7 @@ package game
 
 import (
 	"bytes"
+	"errors"
 	"math"
 	"math/rand"
 	"sync"
@@ -77,17 +78,24 @@ func (a *Arena) CollisionDetection() {
 }
 
 // AddPlayer adds a new player to the arena
-func (a *Arena) AddPlayer(ws *websocket.Conn) {
+func (a *Arena) AddPlayer(ws *websocket.Conn) error {
+	color, err := a.generateRandomColor()
+	if err != nil {
+		return err
+	}
+
 	player := models.Player{
 		ID:       generateID(),
 		Position: a.generateCoordinate(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
-		Color:    a.generateRandomColor(),
+		Color:    color,
 		Angle:    math.Pi,
 		Controls: models.KeysPressed{false, false, false, false},
 		Mutex:    &sync.Mutex{},
 	}
 	a.Players[ws] = &player
+
+	return nil
 }
 
 // generateCoordinate creates a position coordinate
@@ -212,27 +220,35 @@ func (a *Arena) junkCollisions() {
 }
 
 // generate random hex value
-func (a *Arena) generateRandomColor() string {
-	found := false
-	color := ""
+func (a *Arena) generateRandomColor() (string, error) {
+	letterSet := [13]string{"3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
+	colorSet := make(map[string]bool)
+	for _, player := range a.Players {
+		colorSet[player.Color] = true
+	}
 
-	for !found {
-		letters := [13]string{"3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
+	var (
+		color   string
+		timeout int
+	)
+	for {
 		var buffer bytes.Buffer
 		buffer.WriteString("#")
 		for i := 0; i < 6; i++ {
-			c := letters[rand.Intn(12)]
+			c := letterSet[rand.Intn(12)]
 			buffer.WriteString(c)
 		}
 		color = buffer.String()
-		for _, p := range a.Players {
-			if p.Color == color {
-				break
-			}
+
+		if !colorSet[color] {
+			return color, nil
 		}
-		found = true
+
+		timeout++
+		if timeout == 5 {
+			return "", errors.New("Cannot generate unique random color")
+		}
 	}
-	return color
 }
 
 // TODO generate player id check whether any current players have this id

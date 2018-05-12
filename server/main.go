@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/ubclaunchpad/bumper/server/game"
+	"github.com/ubclaunchpad/bumper/server/arena"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
 // Game represents a session
 type Game struct {
-	Arena       *game.Arena
+	Arena       *arena.Arena
 	RefreshRate time.Duration
 }
 
@@ -180,9 +180,9 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	MessageChannel = make(chan models.Message)
 
-	game.MessageChannel = MessageChannel
+	arena.MessageChannel = MessageChannel
 	game := Game{
-		Arena:       game.CreateArena(2400, 2800),
+		Arena:       arena.CreateArena(2400, 2800),
 		RefreshRate: time.Millisecond * 17, // 60 Hz
 	}
 

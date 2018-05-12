@@ -1,4 +1,4 @@
-package game
+package arena
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ const (
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
-// MessageChannel is used by the server to emit messages to a client (global from Main)
+// MessageChannel is used by the server to emit messages to a client (injected global from Main)
 var MessageChannel chan models.Message
 
 // Arena container for play area information including all objects

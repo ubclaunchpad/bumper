@@ -105,16 +105,6 @@ func tick(g *Game) {
 	for {
 		time.Sleep(time.Millisecond * 17) // 60 Hz
 
-		junks := make([]models.Junk, 0)
-		for _, junk := range g.Arena.Junk {
-			junks = append(junks, *junk)
-		}
-
-		holes := make([]models.Hole, 0)
-		for _, hole := range g.Arena.Holes {
-			holes = append(holes, *hole)
-		}
-
 		players := make([]models.Player, 0)
 		for _, player := range g.Arena.Players {
 			players = append(players, *player)
@@ -123,12 +113,12 @@ func tick(g *Game) {
 		msg := models.Message{
 			Type: "update",
 			Data: struct {
-				Holes   []models.Hole   `json:"holes"`
-				Junk    []models.Junk   `json:"junk"`
+				Holes   []*models.Hole  `json:"holes"`
+				Junk    []*models.Junk  `json:"junk"`
 				Players []models.Player `json:"players"`
 			}{
-				holes,
-				junks,
+				g.Arena.Holes,
+				g.Arena.Junk,
 				players,
 			},
 		}

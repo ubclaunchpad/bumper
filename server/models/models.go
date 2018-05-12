@@ -27,7 +27,7 @@ func (v *Velocity) magnitude() float64 {
 }
 
 func (v *Velocity) normalize() {
-	var mag = v.magnitude()
+	mag := v.magnitude()
 	if mag > 0 {
 		v.Dx /= mag
 		v.Dy /= mag

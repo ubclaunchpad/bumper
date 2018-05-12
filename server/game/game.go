@@ -71,9 +71,9 @@ func (a *Arena) UpdatePositions() {
 
 // CollisionDetection loops through players and holes and determines if a collision has occurred
 func (a *Arena) CollisionDetection() {
-	a.collisionPlayer()
-	a.collisionHole()
-	a.collisionJunk()
+	a.playerCollisions()
+	a.holeCollisions()
+	a.junkCollisions()
 }
 
 // AddPlayer adds a new player to the arena
@@ -139,7 +139,7 @@ collisionPlayer checks for collisions between players to junk, holes, and other 
 Duplicate calculations are kept track of using the memo map to store collisions detected
 between player-to-player.
 */
-func (a *Arena) collisionPlayer() {
+func (a *Arena) playerCollisions() {
 	memo := make(map[*models.Player]*models.Player)
 	for ws, player := range a.Players {
 		for _, playerHit := range a.Players {
@@ -159,7 +159,7 @@ func (a *Arena) collisionPlayer() {
 	}
 }
 
-func (a *Arena) collisionHole() {
+func (a *Arena) holeCollisions() {
 	for _, hole := range a.Holes {
 		if hole.Alive {
 			for client, player := range a.Players {
@@ -196,7 +196,7 @@ func (a *Arena) collisionHole() {
 }
 
 // Checks for junk on junk collisions
-func (a *Arena) collisionJunk() {
+func (a *Arena) junkCollisions() {
 	memo := make(map[*models.Junk]*models.Junk)
 	for _, junk := range a.Junk {
 		for _, junkHit := range a.Junk {

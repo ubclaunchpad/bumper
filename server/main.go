@@ -89,15 +89,16 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func run(g *Game) {
 	for {
+		time.Sleep(g.RefreshRate)
+
 		g.Arena.UpdatePositions()
 		g.Arena.CollisionDetection()
-		time.Sleep(g.RefreshRate)
 	}
 }
 
 func tick(g *Game) {
 	for {
-		time.Sleep(g.RefreshRate) // 60 Hz
+		time.Sleep(g.RefreshRate)
 
 		players := make([]models.Player, 0)
 		for _, player := range g.Arena.Players {

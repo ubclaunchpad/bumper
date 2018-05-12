@@ -126,9 +126,9 @@ func tick(g *Game) {
 		// update every client
 		for client := range g.Arena.Players {
 			p := g.Arena.Players[client]
-			p.SocketLock.Lock()
+			p.Mutex.Lock()
 			err := client.WriteJSON(&msg)
-			p.SocketLock.Unlock()
+			p.Mutex.Unlock()
 			if err != nil {
 				log.Printf("error: %v", err)
 				client.Close()
@@ -157,9 +157,9 @@ func sendMessage(g *Game) {
 					g.Arena.Players[ws].Color,
 				},
 			}
-			g.Arena.Players[ws].SocketLock.Lock()
+			g.Arena.Players[ws].Mutex.Lock()
 			error := ws.WriteJSON(&initalMsg)
-			g.Arena.Players[ws].SocketLock.Unlock()
+			g.Arena.Players[ws].Mutex.Unlock()
 			if error != nil {
 				log.Printf("error: %v", error)
 				ws.Close()
@@ -171,9 +171,9 @@ func sendMessage(g *Game) {
 				Type: "death",
 				Data: nil,
 			}
-			g.Arena.Players[ws].SocketLock.Lock()
+			g.Arena.Players[ws].Mutex.Lock()
 			error := ws.WriteJSON(&deathMsg)
-			g.Arena.Players[ws].SocketLock.Unlock()
+			g.Arena.Players[ws].Mutex.Unlock()
 			if error != nil {
 				log.Printf("error: %v", error)
 				ws.Close()

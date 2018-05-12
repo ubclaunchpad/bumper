@@ -48,7 +48,7 @@ func (p *Player) AddPoints(numPoints int) {
 	p.Points = p.Points + numPoints
 }
 
-//Update Player's position based on calculations of position/velocity
+// UpdatePosition based on calculations of position/velocity
 func (p *Player) UpdatePosition(height float64, width float64) {
 
 	controlsVector := Velocity{0, 0}

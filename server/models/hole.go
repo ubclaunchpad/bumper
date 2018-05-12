@@ -20,10 +20,10 @@ const (
 type Hole struct {
 	Position      Position `json:"position"`
 	Radius        float64  `json:"radius"`
-	GravityRadius float64  `json:"gravrad"`
-	Alive         bool     `json:"islive"`
-	Life          float64  `json:"life"`
-	StaringLife   float64  `json:"born"`
+	GravityRadius float64  `json:"-"`
+	IsAlive       bool     `json:"isAlive"`
+	Life          float64  `json:"-"`
+	StartingLife  float64  `json:"-"`
 }
 
 // CreateHole initializes and returns an instance of a Hole
@@ -35,17 +35,17 @@ func CreateHole(position Position) Hole {
 		Radius:        radius,
 		GravityRadius: radius * gravityRadiusFactor,
 		Life:          life,
-		Alive:         false,
-		StaringLife:   life,
+		IsAlive:       false,
+		StartingLife:  life,
 	}
 }
 
-// Update reduces this holes life or star a new one for it
+// Update reduces this holes life or start a new one for it
 func (h *Hole) Update() {
 	h.Life--
 
-	if h.Life < h.StaringLife-HoleInfancy {
-		h.Alive = true
+	if h.Life < h.StartingLife-HoleInfancy {
+		h.IsAlive = true
 	}
 	if h.Radius < MaxHoleRadius*1.2 {
 		h.Radius += 0.02
@@ -55,9 +55,9 @@ func (h *Hole) Update() {
 
 // StartNewLife sets this hole to a new position and lifespan
 func (h *Hole) StartNewLife(position Position) {
-	h.Alive = false
+	h.IsAlive = false
 	h.Life = math.Floor(rand.Float64()*((MaxHoleLife-MinHoleLife)+1)) + MinHoleLife
-	h.StaringLife = h.Life
+	h.StartingLife = h.Life
 	h.Radius = math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius
 	h.GravityRadius = h.Radius * gravityRadiusFactor
 	h.Position = position

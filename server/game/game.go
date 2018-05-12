@@ -18,6 +18,7 @@ const (
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
+// MessageChannel is used by the server to emit messages to a client (global from Main)
 var MessageChannel chan models.Message
 
 // Arena container for play area information including all objects
@@ -167,7 +168,7 @@ func (a *Arena) playerCollisions() {
 
 func (a *Arena) holeCollisions() {
 	for _, hole := range a.Holes {
-		if hole.Alive {
+		if hole.IsAlive {
 			for client, player := range a.Players {
 				if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
 					// TODO: send a you're dead signal - err := client.WriteJSON(&msg)

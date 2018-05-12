@@ -26,12 +26,12 @@ const (
 type Player struct {
 	Name     string      `json:"name"`
 	Position Position    `json:"position"`
-	Velocity Velocity    `json:"velocity"`
+	Velocity Velocity    `json:"-"`
 	Color    string      `json:"color"`
 	Angle    float64     `json:"angle"`
-	Controls KeysPressed `json:"controls"`
+	Controls KeysPressed `json:"-"`
 	Points   int         `json:"points"`
-	Mutex    *sync.Mutex `json:"mutex"`
+	Mutex    *sync.Mutex `json:"-"`
 }
 
 // KeysPressed contains a boolean about each key, true if it's down

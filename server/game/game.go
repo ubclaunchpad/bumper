@@ -35,13 +35,13 @@ func CreateArena(height float64, width float64) *Arena {
 	a.Players = make(map[*websocket.Conn]*models.Player)
 
 	for i := 0; i < HoleCount; i++ {
-		position := a.generateCoord(models.MinHoleRadius)
+		position := a.generateCoordinate(models.MinHoleRadius)
 		hole := models.CreateHole(position)
 		a.Holes = append(a.Holes, &hole)
 	}
 
 	for i := 0; i < JunkCount; i++ {
-		position := a.generateCoord(models.JunkRadius)
+		position := a.generateCoordinate(models.JunkRadius)
 		junk := models.Junk{
 			Position: position,
 			Velocity: models.Velocity{Dx: 0, Dy: 0},
@@ -58,7 +58,7 @@ func (a *Arena) UpdatePositions() {
 	for _, hole := range a.Holes {
 		hole.Update()
 		if hole.Life < 0 {
-			hole.StartNewLife(a.generateCoord(models.MaxHoleRadius))
+			hole.StartNewLife(a.generateCoordinate(models.MaxHoleRadius))
 		}
 	}
 	for _, junk := range a.Junk {
@@ -80,7 +80,7 @@ func (a *Arena) CollisionDetection() {
 func (a *Arena) AddPlayer(ws *websocket.Conn) {
 	player := models.Player{
 		ID:       generateID(),
-		Position: a.generateCoord(models.PlayerRadius),
+		Position: a.generateCoordinate(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
 		Color:    a.generateRandomColor(),
 		Angle:    math.Pi,
@@ -90,10 +90,10 @@ func (a *Arena) AddPlayer(ws *websocket.Conn) {
 	a.Players[ws] = &player
 }
 
-// generateCoord creates a position coordinate
+// generateCoordinate creates a position coordinate
 // coordinates are constrained within the Arena's width/height and spacing
 // they are all valid
-func (a *Arena) generateCoord(objectRadius float64) models.Position {
+func (a *Arena) generateCoordinate(objectRadius float64) models.Position {
 	maxWidth := a.Width - objectRadius
 	maxHeight := a.Height - objectRadius
 	for {
@@ -244,7 +244,7 @@ func generateID() int {
 
 // adds a junk in a random spot
 func (a *Arena) generateJunk() {
-	position := a.generateCoord(models.JunkRadius)
+	position := a.generateCoordinate(models.JunkRadius)
 	junk := models.Junk{
 		Position: position,
 		Velocity: models.Velocity{Dx: 0, Dy: 0},

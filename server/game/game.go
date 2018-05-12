@@ -18,7 +18,6 @@ const (
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
-var lastID = 1
 var MessageChannel chan models.Message
 
 // Arena container for play area information including all objects
@@ -85,7 +84,6 @@ func (a *Arena) AddPlayer(ws *websocket.Conn) error {
 	}
 
 	player := models.Player{
-		ID:       generateID(),
 		Position: a.generateCoordinate(models.PlayerRadius),
 		Velocity: models.Velocity{0, 0},
 		Color:    color,
@@ -249,13 +247,6 @@ func (a *Arena) generateRandomColor() (string, error) {
 			return "", errors.New("Cannot generate unique random color")
 		}
 	}
-}
-
-// TODO generate player id check whether any current players have this id
-func generateID() int {
-	id := lastID
-	lastID++
-	return id
 }
 
 // adds a junk in a random spot

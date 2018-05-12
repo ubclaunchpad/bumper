@@ -14,7 +14,8 @@ import (
 
 // Game represents a session
 type Game struct {
-	Arena *game.Arena
+	Arena       *game.Arena
+	RefreshRate float64
 }
 
 // An instance of Upgrader that upgrades a connection to a WebSocket
@@ -25,11 +26,8 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-/*	ServeHTTP handles received messages from a client
-Upgrades the connection to be persistent
-Initializes the client connection to a map of clients
-Listens for messages and acts on different message formats
-*/
+// ServeHTTP handles a connection from a client
+// Upgrades client's connection to WebSocket and listens for messages
 func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -42,7 +40,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		var msg models.Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
-			log.Printf("error: %v", err)
+			log.Printf("%v", err)
 			delete(g.Arena.Players, ws)
 			break
 		}
@@ -90,13 +88,13 @@ func run(g *Game) {
 	for {
 		g.Arena.UpdatePositions()
 		g.Arena.CollisionDetection()
-		time.Sleep(time.Millisecond * 17)
+		time.Sleep(g.RefreshRate)
 	}
 }
 
 func tick(g *Game) {
 	for {
-		time.Sleep(time.Millisecond * 17) // 60 Hz
+		time.Sleep(g.RefreshRate) // 60 Hz
 
 		players := make([]models.Player, 0)
 		for _, player := range g.Arena.Players {
@@ -171,6 +169,9 @@ func messageEmitter(g *Game) {
 				delete(g.Arena.Players, ws)
 			}
 			delete(g.Arena.Players, ws)
+
+		default:
+			log.Println("Unknown message type to emit")
 		}
 	}
 }
@@ -179,7 +180,8 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	game.MessageChannel = make(chan models.Message)
 	game := Game{
-		Arena: game.CreateArena(2400, 2800),
+		Arena:       game.CreateArena(2400, 2800),
+		RefreshRate: time.Millisecond * 17, // 60 Hz
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))

@@ -160,13 +160,13 @@ func messageEmitter(g *Game) {
 				Type: "death",
 				Data: nil,
 			}
+
 			g.Arena.Players[ws].Mutex.Lock()
-			error := ws.WriteJSON(&deathMsg)
+			err := ws.WriteJSON(&deathMsg)
 			g.Arena.Players[ws].Mutex.Unlock()
-			if error != nil {
-				log.Printf("error: %v", error)
+			if err != nil {
+				log.Printf("error: %v", err)
 				ws.Close()
-				delete(g.Arena.Players, ws)
 			}
 			delete(g.Arena.Players, ws)
 

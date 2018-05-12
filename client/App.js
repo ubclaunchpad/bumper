@@ -109,7 +109,6 @@ export default class App extends React.Component {
         this.openGameOverModal();
         break;
       case 'update':
-        console.log(msg.data);
         this.update(msg.data);
         break;
       default:

@@ -17,6 +17,7 @@ type Game struct {
 	Arena *game.Arena
 }
 
+// An instance of Upgrader that upgrades a connection to a WebSocket
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		log.Printf("Accepting client from remote address %v\n", r.RemoteAddr)
@@ -45,7 +46,9 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			delete(g.Arena.Players, ws)
 			break
 		}
-		if msg.Type == "spawn" {
+
+		switch msg.Type {
+		case "spawn":
 			var spawn models.SpawnHandlerMessage
 			err = json.Unmarshal([]byte(msg.Data.(string)), &spawn)
 			if err != nil {
@@ -61,9 +64,8 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				ws,
 			}
 			game.MessageChannel <- msg
-		}
 
-		if msg.Type == "keyHandler" {
+		case "keyHandler":
 			var kh models.KeyHandlerMessage
 			err = json.Unmarshal([]byte(msg.Data.(string)), &kh)
 			if err != nil {
@@ -77,8 +79,10 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					g.Arena.Players[ws].KeyUpHandler(kh.Key)
 				}
 			}
-		}
 
+		default:
+			log.Println("Unknown message type received")
+		}
 	}
 }
 
@@ -151,6 +155,7 @@ func messageEmitter(g *Game) {
 				ws.Close()
 				delete(g.Arena.Players, ws)
 			}
+
 		case "death":
 			ws := msg.Data.(*websocket.Conn)
 			deathMsg := models.Message{

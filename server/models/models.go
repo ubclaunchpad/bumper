@@ -23,7 +23,7 @@ type Velocity struct {
 }
 
 func (v *Velocity) magnitude() float64 {
-	return math.Sqrt(v.Dx*v.Dx + v.Dy*v.Dy)
+	return math.Hypot(v.Dx, v.Dy)
 }
 
 func (v *Velocity) normalize() {

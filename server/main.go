@@ -15,7 +15,7 @@ import (
 // Game represents a session
 type Game struct {
 	Arena       *game.Arena
-	RefreshRate float64
+	RefreshRate time.Duration
 }
 
 // An instance of Upgrader that upgrades a connection to a WebSocket

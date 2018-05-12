@@ -18,6 +18,9 @@ type Game struct {
 	RefreshRate time.Duration
 }
 
+// MessageChannel is used by the server to emit messages to a client
+var MessageChannel chan models.Message
+
 // An instance of Upgrader that upgrades a connection to a WebSocket
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -61,7 +64,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				"initial",
 				ws,
 			}
-			game.MessageChannel <- msg
+			MessageChannel <- msg
 
 		case "keyHandler":
 			var kh models.KeyHandlerMessage
@@ -131,7 +134,7 @@ func tick(g *Game) {
 
 func messageEmitter(g *Game) {
 	for {
-		msg := <-game.MessageChannel
+		msg := <-MessageChannel
 
 		switch msg.Type {
 		case "initial":
@@ -178,7 +181,9 @@ func messageEmitter(g *Game) {
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	game.MessageChannel = make(chan models.Message)
+	MessageChannel = make(chan models.Message)
+
+	game.MessageChannel = MessageChannel
 	game := Game{
 		Arena:       game.CreateArena(2400, 2800),
 		RefreshRate: time.Millisecond * 17, // 60 Hz

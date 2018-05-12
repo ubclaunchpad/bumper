@@ -23,11 +23,11 @@ var MessageChannel chan models.Message
 
 // Arena container for play area information including all objects
 type Arena struct {
-	Height  float64                            `json:"height"`
-	Width   float64                            `json:"width"`
-	Holes   []*models.Hole                     `json:"holes"`
-	Junk    []*models.Junk                     `json:"junk"`
-	Players map[*websocket.Conn]*models.Player `json:"players"`
+	Height  float64
+	Width   float64
+	Holes   []*models.Hole
+	Junk    []*models.Junk
+	Players map[*websocket.Conn]*models.Player
 }
 
 // CreateArena constructor for arena initializes holes and junk

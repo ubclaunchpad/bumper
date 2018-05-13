@@ -23,7 +23,7 @@ var MessageChannel chan models.Message
 
 // Arena container for play area information including all objects
 type Arena struct {
-	RWMutex sync.RWMutex
+	rwMutex sync.RWMutex
 	Height  float64
 	Width   float64
 	Holes   []*models.Hole

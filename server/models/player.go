@@ -3,6 +3,8 @@ package models
 import (
 	"math"
 	"sync"
+
+	"github.com/gorilla/websocket"
 )
 
 // Player related constants
@@ -22,6 +24,14 @@ const (
 	gravityDamping         = 0.075
 )
 
+// KeysPressed contains a boolean about each key, true if it's down
+type KeysPressed struct {
+	Right bool `json:"right"`
+	Left  bool `json:"left"`
+	Up    bool `json:"up"`
+	Down  bool `json:"down"`
+}
+
 // Player contains data and state about a player's object
 type Player struct {
 	Name     string      `json:"name"`
@@ -31,20 +41,36 @@ type Player struct {
 	Angle    float64     `json:"angle"`
 	Controls KeysPressed `json:"-"`
 	Points   int         `json:"points"`
-	Mutex    *sync.Mutex `json:"-"`
+	mutex    sync.Mutex
+	ws       *websocket.Conn
 }
 
-// KeysPressed contains a boolean about each key, true if it's down
-type KeysPressed struct {
-	Right bool `json:"right"`
-	Left  bool `json:"left"`
-	Up    bool `json:"up"`
-	Down  bool `json:"down"`
+// CreatePlayer constructs an instance of player with
+// given position, color, and WebSocket connection
+func CreatePlayer(n string, p Position, c string, ws *websocket.Conn) *Player {
+	return &Player{
+		Name:     n,
+		Position: p,
+		Velocity: Velocity{},
+		Color:    c,
+		Angle:    math.Pi,
+		Controls: KeysPressed{},
+		mutex:    sync.Mutex{},
+		ws:       ws,
+	}
 }
 
 // AddPoints adds numPoints to player p
 func (p *Player) AddPoints(numPoints int) {
 	p.Points = p.Points + numPoints
+}
+
+// SendJSON sends JSON data through the player's websocket connection
+func (p *Player) SendJSON(m *Message) error {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	return p.ws.WriteJSON(m)
 }
 
 // UpdatePosition based on calculations of position/velocity

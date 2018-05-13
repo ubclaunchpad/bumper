@@ -114,13 +114,13 @@ func tick(g *Game) {
 		}
 
 		// update every client
-		for client := range g.Arena.Players {
-			p := g.Arena.Players[client]
+		for name := range g.Arena.Players {
+			p := g.Arena.Players[name]
 			err := p.SendJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)
 				p.Close()
-				delete(g.Arena.Players, client)
+				delete(g.Arena.Players, name)
 			}
 		}
 	}

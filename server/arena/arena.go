@@ -23,6 +23,7 @@ var MessageChannel chan models.Message
 
 // Arena container for play area information including all objects
 type Arena struct {
+	RWMutex sync.RWMutex
 	Height  float64
 	Width   float64
 	Holes   []*models.Hole
@@ -32,7 +33,7 @@ type Arena struct {
 
 // CreateArena constructor for arena initializes holes and junk
 func CreateArena(height float64, width float64) *Arena {
-	a := Arena{height, width, nil, nil, nil}
+	a := Arena{sync.RWMutex{}, height, width, nil, nil, nil}
 	a.Players = make(map[*websocket.Conn]*models.Player)
 
 	for i := 0; i < HoleCount; i++ {
@@ -138,7 +139,7 @@ func (a *Arena) isPositionValid(position models.Position) bool {
 // detect collision between objects
 // (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
 func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 float64) bool {
-	return (math.Pow((p.X-q.X), 2) + math.Pow((p.Y-q.Y), 2)) <= math.Pow((r1+r2), 2)
+	return math.Pow(p.X-q.X, 2)+math.Pow(p.Y-q.Y, 2) <= math.Pow(r1+r2, 2)
 }
 
 /*

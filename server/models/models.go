@@ -4,6 +4,12 @@ import (
 	"math"
 )
 
+// Vector represents a point in 2D space
+type Vector struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+}
+
 // Position x y position
 type Position struct {
 	X float64 `json:"x"`

@@ -15,9 +15,9 @@ type ConnectionMessage struct {
 
 // UpdateMessage defines the schema for a state update message
 type UpdateMessage struct {
-	Holes   []*Hole  `json:"holes"`
-	Junk    []*Junk  `json:"junk"`
-	Players []Player `json:"players"`
+	Holes   []*Hole   `json:"holes"`
+	Junk    []*Junk   `json:"junk"`
+	Players []*Player `json:"players"`
 }
 
 // SpawnHandlerMessage defines a spawn message

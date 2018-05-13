@@ -99,9 +99,9 @@ func tick(g *Game) {
 	for {
 		time.Sleep(g.RefreshRate)
 
-		players := make([]models.Player, 0, len(g.Arena.Players))
+		players := make([]*models.Player, 0, len(g.Arena.Players))
 		for _, player := range g.Arena.Players {
-			players = append(players, *player)
+			players = append(players, player)
 		}
 
 		msg := models.Message{

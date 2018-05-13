@@ -73,6 +73,11 @@ func (p *Player) SendJSON(m *Message) error {
 	return p.ws.WriteJSON(m)
 }
 
+// Close ends the WebSocket connection with the player
+func (p *Player) Close() {
+	p.ws.Close()
+}
+
 // UpdatePosition based on calculations of position/velocity
 func (p *Player) UpdatePosition(height float64, width float64) {
 

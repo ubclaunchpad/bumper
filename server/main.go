@@ -39,12 +39,13 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
+	name := r.URL.Query().Get("name")
 	for {
 		var msg models.Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
-			log.Printf("%v", err)
-			delete(g.Arena.Players, ws)
+			log.Printf("%v\n", err)
+			delete(g.Arena.Players, name)
 			break
 		}
 
@@ -53,16 +54,14 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			var spawn models.SpawnHandlerMessage
 			err = json.Unmarshal([]byte(msg.Data.(string)), &spawn)
 			if err != nil {
-				log.Printf("error: %v", err)
+				log.Printf("%v\n", err)
 				continue
 			}
-			name := spawn.Name
-			g.Arena.AddPlayer(ws)
-			g.Arena.Players[ws].Name = name
 
+			g.Arena.AddPlayer(name, ws)
 			msg := models.Message{
 				"initial",
-				ws,
+				name,
 			}
 			MessageChannel <- msg
 
@@ -70,14 +69,14 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			var kh models.KeyHandlerMessage
 			err = json.Unmarshal([]byte(msg.Data.(string)), &kh)
 			if err != nil {
-				log.Printf("error: %v", err)
+				log.Printf("%v\n", err)
 				continue
 			}
-			if _, ok := g.Arena.Players[ws]; ok {
+			if _, ok := g.Arena.Players[name]; ok {
 				if kh.IsPressed == true {
-					g.Arena.Players[ws].KeyDownHandler(kh.Key)
+					g.Arena.Players[name].KeyDownHandler(kh.Key)
 				} else {
-					g.Arena.Players[ws].KeyUpHandler(kh.Key)
+					g.Arena.Players[name].KeyUpHandler(kh.Key)
 				}
 			}
 
@@ -117,12 +116,10 @@ func tick(g *Game) {
 		// update every client
 		for client := range g.Arena.Players {
 			p := g.Arena.Players[client]
-			p.Mutex.Lock()
-			err := client.WriteJSON(&msg)
-			p.Mutex.Unlock()
+			err := p.SendJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)
-				client.Close()
+				p.Close()
 				delete(g.Arena.Players, client)
 			}
 		}
@@ -135,40 +132,39 @@ func messageEmitter(g *Game) {
 
 		switch msg.Type {
 		case "initial":
-			ws := msg.Data.(*websocket.Conn)
+			name := msg.Data.(string)
+			p := g.Arena.Players[name]
+
 			initalMsg := models.Message{
 				Type: "initial",
 				Data: models.ConnectionMessage{
 					g.Arena.Width,
 					g.Arena.Height,
-					g.Arena.Players[ws].Color,
+					p.Color,
 				},
 			}
 
-			g.Arena.Players[ws].Mutex.Lock()
-			err := ws.WriteJSON(&initalMsg)
-			g.Arena.Players[ws].Mutex.Unlock()
+			err := p.SendJSON(&initalMsg)
 			if err != nil {
 				log.Printf("error: %v", err)
-				ws.Close()
-				delete(g.Arena.Players, ws)
+				p.Close()
+				delete(g.Arena.Players, name)
 			}
 
 		case "death":
-			ws := msg.Data.(*websocket.Conn)
+			name := msg.Data.(string)
 			deathMsg := models.Message{
 				Type: "death",
 				Data: nil,
 			}
 
-			g.Arena.Players[ws].Mutex.Lock()
-			err := ws.WriteJSON(&deathMsg)
-			g.Arena.Players[ws].Mutex.Unlock()
+			p := g.Arena.Players[name]
+			err := p.SendJSON(&deathMsg)
 			if err != nil {
 				log.Printf("error: %v", err)
-				ws.Close()
+				p.Close()
 			}
-			delete(g.Arena.Players, ws)
+			delete(g.Arena.Players, name)
 
 		default:
 			log.Println("Unknown message type to emit")

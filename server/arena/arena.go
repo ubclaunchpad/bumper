@@ -28,13 +28,13 @@ type Arena struct {
 	Width   float64
 	Holes   []*models.Hole
 	Junk    []*models.Junk
-	Players map[*websocket.Conn]*models.Player
+	Players map[string]*models.Player
 }
 
 // CreateArena constructor for arena initializes holes and junk
 func CreateArena(height float64, width float64) *Arena {
 	a := Arena{sync.RWMutex{}, height, width, nil, nil, nil}
-	a.Players = make(map[*websocket.Conn]*models.Player)
+	a.Players = make(map[string]*models.Player)
 
 	for i := 0; i < HoleCount; i++ {
 		position := a.generateCoordinate(models.MinHoleRadius)
@@ -46,9 +46,9 @@ func CreateArena(height float64, width float64) *Arena {
 		position := a.generateCoordinate(models.JunkRadius)
 		junk := models.Junk{
 			Position: position,
-			Velocity: models.Velocity{Dx: 0, Dy: 0},
+			Velocity: models.Velocity{},
 			Color:    "white",
-			ID:       nil}
+		}
 		a.Junk = append(a.Junk, &junk)
 	}
 
@@ -79,22 +79,14 @@ func (a *Arena) CollisionDetection() {
 }
 
 // AddPlayer adds a new player to the arena
-func (a *Arena) AddPlayer(ws *websocket.Conn) error {
+func (a *Arena) AddPlayer(n string, ws *websocket.Conn) error {
 	color, err := a.generateRandomColor()
 	if err != nil {
 		return err
 	}
 
-	player := models.Player{
-		Position: a.generateCoordinate(models.PlayerRadius),
-		Velocity: models.Velocity{0, 0},
-		Color:    color,
-		Angle:    math.Pi,
-		Controls: models.KeysPressed{false, false, false, false},
-		Mutex:    &sync.Mutex{},
-	}
-	a.Players[ws] = &player
-
+	position := a.generateCoordinate(models.PlayerRadius)
+	a.Players[n] = models.CreatePlayer(n, position, color, ws)
 	return nil
 }
 
@@ -149,7 +141,7 @@ between player-to-player.
 */
 func (a *Arena) playerCollisions() {
 	memo := make(map[*models.Player]*models.Player)
-	for ws, player := range a.Players {
+	for _, player := range a.Players {
 		for _, playerHit := range a.Players {
 			if player == playerHit || memo[playerHit] == player {
 				continue
@@ -161,7 +153,7 @@ func (a *Arena) playerCollisions() {
 		}
 		for _, junk := range a.Junk {
 			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
-				junk.HitBy(player, ws)
+				junk.HitBy(player)
 			}
 		}
 	}
@@ -173,13 +165,13 @@ func (a *Arena) holeCollisions() {
 			continue
 		}
 
-		for client, player := range a.Players {
+		for name, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
 				// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
 				// Also should award some points to the bumper... Not as straight forward as the junk
 				deathMsg := models.Message{
 					Type: "death",
-					Data: client,
+					Data: name,
 				}
 				MessageChannel <- deathMsg
 			} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
@@ -189,7 +181,7 @@ func (a *Arena) holeCollisions() {
 
 		for i, junk := range a.Junk {
 			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
-				playerScored := a.Players[junk.ID]
+				playerScored := junk.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerJunk)
 				}
@@ -260,6 +252,6 @@ func (a *Arena) generateJunk() {
 		Position: position,
 		Velocity: models.Velocity{Dx: 0, Dy: 0},
 		Color:    "white",
-		ID:       nil}
+	}
 	a.Junk = append(a.Junk, &junk)
 }

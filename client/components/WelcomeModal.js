@@ -36,7 +36,7 @@ class WelcomeModal extends React.Component {
           </div>
           <div style={styles.buttonLayout}>
             <button id="btn" onClick={() => this.props.onSubmit(this.state.inputName)}>
-                submit
+              submit
             </button>
           </div>
         </div>

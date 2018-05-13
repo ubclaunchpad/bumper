@@ -15,16 +15,14 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
-      playerName: '',
       showWelcomeModal: true,
       showGameOverModal: false,
       isInitialized: false,
+      player: {},
       junk: null,
       holes: null,
       players: null,
       playerAbsolutePosition: null,
-      playerID: null,
-      playerRank: 0,
       timeStarted: null,
       arena: null,
     };
@@ -45,14 +43,14 @@ export default class App extends React.Component {
   }
 
   openGameOverModal() {
-    const thisPlayer = this.state.players.find(p => p.color === this.state.playerID);
+    const thisPlayer = this.state.players.find(p => p.color === this.state.player.color);
 
     this.setState({
       showGameOverModal: true,
       gameOverData: {
         finalTime: new Date((new Date() - this.state.timeStarted)),
         finalPoints: thisPlayer ? thisPlayer.points : 0,
-        finalRanking: this.state.playerRank,
+        finalRanking: this.state.player.rank,
       },
     });
   }
@@ -65,9 +63,11 @@ export default class App extends React.Component {
         this.sendSpawnMessage(inputName);
       };
     }
+
+    this.state.player.name = inputName;
     this.setState({
       showWelcomeModal: false,
-      playerName: inputName,
+      player: this.state.player,
     });
   }
 
@@ -117,9 +117,11 @@ export default class App extends React.Component {
   }
 
   initializeArena(data) {
+    this.state.player.color = data.playerID;
+
     this.setState({
       arena: { width: data.arenaWidth, height: data.arenaHeight },
-      playerID: data.playerID,
+      player: this.state.player,
       timeStarted: new Date(),
     });
   }
@@ -145,7 +147,7 @@ export default class App extends React.Component {
     let playerOffset = null;
 
     data.players.forEach((player) => {
-      if (player.color === this.state.playerID) {
+      if (player.color === this.state.player.color) {
         playerPosition = player.position;
         this.setState({ playerAbsolutePosition: playerPosition });
 
@@ -185,7 +187,7 @@ export default class App extends React.Component {
       hole.position.y += playerOffset.y;
     });
     data.players.forEach((player) => {
-      if (player.color !== this.state.playerID) {
+      if (player.color !== this.state.player.color) {
         player.position.x -= playerPosition.x;
         player.position.y -= playerPosition.y;
         player.position.x += playerOffset.x;
@@ -221,9 +223,10 @@ export default class App extends React.Component {
       return 0;
     });
 
-    const thisPlayer = rankedPlayers.find(p => p.color === this.state.playerID);
+    const thisPlayer = rankedPlayers.find(p => p.color === this.state.player.color);
+    this.state.player.rank = rankedPlayers.indexOf(thisPlayer) + 1;
     this.setState({
-      playerRank: rankedPlayers.indexOf(thisPlayer) + 1,
+      player: this.state.player,
     });
 
     const ctx = this.canvas.getContext('2d');
@@ -470,7 +473,7 @@ export default class App extends React.Component {
         {
           this.state.showWelcomeModal &&
           <WelcomeModal
-            name={this.state.playerName}
+            name={this.state.player.name}
             onSubmit={e => this.sendSubmitPlayerID(e)}
           />
         }

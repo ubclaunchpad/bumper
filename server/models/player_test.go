@@ -31,7 +31,27 @@ func TestCreatePlayer(t *testing.T) {
 }
 
 func TestKeyDownHandler(t *testing.T) {
-
+	p := new(Player)
+	key := UpKey
+	p.KeyDownHandler(key)
+	if p.Controls.Up != true {
+		t.Error("Error key-down-handling up key control")
+	}
+	key = RightKey
+	p.KeyDownHandler(key)
+	if p.Controls.Right != true {
+		t.Error("Error key-down-handling right key control")
+	}
+	key = DownKey
+	p.KeyDownHandler(key)
+	if p.Controls.Down != true {
+		t.Error("Error key-down-handling down key control")
+	}
+	key = LeftKey
+	p.KeyDownHandler(key)
+	if p.Controls.Left != true {
+		t.Error("Error key-down-handling left key control")
+	}
 }
 
 func TestKeyUpHandler(t *testing.T) {
@@ -39,21 +59,21 @@ func TestKeyUpHandler(t *testing.T) {
 	key := UpKey
 	p.KeyUpHandler(key)
 	if p.Controls.Up != false {
-		t.Error("Error handling up key control")
+		t.Error("Error key-up-handling up key control")
 	}
 	key = RightKey
 	p.KeyUpHandler(key)
 	if p.Controls.Right != false {
-		t.Error("Error handling right key control")
+		t.Error("Error key-up-handling right key control")
 	}
 	key = DownKey
 	p.KeyUpHandler(key)
 	if p.Controls.Down != false {
-		t.Error("Error handling down key control")
+		t.Error("Error key-up-handling down key control")
 	}
 	key = LeftKey
 	p.KeyUpHandler(key)
 	if p.Controls.Left != false {
-		t.Error("Error handling left key control")
+		t.Error("Error key-up-handling left key control")
 	}
 }

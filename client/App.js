@@ -29,6 +29,7 @@ export default class App extends React.Component {
 
     this.sendSubmitPlayerID = this.sendSubmitPlayerID.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
+    this.initializeArena = this.initializeArena.bind(this);
     this.initializeGame = this.initializeGame.bind(this);
     this.sendKeyPress = this.sendKeyPress.bind(this);
     this.update = this.update.bind(this);
@@ -64,6 +65,7 @@ export default class App extends React.Component {
       };
     }
 
+    console.log(this.state.player);
     this.state.player.name = inputName;
     this.setState({
       showWelcomeModal: false,
@@ -145,8 +147,8 @@ export default class App extends React.Component {
 
     let playerPosition = null;
     let playerOffset = null;
-
     data.players.forEach((player) => {
+      console.log(player.color, this.state.player.color);
       if (player.color === this.state.player.color) {
         playerPosition = player.position;
         this.setState({ playerAbsolutePosition: playerPosition });
@@ -223,11 +225,20 @@ export default class App extends React.Component {
       return 0;
     });
 
-    const thisPlayer = rankedPlayers.find(p => p.color === this.state.player.color);
-    this.state.player.rank = rankedPlayers.indexOf(thisPlayer) + 1;
-    this.setState({
-      player: this.state.player,
+    const thisPlayer = rankedPlayers.find((p, idx) => {
+      if (p.color === this.state.player.color) {
+        this.state.player.rank = idx + 1;
+        return true;
+      }
+
+      return false;
     });
+
+    if (thisPlayer) {
+      this.setState({
+        player: this.state.player,
+      });
+    }
 
     const ctx = this.canvas.getContext('2d');
     ctx.beginPath();

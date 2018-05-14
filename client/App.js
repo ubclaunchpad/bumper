@@ -148,7 +148,6 @@ export default class App extends React.Component {
     let playerPosition = null;
     let playerOffset = null;
     data.players.forEach((player) => {
-      console.log(player.color, this.state.player.color);
       if (player.color === this.state.player.color) {
         playerPosition = player.position;
         this.setState({ playerAbsolutePosition: playerPosition });

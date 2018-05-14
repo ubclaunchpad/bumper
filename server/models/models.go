@@ -4,10 +4,10 @@ import (
 	"math"
 )
 
-// Message is the schema for client/server communication
-type Message struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
+// Vector represents a point in 2D space
+type Vector struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 // Position x y position
@@ -23,11 +23,11 @@ type Velocity struct {
 }
 
 func (v *Velocity) magnitude() float64 {
-	return math.Sqrt(v.Dx*v.Dx + v.Dy*v.Dy)
+	return math.Hypot(v.Dx, v.Dy)
 }
 
 func (v *Velocity) normalize() {
-	var mag = v.magnitude()
+	mag := v.magnitude()
 	if mag > 0 {
 		v.Dx /= mag
 		v.Dy /= mag

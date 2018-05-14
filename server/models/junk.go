@@ -2,8 +2,6 @@ package models
 
 import (
 	"math"
-
-	"github.com/gorilla/websocket"
 )
 
 // Junk related constants
@@ -19,12 +17,12 @@ const (
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points
 type Junk struct {
-	Position  Position        `json:"position"`
-	Velocity  Velocity        `json:"velocity"` // Don't need to send me to the clients
-	Color     string          `json:"color"`
-	ID        *websocket.Conn `json:"id"`
-	Debounce  float32         `json:"debounce"` // Don't need to send me to the clients
-	jDebounce float32         // Don't need to send me to the clients
+	Position      Position `json:"position"`
+	Velocity      Velocity `json:"-"`
+	Color         string   `json:"color"`
+	LastPlayerHit *Player  `json:"-"`
+	Debounce      int      `json:"-"`
+	jDebounce     int
 }
 
 // UpdatePosition Update Junk's position based on calculations of position/velocity
@@ -56,10 +54,11 @@ func (j *Junk) UpdatePosition(height float64, width float64) {
 }
 
 // HitBy Update Junks's velocity based on calculations of being hit by a player
-func (j *Junk) HitBy(p *Player, ws *websocket.Conn) {
+func (j *Junk) HitBy(p *Player) {
+	// We don't want this collision till the debounce is down.
 	if j.Debounce == 0 {
 		j.Color = p.Color //Assign junk to last recently hit player color
-		j.ID = ws         //Assign junk to last recently hit player id (websocket)
+		j.LastPlayerHit = p
 
 		if p.Velocity.Dx < 0 {
 			j.Velocity.Dx = math.Min(p.Velocity.Dx*BumpFactor, -MinimumBump)
@@ -75,13 +74,12 @@ func (j *Junk) HitBy(p *Player, ws *websocket.Conn) {
 
 		p.hitJunk()
 		j.Debounce = JunkDebounceTicks
-	} else {
-		//We don't want this collision till the debounce is down.
 	}
 }
 
 // HitJunk Update Junks's velocity based on calculations of being hit by another Junk
 func (j *Junk) HitJunk(jh *Junk) {
+	// We don't want this collision till the debounce is down.
 	if j.jDebounce == 0 {
 		initalVelocity := j.Velocity
 
@@ -95,8 +93,6 @@ func (j *Junk) HitJunk(jh *Junk) {
 
 		j.jDebounce = JunkDebounceTicks
 		jh.jDebounce = JunkDebounceTicks
-	} else {
-		//We don't want this collision till the debounce is down.
 	}
 }
 

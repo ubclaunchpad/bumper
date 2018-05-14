@@ -3,6 +3,8 @@ package models
 import (
 	"math"
 	"sync"
+
+	"github.com/gorilla/websocket"
 )
 
 // Player related constants
@@ -22,19 +24,6 @@ const (
 	gravityDamping         = 0.075
 )
 
-// Player contains data and state about a player's object
-type Player struct {
-	Name       string      `json:"name"`
-	ID         int         `json:"id"`
-	Position   Position    `json:"position"`
-	Velocity   Velocity    `json:"velocity"`
-	Color      string      `json:"color"`
-	Angle      float64     `json:"angle"`
-	Controls   KeysPressed `json:"controls"`
-	Points     int         `json:"points"`
-	SocketLock *sync.Mutex `json:"lock"`
-}
-
 // KeysPressed contains a boolean about each key, true if it's down
 type KeysPressed struct {
 	Right bool `json:"right"`
@@ -43,12 +32,53 @@ type KeysPressed struct {
 	Down  bool `json:"down"`
 }
 
+// Player contains data and state about a player's object
+type Player struct {
+	Name     string      `json:"name"`
+	Position Position    `json:"position"`
+	Velocity Velocity    `json:"-"`
+	Color    string      `json:"color"`
+	Angle    float64     `json:"angle"`
+	Controls KeysPressed `json:"-"`
+	Points   int         `json:"points"`
+	mutex    sync.Mutex
+	ws       *websocket.Conn
+}
+
+// CreatePlayer constructs an instance of player with
+// given position, color, and WebSocket connection
+func CreatePlayer(n string, p Position, c string, ws *websocket.Conn) *Player {
+	return &Player{
+		Name:     n,
+		Position: p,
+		Velocity: Velocity{},
+		Color:    c,
+		Angle:    math.Pi,
+		Controls: KeysPressed{},
+		mutex:    sync.Mutex{},
+		ws:       ws,
+	}
+}
+
 // AddPoints adds numPoints to player p
 func (p *Player) AddPoints(numPoints int) {
 	p.Points = p.Points + numPoints
 }
 
-//Update Player's position based on calculations of position/velocity
+// SendJSON sends JSON data through the player's websocket connection
+func (p *Player) SendJSON(m *Message) error {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	return p.ws.WriteJSON(m)
+}
+
+// Close ends the WebSocket connection with the player
+func (p *Player) Close() {
+	p.ws.Close()
+}
+
+// UpdatePosition based on calculations of position/velocity
 func (p *Player) UpdatePosition(height float64, width float64) {
 
 	controlsVector := Velocity{0, 0}

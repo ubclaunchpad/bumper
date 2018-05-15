@@ -20,14 +20,52 @@ func TestCreatePlayer(t *testing.T) {
 	testName := "testy"
 	testColor := "blue"
 	ws := new(*websocket.Conn)
+
+	//Test initialization of player
 	p := CreatePlayer(testName, testPosition, testColor, *ws)
 
-	//Name Assignment
+	//Test name assignment of player
 	if p.Name != testName {
 		t.Error("Error assigning name")
 	}
 
 	//To do: test other initializations
+}
+
+func TestUpdatePosition(t *testing.T) {
+	//Mock player and info
+	testHeight1 := 10.0
+	testWidth1 := 20.0
+	testAngle1 := 0.0
+	testPosition1 := Position{5, 5}
+
+	p := new(Player)
+	p.Position = testPosition1
+	p.Angle = testAngle1
+
+	//Test left control
+	p.Controls.Left = true
+	p.UpdatePosition(testHeight1, testWidth1)
+	if p.Angle != (testAngle1 + 0.1) {
+		t.Error("Error in left key player control")
+	}
+	p.Controls.Left = false
+	p.Controls.Right = true
+	p.UpdatePosition(testHeight1, testWidth1)
+	if p.Angle != (testAngle1) {
+		t.Error("Error in right key player control or symmetry")
+	}
+	p.Controls.Right = false
+	p.Controls.Up = true
+	p.UpdatePosition(testHeight1, testWidth1)
+	if p.Angle != (testAngle1) {
+		t.Error("Error in up key player control")
+	}
+	// if p.Velocity.Dx != PlayerAcceleration {
+	// 	t.Error("Error in x velocity calculation")
+	// }
+	p.UpdatePosition(testHeight1, testWidth1)
+
 }
 
 func TestKeyDownHandler(t *testing.T) {

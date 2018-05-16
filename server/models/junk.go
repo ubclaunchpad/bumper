@@ -99,18 +99,8 @@ func (j *Junk) HitJunk(jh *Junk) {
 // ApplyGravity applys a vector towards given position
 func (j *Junk) ApplyGravity(h *Hole) {
 	gravityVector := Velocity{0, 0}
-
-	if j.Position.X < h.Position.X {
-		gravityVector.Dx = h.Position.X - j.Position.X
-	} else {
-		gravityVector.Dx = h.Position.X - j.Position.X
-	}
-
-	if j.Position.Y < h.Position.Y {
-		gravityVector.Dy = h.Position.Y - j.Position.Y
-	} else {
-		gravityVector.Dy = h.Position.Y - j.Position.Y
-	}
+	gravityVector.Dx = h.Position.X - j.Position.X
+	gravityVector.Dy = h.Position.Y - j.Position.Y
 
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()

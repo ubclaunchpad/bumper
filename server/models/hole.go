@@ -40,7 +40,7 @@ func CreateHole(position Position) Hole {
 	}
 }
 
-// Update reduces this holes life or start a new one for it
+// Update reduces this holes life and increases radius if max not reached
 func (h *Hole) Update() {
 	h.Life--
 

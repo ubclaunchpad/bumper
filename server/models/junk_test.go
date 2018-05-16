@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"math"
 	"testing"
 )
@@ -57,86 +58,61 @@ func TestUpdateJunkPosition(t *testing.T) {
 }
 
 func TestJunkWallConstraints(t *testing.T) {
+	for i := 0; i < 4; i++ {
+		t.Run(fmt.Sprintf("Wall test %d", i), func(t *testing.T) { testJunkWallCollision(t, i) })
+	}
+}
+
+func testJunkWallCollision(t *testing.T, wall int) {
+
+	testVelocity := Velocity{0, 0}
+	intialPosition := Position{testWidth / 2, testHeight / 2}
+	dyDirection := 1.0
+	dxDirection := 1.0
+
+	switch wall {
+	case 0: // Top wall
+		testVelocity = Velocity{0, -2}
+		intialPosition = Position{testWidth / 2, 0 + JunkRadius + 1}
+		dyDirection = -1
+	case 1: // Bottom wall
+		testVelocity = Velocity{0, 2}
+		intialPosition = Position{testWidth / 2, testHeight - JunkRadius - 1}
+		dyDirection = -1
+	case 2: // Left wall
+		testVelocity = Velocity{-2, 0}
+		intialPosition = Position{0 + JunkRadius + 1, testHeight / 2}
+		dxDirection = -1
+	case 3: // Right wall
+		testVelocity = Velocity{2, 0}
+		intialPosition = Position{testWidth - JunkRadius - 1, testHeight / 2}
+		dxDirection = -1
+	default:
+		t.Error("Error: Invalid Wall specified")
+	}
 
 	// Create junk near top wall moving towards it
 	j := new(Junk)
-	testVelocity := Velocity{0, -2}
-	intialPosition := Position{testWidth / 2, 0 + JunkRadius + 1}
 	j.Velocity = testVelocity
 	j.Position = intialPosition
 
 	j.UpdatePosition(testHeight, testWidth)
 
-	// Junk should have bounced off the top wall
-	if j.Position.X != intialPosition.X+testVelocity.Dx*JunkFriction || j.Position.Y != intialPosition.Y-testVelocity.Dy*JunkFriction {
-		t.Error("Error: Junk moved incorrectly, top wall test")
+	// Junk should have bounced off the wall
+	if j.Position.X != intialPosition.X+testVelocity.Dx*JunkFriction*dxDirection || j.Position.Y != intialPosition.Y+testVelocity.Dy*JunkFriction*dyDirection {
+		t.Error("Error: Junk bounced incorrectly")
 	}
 
-	// Junks velocity should have had Dy inverted
-	if j.Velocity.Dx != testVelocity.Dx*JunkFriction || j.Velocity.Dy != -testVelocity.Dy*JunkFriction {
+	// Junks velocity should have had one direction inverted
+	if j.Velocity.Dx != testVelocity.Dx*JunkFriction*dxDirection || j.Velocity.Dy != testVelocity.Dy*JunkFriction*dyDirection {
 		t.Error("Error: Junk velocity incorrectly affected, top wall test")
-	}
-
-	// Test Bottom Wall
-	testVelocity = Velocity{0, 2}
-	intialPosition = Position{testWidth / 2, testHeight - JunkRadius - 1}
-	j.Velocity = testVelocity
-	j.Position = intialPosition
-
-	j.UpdatePosition(testHeight, testWidth)
-
-	// Junk should have bounced off the Bottom wall
-	if j.Position.X != intialPosition.X+testVelocity.Dx*JunkFriction || j.Position.Y != intialPosition.Y-testVelocity.Dy*JunkFriction {
-		t.Error("Error: Junk moved incorrectly, bottom wall test")
-	}
-
-	// Junks velocity should have had Dy inverted
-	if j.Velocity.Dx != testVelocity.Dx*JunkFriction || j.Velocity.Dy != -testVelocity.Dy*JunkFriction {
-		t.Error("Error: Junk velocity incorrectly affected, bottom wall test")
-	}
-
-	// Test Left Wall
-	testVelocity = Velocity{-2, 0}
-	intialPosition = Position{0 + JunkRadius + 1, testHeight / 2}
-	j.Velocity = testVelocity
-	j.Position = intialPosition
-
-	j.UpdatePosition(testHeight, testWidth)
-
-	// Junk should have bounced off the Left wall
-	if j.Position.X != intialPosition.X-testVelocity.Dx*JunkFriction || j.Position.Y != intialPosition.Y+testVelocity.Dy*JunkFriction {
-		t.Error("Error: Junk moved incorrectly, left wall test")
-	}
-
-	// Junks velocity should have had Dx inverted
-	if j.Velocity.Dx != -testVelocity.Dx*JunkFriction || j.Velocity.Dy != testVelocity.Dy*JunkFriction {
-		t.Error("Error: Junk velocity incorrectly affected, left wall test")
-	}
-
-	// Test Right Wall
-	testVelocity = Velocity{2, 0}
-	intialPosition = Position{testWidth - JunkRadius - 1, testHeight / 2}
-	j.Velocity = testVelocity
-	j.Position = intialPosition
-
-	j.UpdatePosition(testHeight, testWidth)
-
-	// Junk should have bounced off the Right wall
-	if j.Position.X != intialPosition.X-testVelocity.Dx*JunkFriction || j.Position.Y != intialPosition.Y+testVelocity.Dy*JunkFriction {
-		t.Error("Error: Junk moved incorrectly, right wall test")
-	}
-
-	// Junks velocity should have had Dx inverted
-	if j.Velocity.Dx != -testVelocity.Dx*JunkFriction || j.Velocity.Dy != testVelocity.Dy*JunkFriction {
-		t.Error("Error: Junk velocity incorrectly affected, right wall test")
 	}
 }
 
 func TestPlayerJunkCollisions(t *testing.T) {
-	testPlayerBumpJunk(t, 0)
-	testPlayerBumpJunk(t, 1)
-	testPlayerBumpJunk(t, 2)
-	testPlayerBumpJunk(t, 3)
+	for i := 0; i < 4; i++ {
+		t.Run(fmt.Sprintf("Direction test %d", i), func(t *testing.T) { testPlayerBumpJunk(t, i) })
+	}
 }
 
 func testPlayerBumpJunk(t *testing.T, direction int) {

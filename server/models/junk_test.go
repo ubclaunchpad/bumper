@@ -132,7 +132,14 @@ func TestJunkWallConstraints(t *testing.T) {
 	}
 }
 
-func TestPlayerBumpJunk(t *testing.T) {
+func TestPlayerJunkCollisions(t *testing.T) {
+	testPlayerBumpJunk(t, 0)
+	testPlayerBumpJunk(t, 1)
+	testPlayerBumpJunk(t, 2)
+	testPlayerBumpJunk(t, 3)
+}
+
+func testPlayerBumpJunk(t *testing.T, direction int) {
 
 	// Create junk
 	j := new(Junk)
@@ -142,7 +149,19 @@ func TestPlayerBumpJunk(t *testing.T) {
 	// Create a Player
 	p := new(Player)
 	p.Color = "red"
-	intialPlayerVelocity := Velocity{-testVelocityDx, testVelocityDy}
+	intialPlayerVelocity := Velocity{0, 0}
+	switch direction {
+	case 0:
+		intialPlayerVelocity = Velocity{-testVelocityDx, testVelocityDy}
+	case 1:
+		intialPlayerVelocity = Velocity{testVelocityDx, -testVelocityDy}
+	case 2:
+		intialPlayerVelocity = Velocity{testVelocityDx, testVelocityDy}
+	case 3:
+		intialPlayerVelocity = Velocity{-testVelocityDx, -testVelocityDy}
+	default:
+		t.Error("Error: Invalid Direction specified")
+	}
 	p.Velocity = intialPlayerVelocity
 
 	// Hit Junk with Player

@@ -288,7 +288,7 @@ export default class App extends React.Component {
         // Find distance between the point (x, y) and the point (h.position.x, h.position.y)
         const x1 = Math.abs(h.position.x - x);
         const y1 = Math.abs(h.position.y - y);
-        const distance = Math.sqrt(Math.pow(x1, 2) + Math.pow(y1, 2));
+        const distance = Math.hypot(x1, y1);
 
         // Only draw the line segment if it will correspond to a spiral with the correct radius
         if (distance <= h.radius) {

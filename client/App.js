@@ -65,7 +65,6 @@ export default class App extends React.Component {
       };
     }
 
-    console.log(this.state.player);
     this.state.player.name = inputName;
     this.setState({
       showWelcomeModal: false,

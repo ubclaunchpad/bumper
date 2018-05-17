@@ -44,7 +44,7 @@ func CreateArena(height float64, width float64) *Arena {
 
 	for i := 0; i < JunkCount; i++ {
 		position := a.generateCoordinate(models.JunkRadius)
-		junk := models.CreteJunk(position)
+		junk := models.CreateJunk(position)
 		a.Junk = append(a.Junk, &junk)
 	}
 

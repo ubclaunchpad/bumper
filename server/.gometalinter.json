@@ -7,8 +7,5 @@
       "gofmt",
       "goimports",
       "vet"
-  ],
-  "Exclude": [
-      "client/bootstrap.go"
   ]
 }

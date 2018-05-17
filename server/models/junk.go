@@ -25,6 +25,17 @@ type Junk struct {
 	jDebounce     int
 }
 
+// CreateJunk initializes and returns an instance of a Junk
+func CreateJunk(position Position) Junk {
+	return Junk{
+		Position:  position,
+		Velocity:  Velocity{0, 0},
+		Color:     "white",
+		Debounce:  0,
+		jDebounce: 0,
+	}
+}
+
 // UpdatePosition Update Junk's position based on calculations of position/velocity
 func (j *Junk) UpdatePosition(height float64, width float64) {
 	if j.Position.X+j.Velocity.Dx > width-JunkRadius || j.Position.X+j.Velocity.Dx < JunkRadius {

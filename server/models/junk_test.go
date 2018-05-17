@@ -7,33 +7,31 @@ import (
 )
 
 const (
-	testHeight     = 400
-	testWidth      = 800
-	testVelocityDx = 1
-	testVelocityDy = 1
+	testHeight = 400
+	testWidth  = 800
 )
+
+var testVelocity = Velocity{1, 1}
+var centerPos = Position{testWidth / 2, testHeight / 2}
 
 func TestUpdateJunkPosition(t *testing.T) {
 
 	// Create still junk in middle
-	j := new(Junk)
-	j.Velocity = Velocity{0, 0}
-	intialPosition := Position{testWidth / 2, testHeight / 2}
-	j.Position = intialPosition
+	initialPosition := centerPos
+	j := CreateJunk(initialPosition)
 	j.UpdatePosition(testHeight, testWidth)
 
 	// Junk with no velocity shouldn't move
-	if j.Position.X != intialPosition.X || j.Position.Y != intialPosition.Y {
+	if j.Position.X != initialPosition.X || j.Position.Y != initialPosition.Y {
 		t.Error("Error: Still Junk moved")
 	}
 
 	// Apply vector
-	testVelocity := Velocity{testVelocityDx, testVelocityDy}
 	j.Velocity = testVelocity
 	j.UpdatePosition(testHeight, testWidth)
 
 	// Junk should have moved in that direction, but not more than the velocity
-	if j.Position.X != intialPosition.X+testVelocityDx*JunkFriction || j.Position.Y != intialPosition.Y+testVelocityDy*JunkFriction {
+	if j.Position.X != initialPosition.X+testVelocity.Dx*JunkFriction || j.Position.Y != initialPosition.Y+testVelocity.Dy*JunkFriction {
 		t.Error("Error: Junk moved incorrectly")
 	}
 
@@ -66,40 +64,39 @@ func TestJunkWallConstraints(t *testing.T) {
 func testJunkWallCollision(t *testing.T, wall int) {
 
 	testVelocity := Velocity{0, 0}
-	intialPosition := Position{testWidth / 2, testHeight / 2}
+	initialPosition := centerPos
 	dyDirection := 1.0
 	dxDirection := 1.0
 
 	switch wall {
 	case 0: // Top wall
 		testVelocity = Velocity{0, -2}
-		intialPosition = Position{testWidth / 2, 0 + JunkRadius + 1}
+		initialPosition = Position{testWidth / 2, 0 + JunkRadius + 1}
 		dyDirection = -1
 	case 1: // Bottom wall
 		testVelocity = Velocity{0, 2}
-		intialPosition = Position{testWidth / 2, testHeight - JunkRadius - 1}
+		initialPosition = Position{testWidth / 2, testHeight - JunkRadius - 1}
 		dyDirection = -1
 	case 2: // Left wall
 		testVelocity = Velocity{-2, 0}
-		intialPosition = Position{0 + JunkRadius + 1, testHeight / 2}
+		initialPosition = Position{0 + JunkRadius + 1, testHeight / 2}
 		dxDirection = -1
 	case 3: // Right wall
 		testVelocity = Velocity{2, 0}
-		intialPosition = Position{testWidth - JunkRadius - 1, testHeight / 2}
+		initialPosition = Position{testWidth - JunkRadius - 1, testHeight / 2}
 		dxDirection = -1
 	default:
 		t.Error("Error: Invalid Wall specified")
 	}
 
-	// Create junk near top wall moving towards it
-	j := new(Junk)
+	// Create junk near wall moving towards it
+	j := CreateJunk(initialPosition)
 	j.Velocity = testVelocity
-	j.Position = intialPosition
 
 	j.UpdatePosition(testHeight, testWidth)
 
 	// Junk should have bounced off the wall
-	if j.Position.X != intialPosition.X+testVelocity.Dx*JunkFriction*dxDirection || j.Position.Y != intialPosition.Y+testVelocity.Dy*JunkFriction*dyDirection {
+	if j.Position.X != initialPosition.X+testVelocity.Dx*JunkFriction*dxDirection || j.Position.Y != initialPosition.Y+testVelocity.Dy*JunkFriction*dyDirection {
 		t.Error("Error: Junk bounced incorrectly")
 	}
 
@@ -118,8 +115,8 @@ func TestPlayerJunkCollisions(t *testing.T) {
 func testPlayerBumpJunk(t *testing.T, direction int) {
 
 	// Create junk
-	j := new(Junk)
-	intialJunkVelocity := Velocity{testVelocityDx, testVelocityDy}
+	j := CreateJunk(centerPos)
+	intialJunkVelocity := testVelocity
 	j.Velocity = intialJunkVelocity
 
 	// Create a Player
@@ -128,13 +125,13 @@ func testPlayerBumpJunk(t *testing.T, direction int) {
 	intialPlayerVelocity := Velocity{0, 0}
 	switch direction {
 	case 0:
-		intialPlayerVelocity = Velocity{-testVelocityDx, testVelocityDy}
+		intialPlayerVelocity = Velocity{-testVelocity.Dx, testVelocity.Dy}
 	case 1:
-		intialPlayerVelocity = Velocity{testVelocityDx, -testVelocityDy}
+		intialPlayerVelocity = Velocity{testVelocity.Dx, -testVelocity.Dy}
 	case 2:
-		intialPlayerVelocity = Velocity{testVelocityDx, testVelocityDy}
+		intialPlayerVelocity = Velocity{testVelocity.Dx, testVelocity.Dy}
 	case 3:
-		intialPlayerVelocity = Velocity{-testVelocityDx, -testVelocityDy}
+		intialPlayerVelocity = Velocity{-testVelocity.Dx, -testVelocity.Dy}
 	default:
 		t.Error("Error: Invalid Direction specified")
 	}
@@ -183,48 +180,35 @@ func testPlayerBumpJunk(t *testing.T, direction int) {
 	}
 }
 
-// Test that gravity vectors are applied to the junk's velocity in the direction of the hole
 func TestJunkGravity(t *testing.T) {
+	for i := 0; i < 4; i++ {
+		t.Run(fmt.Sprintf("Gravity test %d", i), func(t *testing.T) { testJunkGravity(t, i) })
+	}
+}
 
-	// Create Junk
-	j := new(Junk)
-	intialPosition := Position{testWidth / 2, testHeight / 2}
-	// intialJunkVelocity := Velocity{testVelocityDx, testVelocityDy}
-	j.Velocity = Velocity{0, 0}
-	j.Position = intialPosition
+// Test that gravity vectors are applied to the junk's velocity in the direction of the hole
+func testJunkGravity(t *testing.T, direction int) {
 
-	// Create Holes slightly off in each direction to the junk
-	hNW := CreateHole(Position{intialPosition.X - 1, intialPosition.Y + 1})
-	hNE := CreateHole(Position{intialPosition.X + 1, intialPosition.Y + 1})
-	hSW := CreateHole(Position{intialPosition.X - 1, intialPosition.Y - 1})
-	hSE := CreateHole(Position{intialPosition.X + 1, intialPosition.Y - 1})
+	h := CreateHole(Position{0, 0})
+	initialPosition := centerPos
 
-	vector := Velocity{hNW.Position.X - j.Position.X, hNW.Position.Y - j.Position.Y}
-	j.ApplyGravity(&hNW)
-
-	if !checkDirection(vector, j.Velocity) {
-		t.Error("Error: Gravity wasn't applied in the correct direction")
+	switch direction { // Create Hole slightly off in a direction to the junk
+	case 0:
+		h = CreateHole(Position{initialPosition.X - 1, initialPosition.Y + 1})
+	case 1:
+		h = CreateHole(Position{initialPosition.X + 1, initialPosition.Y + 1})
+	case 2:
+		h = CreateHole(Position{initialPosition.X - 1, initialPosition.Y - 1})
+	case 3:
+		h = CreateHole(Position{initialPosition.X + 1, initialPosition.Y - 1})
+	default:
+		t.Error("Error: Invalid Direction specified")
 	}
 
-	j.Velocity = Velocity{0, 0}
-	vector = Velocity{hNE.Position.X - j.Position.X, hNE.Position.Y - j.Position.Y}
-	j.ApplyGravity(&hNE)
+	j := CreateJunk(initialPosition)
 
-	if !checkDirection(vector, j.Velocity) {
-		t.Error("Error: Gravity wasn't applied in the correct direction")
-	}
-
-	j.Velocity = Velocity{0, 0}
-	vector = Velocity{hSW.Position.X - j.Position.X, hSW.Position.Y - j.Position.Y}
-	j.ApplyGravity(&hSW)
-
-	if !checkDirection(vector, j.Velocity) {
-		t.Error("Error: Gravity wasn't applied in the correct direction")
-	}
-
-	j.Velocity = Velocity{0, 0}
-	vector = Velocity{hSE.Position.X - j.Position.X, hSE.Position.Y - j.Position.Y}
-	j.ApplyGravity(&hSE)
+	vector := Velocity{h.Position.X - j.Position.X, h.Position.Y - j.Position.Y}
+	j.ApplyGravity(&h)
 
 	if !checkDirection(vector, j.Velocity) {
 		t.Error("Error: Gravity wasn't applied in the correct direction")
@@ -235,16 +219,16 @@ func TestJunkGravity(t *testing.T) {
 func TestJunkBumpJunk(t *testing.T) {
 
 	// Create 2 junk
-	j1 := new(Junk)
-	intialJunkVelocity := Velocity{testVelocityDx, testVelocityDy}
+	j1 := CreateJunk(centerPos)
+	intialJunkVelocity := Velocity{testVelocity.Dx, testVelocity.Dy}
 	j1.Velocity = intialJunkVelocity
 
-	j2 := new(Junk)
-	otherJunkVelocity := Velocity{-testVelocityDx, testVelocityDy}
+	j2 := CreateJunk(centerPos)
+	otherJunkVelocity := Velocity{-testVelocity.Dx, testVelocity.Dy}
 	j2.Velocity = otherJunkVelocity
 
 	// Hit Junk with Other Junk
-	j1.HitJunk(j2)
+	j1.HitJunk(&j2)
 
 	// Both Junk's velocities should have been affected, not black boxed :(
 	if j1.Velocity.Dx != (intialJunkVelocity.Dx*-JunkVTransferFactor)+(otherJunkVelocity.Dx*JunkVTransferFactor) ||
@@ -259,7 +243,7 @@ func TestJunkBumpJunk(t *testing.T) {
 
 	// Second collision right away should have no effect becuase of the debounce period.
 	lastVelocity := j1.Velocity
-	j1.HitJunk(j2)
+	j1.HitJunk(&j2)
 	if j1.Velocity.Dx != lastVelocity.Dx || j1.Velocity.Dy != lastVelocity.Dy {
 		t.Error("Error: Junk/Junk collision debouncing failed")
 	}

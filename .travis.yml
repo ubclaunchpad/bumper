@@ -9,7 +9,7 @@ env:
 
 before_install:
   - cd $TRAVIS_BUILD_DIR/client
-  - npm install eslint
+  - npm install eslint --silent
   - go get -u github.com/mattn/goveralls
   - go get -u github.com/golang/dep/cmd/dep
   - cd $TRAVIS_BUILD_DIR/server

@@ -57,3 +57,24 @@ func TestUpdateHole(t *testing.T) {
 	}
 
 }
+
+func TestUpdateMaxSizeHole(t *testing.T) {
+	p := Position{
+		X: 5,
+		Y: 10,
+	}
+	h := CreateHole(p)
+	h.Radius = MaxHoleRadius * 1.2
+	h.GravityRadius = 5
+	h.Update()
+	if h.Radius != (MaxHoleRadius * 1.2) {
+		t.Error("Radius increased over the max size")
+	}
+	if h.GravityRadius != 5 {
+		t.Error("Radius is incorrectly increased")
+	}
+}
+
+func TestStartNewLife(t *testing.T) {
+
+}

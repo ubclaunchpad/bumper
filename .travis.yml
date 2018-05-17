@@ -16,6 +16,8 @@ before_install:
   - dep ensure
 
 script: 
+  - cd $TRAVIS_BUILD_DIR/server
   - go test -race -coverprofile=coverage.out ./...
   - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken "$COVERALLS_TOKEN"
+  - cd $TRAVIS_BUILD_DIR/client
   - npm run lint

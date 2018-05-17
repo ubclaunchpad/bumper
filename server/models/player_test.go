@@ -28,8 +28,6 @@ func TestCreatePlayer(t *testing.T) {
 	if p.Name != testName {
 		t.Error("Error assigning name")
 	}
-
-	//To do: test other initializations
 }
 
 func TestUpdatePosition(t *testing.T) {
@@ -38,10 +36,12 @@ func TestUpdatePosition(t *testing.T) {
 	testWidth1 := 20.0
 	testAngle1 := 0.0
 	testPosition1 := Position{5, 5}
-
 	p := new(Player)
 	p.Position = testPosition1
 	p.Angle = testAngle1
+	p.Controls.Left = false
+	p.Controls.Right = false
+	p.Controls.Up = false
 
 	//Test left control
 	p.Controls.Left = true
@@ -61,11 +61,21 @@ func TestUpdatePosition(t *testing.T) {
 	if p.Angle != (testAngle1) {
 		t.Error("Error in up key player control")
 	}
-	// if p.Velocity.Dx != PlayerAcceleration {
-	// 	t.Error("Error in x velocity calculation")
-	// }
 	p.UpdatePosition(testHeight1, testWidth1)
 
+}
+
+func TestHitjunk(t *testing.T) {
+	p := new(Player)
+	testVelocity := Velocity{4, 4}
+	p.Velocity = testVelocity
+	p.hitJunk()
+	if p.Velocity.Dx != testVelocity.Dx*JunkBounceFactor {
+		t.Error("Error calculating player Dx hitting junk")
+	}
+	if p.Velocity.Dy != testVelocity.Dy*JunkBounceFactor {
+		t.Error("Error calculating player Dy hitting junk")
+	}
 }
 
 func TestKeyDownHandler(t *testing.T) {

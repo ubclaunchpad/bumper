@@ -67,7 +67,3 @@ func TestUpdateMaxSizeHole(t *testing.T) {
 		t.Error("Radius is incorrectly increased")
 	}
 }
-
-func TestStartNewLife(t *testing.T) {
-
-}

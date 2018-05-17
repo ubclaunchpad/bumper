@@ -26,4 +26,4 @@ script:
   - cd $TRAVIS_BUILD_DIR/server
   - go test -race -coverprofile=coverage.out ./...
   - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken "$COVERALLS_TOKEN"
-  - PATH=$PATH:$PWD/bin /bin/bash -c 'gometalinter --vendor ./...'
+  - PATH=$PATH:$PWD/bin /bin/bash -c './bin/gometalinter --vendor ./...'

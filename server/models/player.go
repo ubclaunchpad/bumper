@@ -1,6 +1,7 @@
 package models
 
 import (
+	"log"
 	"math"
 	"sync"
 
@@ -75,7 +76,10 @@ func (p *Player) SendJSON(m *Message) error {
 
 // Close ends the WebSocket connection with the player
 func (p *Player) Close() {
-	p.ws.Close()
+	err := p.ws.Close()
+	if err != nil {
+		log.Printf("Failed to close connection:\n%v", err)
+	}
 }
 
 // UpdatePosition based on calculations of position/velocity

@@ -58,12 +58,17 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			g.Arena.AddPlayer(name, ws)
-			msg := models.Message{
-				"initial",
-				name,
+			err := g.Arena.AddPlayer(name, ws)
+			if err != nil {
+				log.Printf("Error adding player:\n%v", err)
+				continue
 			}
-			MessageChannel <- msg
+
+			initialMsg := models.Message{
+				Type: "initial",
+				Data: name,
+			}
+			MessageChannel <- initialMsg
 
 		case "keyHandler":
 			var kh models.KeyHandlerMessage
@@ -73,7 +78,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			if _, ok := g.Arena.Players[name]; ok {
-				if kh.IsPressed == true {
+				if kh.IsPressed {
 					g.Arena.Players[name].KeyDownHandler(kh.Key)
 				} else {
 					g.Arena.Players[name].KeyUpHandler(kh.Key)
@@ -107,9 +112,9 @@ func tick(g *Game) {
 		msg := models.Message{
 			Type: "update",
 			Data: models.UpdateMessage{
-				g.Arena.Holes,
-				g.Arena.Junk,
-				players,
+				Holes:   g.Arena.Holes,
+				Junk:    g.Arena.Junk,
+				Players: players,
 			},
 		}
 
@@ -138,9 +143,9 @@ func messageEmitter(g *Game) {
 			initalMsg := models.Message{
 				Type: "initial",
 				Data: models.ConnectionMessage{
-					g.Arena.Width,
-					g.Arena.Height,
-					p.Color,
+					ArenaWidth:  g.Arena.Width,
+					ArenaHeight: g.Arena.Height,
+					PlayerID:    p.Color,
 				},
 			}
 

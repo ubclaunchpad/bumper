@@ -10,6 +10,7 @@ env:
 cache:
   directories:
     - client/node_modules
+    - server/bin
 
 before_install:
   - cd $TRAVIS_BUILD_DIR/client
@@ -17,7 +18,7 @@ before_install:
   - go get -u github.com/mattn/goveralls
   - go get -u github.com/golang/dep/cmd/dep
   - cd $TRAVIS_BUILD_DIR/server
-  - if [ ! -d "bin" ]; then curl -sfL https://install.goreleaser.com/github.com/alecthomas/gometalinter.sh | bash; fi
+  - if [ ! -f "bin/gometalinter" ]; then curl -sfL https://install.goreleaser.com/github.com/alecthomas/gometalinter.sh | bash; fi
 
 script: 
   - cd $TRAVIS_BUILD_DIR/client

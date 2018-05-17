@@ -56,7 +56,7 @@ func (a *Arena) UpdatePositions() {
 	for _, hole := range a.Holes {
 		hole.Update()
 		if hole.Life < 0 {
-			hole.StartNewLife(a.generateCoordinate(models.MaxHoleRadius))
+			*hole = models.CreateHole(a.generateCoordinate(models.MaxHoleRadius))
 		}
 	}
 	for _, junk := range a.Junk {

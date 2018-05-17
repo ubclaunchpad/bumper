@@ -10,6 +10,9 @@ func TestCreateHole(t *testing.T) {
 		Y: 10,
 	}
 	h := CreateHole(p)
+	if h.Life < MinHoleLife || h.Life > MaxHoleLife {
+		t.Error("hole life span is created too large or too small")
+	}
 	if h.IsAlive {
 		t.Error("isAlive is incorrectly set")
 	}
@@ -39,7 +42,6 @@ func TestUpdateHole(t *testing.T) {
 	if h.Life != 199 {
 		t.Error("Life is incorrectly updated")
 	}
-
 	if h.Radius != 20.02 {
 		t.Error("Radius is incorrectly updated")
 	}

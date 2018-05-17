@@ -52,13 +52,3 @@ func (h *Hole) Update() {
 		h.GravityRadius += 0.03
 	}
 }
-
-// StartNewLife sets this hole to a new position and lifespan
-func (h *Hole) StartNewLife(position Position) {
-	h.IsAlive = false
-	h.Life = math.Floor(rand.Float64()*((MaxHoleLife-MinHoleLife)+1)) + MinHoleLife
-	h.StartingLife = h.Life
-	h.Radius = math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius
-	h.GravityRadius = h.Radius * gravityRadiusFactor
-	h.Position = position
-}

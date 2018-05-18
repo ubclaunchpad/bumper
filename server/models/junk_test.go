@@ -170,7 +170,7 @@ func TestJunkGravity(t *testing.T) {
 		{"Hole NW", Position{centerPos.X - 1, centerPos.Y + 1}},
 		{"Hole NE", Position{centerPos.X + 1, centerPos.Y + 1}},
 		{"Hole SW", Position{centerPos.X - 1, centerPos.Y - 1}},
-		{"Hole NE", Position{centerPos.X + 1, centerPos.Y - 1}},
+		{"Hole SE", Position{centerPos.X + 1, centerPos.Y - 1}},
 	}
 
 	for _, tc := range testCases {

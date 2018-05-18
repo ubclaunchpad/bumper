@@ -100,7 +100,7 @@ func (a *Arena) generateCoordinate(objectRadius float64) models.Position {
 			return position
 		}
 
-		// TODO: Add a timeout here
+		// TODO: Add a timeout here; return error here
 	}
 }
 

@@ -59,7 +59,7 @@ func CreateArena(height float64, width float64) *Arena {
 func (a *Arena) UpdatePositions() {
 	for _, hole := range a.Holes {
 		hole.Update()
-		if hole.Life < 0 {
+		if !hole.IsAlive {
 			*hole = models.CreateHole(a.generateCoordinate(models.MaxHoleRadius))
 		}
 	}
@@ -161,7 +161,7 @@ func (a *Arena) playerCollisions() {
 
 func (a *Arena) holeCollisions() {
 	for _, hole := range a.Holes {
-		if !hole.IsAlive {
+		if !hole.IsCollidable {
 			continue
 		}
 

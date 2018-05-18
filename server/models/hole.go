@@ -21,6 +21,7 @@ type Hole struct {
 	Position      Position `json:"position"`
 	Radius        float64  `json:"radius"`
 	GravityRadius float64  `json:"-"`
+	IsCollidable  bool     `json:"isCollidable"`
 	IsAlive       bool     `json:"isAlive"`
 	Life          float64  `json:"-"`
 	StartingLife  float64  `json:"-"`
@@ -35,7 +36,8 @@ func CreateHole(position Position) Hole {
 		Radius:        radius,
 		GravityRadius: radius * gravityRadiusFactor,
 		Life:          life,
-		IsAlive:       false,
+		IsCollidable:  false,
+		IsAlive:       true,
 		StartingLife:  life,
 	}
 }
@@ -45,7 +47,10 @@ func (h *Hole) Update() {
 	h.Life--
 
 	if h.Life < h.StartingLife-HoleInfancy {
-		h.IsAlive = true
+		h.IsCollidable = true
+	}
+	if h.Life < 0 {
+		h.IsAlive = false
 	}
 	if h.Radius < MaxHoleRadius*1.2 {
 		h.Radius += 0.02

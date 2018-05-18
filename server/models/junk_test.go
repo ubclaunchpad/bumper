@@ -163,24 +163,28 @@ func testPlayerBumpJunk(t *testing.T, intialPlayerVelocity Velocity) {
 }
 
 func TestJunkGravity(t *testing.T) {
-	t.Run("Hole NW", func(t *testing.T) { testJunkGravity(t, Position{centerPos.X - 1, centerPos.Y + 1}) })
-	t.Run("Hole NE", func(t *testing.T) { testJunkGravity(t, Position{centerPos.X + 1, centerPos.Y + 1}) })
-	t.Run("Hole SW", func(t *testing.T) { testJunkGravity(t, Position{centerPos.X - 1, centerPos.Y - 1}) })
-	t.Run("Hole SE", func(t *testing.T) { testJunkGravity(t, Position{centerPos.X + 1, centerPos.Y - 1}) })
-}
+	testCases := []struct {
+		description  string
+		holePosition Position
+	}{
+		{"Hole NW", Position{centerPos.X - 1, centerPos.Y + 1}},
+		{"Hole NE", Position{centerPos.X + 1, centerPos.Y + 1}},
+		{"Hole SW", Position{centerPos.X - 1, centerPos.Y - 1}},
+		{"Hole NE", Position{centerPos.X + 1, centerPos.Y - 1}},
+	}
 
-// Test that gravity vectors are applied to the junk's velocity in the direction of the hole
-func testJunkGravity(t *testing.T, holePos Position) {
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			h := CreateHole(tc.holePosition)
+			j := CreateJunk(centerPos)
 
-	initialPosition := centerPos
-	h := CreateHole(holePos)
-	j := CreateJunk(initialPosition)
+			vector := Velocity{h.Position.X - j.Position.X, h.Position.Y - j.Position.Y}
+			j.ApplyGravity(&h)
 
-	vector := Velocity{h.Position.X - j.Position.X, h.Position.Y - j.Position.Y}
-	j.ApplyGravity(&h)
-
-	if !checkDirection(vector, j.Velocity) {
-		t.Error("Error: Gravity wasn't applied in the correct direction")
+			if !checkDirection(vector, j.Velocity) {
+				t.Error("Error: Gravity wasn't applied in the correct direction")
+			}
+		})
 	}
 }
 

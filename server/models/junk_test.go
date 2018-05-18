@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"math"
 	"testing"
 )
@@ -11,8 +10,10 @@ const (
 	testWidth  = 800
 )
 
-var testVelocity = Velocity{1, 1}
-var centerPos = Position{testWidth / 2, testHeight / 2}
+var (
+	testVelocity = Velocity{1, 1}
+	centerPos    = Position{testWidth / 2, testHeight / 2}
+)
 
 func TestUpdateJunkPosition(t *testing.T) {
 
@@ -56,63 +57,57 @@ func TestUpdateJunkPosition(t *testing.T) {
 }
 
 func TestJunkWallConstraints(t *testing.T) {
-	for i := 0; i < 4; i++ {
-		t.Run(fmt.Sprintf("Wall test %d", i), func(t *testing.T) { testJunkWallCollision(t, i) })
-	}
+	t.Run("Top wall test", func(t *testing.T) {
+		testJunkWallCollision(t, Velocity{0, -2}, Position{testWidth / 2, 0 + JunkRadius + 1})
+	})
+	t.Run("Bottom wall test", func(t *testing.T) {
+		testJunkWallCollision(t, Velocity{0, 2}, Position{testWidth / 2, testHeight - JunkRadius - 1})
+	})
+	t.Run("Left wall test", func(t *testing.T) {
+		testJunkWallCollision(t, Velocity{-2, 0}, Position{0 + JunkRadius + 1, testHeight / 2})
+	})
+	t.Run("Right wall test", func(t *testing.T) {
+		testJunkWallCollision(t, Velocity{2, 0}, Position{testWidth - JunkRadius - 1, testHeight / 2})
+	})
 }
 
-func testJunkWallCollision(t *testing.T, wall int) {
+func testJunkWallCollision(t *testing.T, junkVelocity Velocity, junkPosition Position) {
 
-	testVelocity := Velocity{0, 0}
-	initialPosition := centerPos
 	dyDirection := 1.0
 	dxDirection := 1.0
 
-	switch wall {
-	case 0: // Top wall
-		testVelocity = Velocity{0, -2}
-		initialPosition = Position{testWidth / 2, 0 + JunkRadius + 1}
+	if junkVelocity.Dy != 0 {
 		dyDirection = -1
-	case 1: // Bottom wall
-		testVelocity = Velocity{0, 2}
-		initialPosition = Position{testWidth / 2, testHeight - JunkRadius - 1}
-		dyDirection = -1
-	case 2: // Left wall
-		testVelocity = Velocity{-2, 0}
-		initialPosition = Position{0 + JunkRadius + 1, testHeight / 2}
+	}
+	if junkVelocity.Dx != 0 {
 		dxDirection = -1
-	case 3: // Right wall
-		testVelocity = Velocity{2, 0}
-		initialPosition = Position{testWidth - JunkRadius - 1, testHeight / 2}
-		dxDirection = -1
-	default:
-		t.Error("Error: Invalid Wall specified")
 	}
 
 	// Create junk near wall moving towards it
-	j := CreateJunk(initialPosition)
-	j.Velocity = testVelocity
+	j := CreateJunk(junkPosition)
+	j.Velocity = junkVelocity
 
 	j.UpdatePosition(testHeight, testWidth)
 
 	// Junk should have bounced off the wall
-	if j.Position.X != initialPosition.X+testVelocity.Dx*JunkFriction*dxDirection || j.Position.Y != initialPosition.Y+testVelocity.Dy*JunkFriction*dyDirection {
+	if j.Position.X != junkPosition.X+junkVelocity.Dx*JunkFriction*dxDirection || j.Position.Y != junkPosition.Y+junkVelocity.Dy*JunkFriction*dyDirection {
 		t.Error("Error: Junk bounced incorrectly")
 	}
 
 	// Junks velocity should have had one direction inverted
-	if j.Velocity.Dx != testVelocity.Dx*JunkFriction*dxDirection || j.Velocity.Dy != testVelocity.Dy*JunkFriction*dyDirection {
+	if j.Velocity.Dx != junkVelocity.Dx*JunkFriction*dxDirection || j.Velocity.Dy != junkVelocity.Dy*JunkFriction*dyDirection {
 		t.Error("Error: Junk velocity incorrectly affected, top wall test")
 	}
 }
 
 func TestPlayerJunkCollisions(t *testing.T) {
-	for i := 0; i < 4; i++ {
-		t.Run(fmt.Sprintf("Direction test %d", i), func(t *testing.T) { testPlayerBumpJunk(t, i) })
-	}
+	t.Run("Bump from top right", func(t *testing.T) { testPlayerBumpJunk(t, Velocity{-testVelocity.Dx, testVelocity.Dy}) })
+	t.Run("Bump from bottom left", func(t *testing.T) { testPlayerBumpJunk(t, Velocity{testVelocity.Dx, -testVelocity.Dy}) })
+	t.Run("Bump from top left", func(t *testing.T) { testPlayerBumpJunk(t, Velocity{testVelocity.Dx, testVelocity.Dy}) })
+	t.Run("Bump from bottom right", func(t *testing.T) { testPlayerBumpJunk(t, Velocity{-testVelocity.Dx, -testVelocity.Dy}) })
 }
 
-func testPlayerBumpJunk(t *testing.T, direction int) {
+func testPlayerBumpJunk(t *testing.T, intialPlayerVelocity Velocity) {
 
 	// Create junk
 	j := CreateJunk(centerPos)
@@ -122,19 +117,6 @@ func testPlayerBumpJunk(t *testing.T, direction int) {
 	// Create a Player
 	p := new(Player)
 	p.Color = "red"
-	intialPlayerVelocity := Velocity{0, 0}
-	switch direction {
-	case 0:
-		intialPlayerVelocity = Velocity{-testVelocity.Dx, testVelocity.Dy}
-	case 1:
-		intialPlayerVelocity = Velocity{testVelocity.Dx, -testVelocity.Dy}
-	case 2:
-		intialPlayerVelocity = Velocity{testVelocity.Dx, testVelocity.Dy}
-	case 3:
-		intialPlayerVelocity = Velocity{-testVelocity.Dx, -testVelocity.Dy}
-	default:
-		t.Error("Error: Invalid Direction specified")
-	}
 	p.Velocity = intialPlayerVelocity
 
 	// Hit Junk with Player
@@ -181,30 +163,17 @@ func testPlayerBumpJunk(t *testing.T, direction int) {
 }
 
 func TestJunkGravity(t *testing.T) {
-	for i := 0; i < 4; i++ {
-		t.Run(fmt.Sprintf("Gravity test %d", i), func(t *testing.T) { testJunkGravity(t, i) })
-	}
+	t.Run("Hole NW", func(t *testing.T) { testJunkGravity(t, Position{centerPos.X - 1, centerPos.Y + 1}) })
+	t.Run("Hole NE", func(t *testing.T) { testJunkGravity(t, Position{centerPos.X + 1, centerPos.Y + 1}) })
+	t.Run("Hole SW", func(t *testing.T) { testJunkGravity(t, Position{centerPos.X - 1, centerPos.Y - 1}) })
+	t.Run("Hole SE", func(t *testing.T) { testJunkGravity(t, Position{centerPos.X + 1, centerPos.Y - 1}) })
 }
 
 // Test that gravity vectors are applied to the junk's velocity in the direction of the hole
-func testJunkGravity(t *testing.T, direction int) {
+func testJunkGravity(t *testing.T, holePos Position) {
 
-	h := CreateHole(Position{0, 0})
 	initialPosition := centerPos
-
-	switch direction { // Create Hole slightly off in a direction to the junk
-	case 0:
-		h = CreateHole(Position{initialPosition.X - 1, initialPosition.Y + 1})
-	case 1:
-		h = CreateHole(Position{initialPosition.X + 1, initialPosition.Y + 1})
-	case 2:
-		h = CreateHole(Position{initialPosition.X - 1, initialPosition.Y - 1})
-	case 3:
-		h = CreateHole(Position{initialPosition.X + 1, initialPosition.Y - 1})
-	default:
-		t.Error("Error: Invalid Direction specified")
-	}
-
+	h := CreateHole(holePos)
 	j := CreateJunk(initialPosition)
 
 	vector := Velocity{h.Position.X - j.Position.X, h.Position.Y - j.Position.Y}

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -28,42 +29,37 @@ func TestCreateHole(t *testing.T) {
 }
 
 func TestUpdateHole(t *testing.T) {
-	p := Position{
-		X: 5,
-		Y: 10,
-	}
-	h := CreateHole(p)
-	h.StartingLife = 200
-	h.Life = 200
-	h.Radius = 20
-	h.GravityRadius = 5
-
-	h.Update()
-	if h.Life != 199 {
-		t.Error("Life is incorrectly updated")
-	}
-	if h.Radius != 20.02 {
-		t.Error("Radius is incorrectly updated")
-	}
-	if h.GravityRadius != 5.03 {
-		t.Error("Radius is incorrectly updated")
+	testCases := []struct {
+		radius            float64
+		radiusWant        float64
+		lifeWant          float64
+		gravityRadiusWant float64
+	}{
+		{20, 20.02, 199, 5.03},
+		{MaxHoleRadius * 1.2, MaxHoleRadius * 1.2, 199, 5},
 	}
 
-}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("Test updateHole with radius %v", tc.radius), func(t *testing.T) {
+			h := Hole{
+				Position:      Position{X: 5, Y: 10},
+				Radius:        tc.radius,
+				Life:          200,
+				GravityRadius: 5,
+				IsAlive:       false,
+				StartingLife:  200,
+			}
+			h.Update()
+			if h.Radius != tc.radiusWant {
+				t.Errorf("got %g; want %g", h.Radius, tc.radiusWant)
+			}
+			if h.GravityRadius != tc.gravityRadiusWant {
+				t.Errorf("got %g; want %g", h.GravityRadius, tc.gravityRadiusWant)
+			}
+			if h.Life != tc.lifeWant {
+				t.Errorf("got %g; want %g", h.Life, tc.lifeWant)
+			}
+		})
+	}
 
-func TestUpdateMaxSizeHole(t *testing.T) {
-	p := Position{
-		X: 5,
-		Y: 10,
-	}
-	h := CreateHole(p)
-	h.Radius = MaxHoleRadius * 1.2
-	h.GravityRadius = 5
-	h.Update()
-	if h.Radius != (MaxHoleRadius * 1.2) {
-		t.Error("Radius increased over the max size")
-	}
-	if h.GravityRadius != 5 {
-		t.Error("Radius is incorrectly increased")
-	}
 }

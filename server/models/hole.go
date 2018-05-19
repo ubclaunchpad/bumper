@@ -36,8 +36,7 @@ func CreateHole(position Position) Hole {
 		Radius:        radius,
 		GravityRadius: radius * gravityRadiusFactor,
 		Life:          life,
-		IsCollidable:  false,
-		IsAlive:       true,
+		IsAlive:       false,
 		StartingLife:  life,
 	}
 }
@@ -47,13 +46,14 @@ func (h *Hole) Update() {
 	h.Life--
 
 	if h.Life < h.StartingLife-HoleInfancy {
-		h.IsCollidable = true
-	}
-	if h.Life < 0 {
-		h.IsAlive = false
+		h.IsAlive = true
 	}
 	if h.Radius < MaxHoleRadius*1.2 {
 		h.Radius += 0.02
 		h.GravityRadius += 0.03
 	}
+}
+
+func (h *Hole) IsHoleDead() bool {
+	return h.Life < 0
 }

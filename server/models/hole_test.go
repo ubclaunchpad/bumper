@@ -15,7 +15,7 @@ func TestCreateHole(t *testing.T) {
 	if h.Life < MinHoleLife || h.Life > MaxHoleLife {
 		t.Error("hole life span is created too large or too small")
 	}
-	if !h.IsAlive {
+	if h.IsAlive {
 		t.Error("isAlive is incorrectly set")
 	}
 	if h.Position.X != 5 {
@@ -76,13 +76,13 @@ func TestUpdateHole(t *testing.T) {
 
 func TestHoleLifeCycle(t *testing.T) {
 	testCases := []struct {
-		life        float64
-		numUpdates  int
-		wantIsAlive bool // means that hole dies and starts a new life if false
+		life       float64
+		numUpdates int
+		wantIsDead bool // means that hole dies and starts a new life if false
 	}{
-		{MinHoleLife, 1, true},
-		{MinHoleLife, MinHoleLife - 1, true},
-		{MinHoleLife, MinHoleLife + 1, false},
+		{MinHoleLife, 1, false},
+		{MinHoleLife, MinHoleLife - 1, false},
+		{MinHoleLife, MinHoleLife + 1, true},
 	}
 
 	for _, tc := range testCases {
@@ -101,9 +101,7 @@ func TestHoleLifeCycle(t *testing.T) {
 			for i := 0; i < tc.numUpdates; i++ {
 				h.Update()
 			}
-			fmt.Println(h.IsAlive)
-			fmt.Println(tc.wantIsAlive)
-			if h.IsAlive != tc.wantIsAlive {
+			if h.IsHoleDead() != tc.wantIsDead {
 				t.Errorf("End of hole lifecycle is incorrectly reached or not reached")
 			}
 

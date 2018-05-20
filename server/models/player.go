@@ -148,18 +148,8 @@ func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
 // ApplyGravity applys a vector towards given position
 func (p *Player) ApplyGravity(h *Hole) {
 	gravityVector := Velocity{0, 0}
-
-	if p.Position.X < h.Position.X {
-		gravityVector.Dx = h.Position.X - p.Position.X
-	} else {
-		gravityVector.Dx = h.Position.X - p.Position.X
-	}
-
-	if p.Position.Y < h.Position.Y {
-		gravityVector.Dy = h.Position.Y - p.Position.Y
-	} else {
-		gravityVector.Dy = h.Position.Y - p.Position.Y
-	}
+	gravityVector.Dx = h.Position.X - p.Position.X
+	gravityVector.Dy = h.Position.Y - p.Position.Y
 
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()

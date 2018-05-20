@@ -44,11 +44,7 @@ func CreateArena(height float64, width float64) *Arena {
 
 	for i := 0; i < JunkCount; i++ {
 		position := a.generateCoordinate(models.JunkRadius)
-		junk := models.Junk{
-			Position: position,
-			Velocity: models.Velocity{},
-			Color:    "white",
-		}
+		junk := models.CreateJunk(position)
 		a.Junk = append(a.Junk, &junk)
 	}
 
@@ -252,10 +248,6 @@ func (a *Arena) generateRandomColor() (string, error) {
 // adds a junk in a random spot
 func (a *Arena) generateJunk() {
 	position := a.generateCoordinate(models.JunkRadius)
-	junk := models.Junk{
-		Position: position,
-		Velocity: models.Velocity{Dx: 0, Dy: 0},
-		Color:    "white",
-	}
+	junk := models.CreateJunk(position)
 	a.Junk = append(a.Junk, &junk)
 }

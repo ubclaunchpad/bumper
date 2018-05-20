@@ -7,12 +7,21 @@ env:
   global:
     secure: PmlTn0Om23VVASRTb+7OUJDzuPk+MzF7xctVq99Dku026RGQCX0FgqJ/7DW/ZZVEmCdANTIgzfhKe9TX5jsmFpki1Mfh2gVuwuz+GhQkr28n76w2FnTlyfT+llZ70/XHsS5yogdXoCkIqJiPfWMz8dXcC/C34RKg3hUsG2lxPLyNVjcn5CCzKgTL/0HZ5wZXT4GscfaBP8kEfxxafLTTkc7Pqegofrimn9Eb2VSy5xsX1p9Jj2UwPiTfSOhMjZPShfW6vaSbGmTrKohs5k4QvjnaVNEk+ljHKxIJp0AHbMq8Mi9kvL3Z/SMXAXObPmpjbOjXxvEocdDwM1oTcriwy+OohLNIWALt0aqnl8XZIojU1lhg19UrkGjNARpPAIXtms2j5Hz8LAZNzHnL0qZTjsxHiMFGc/jdkskrUA9m57Cdi6JIRqeiDVr3pEF8wU/JcV/zqi5BCrFVyxhotstLBaoLXaSZBYc+YDbiLFUvx1kd5nCk6bmRyAFL1Q6skRsfPMNH0E1/kMys3UEEzEP/yrP7cs+ZmG5npi9hWiLSsjPm8mll8HwGoLTDX+Xf7NztJo/t2OqRp72GEsy3jB8XIc8nM4Fc4g8cGSIqWliQNuRddiq7b15G7UJmcVzlyOIFFYT+kup8uMPK0JDyRpwMjfFc4NVrgXP9saPGuHdiacU=
 
+cache:
+  directories:
+    - client/node_modules
+
 before_install:
+  - cd $TRAVIS_BUILD_DIR/client
+  - npm install eslint --silent
   - go get -u github.com/mattn/goveralls
   - go get -u github.com/golang/dep/cmd/dep
-  - cd server
+  - cd $TRAVIS_BUILD_DIR/server
   - dep ensure
 
 script: 
+  - cd $TRAVIS_BUILD_DIR/server
   - go test -race -coverprofile=coverage.out ./...
   - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken "$COVERALLS_TOKEN"
+  - cd $TRAVIS_BUILD_DIR/client
+  - npm run lint

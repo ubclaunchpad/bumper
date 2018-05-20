@@ -12,7 +12,7 @@ const (
 	JunkRadius          = 11
 	JunkDebounceTicks   = 15
 	JunkVTransferFactor = 0.5
-	junkGravityDamping  = 0.025
+	JunkGravityDamping  = 0.025
 )
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points
@@ -23,6 +23,17 @@ type Junk struct {
 	LastPlayerHit *Player  `json:"-"`
 	Debounce      int      `json:"-"`
 	jDebounce     int
+}
+
+// CreateJunk initializes and returns an instance of a Junk
+func CreateJunk(position Position) Junk {
+	return Junk{
+		Position:  position,
+		Velocity:  Velocity{0, 0},
+		Color:     "white",
+		Debounce:  0,
+		jDebounce: 0,
+	}
 }
 
 // UpdatePosition Update Junk's position based on calculations of position/velocity
@@ -99,23 +110,13 @@ func (j *Junk) HitJunk(jh *Junk) {
 // ApplyGravity applys a vector towards given position
 func (j *Junk) ApplyGravity(h *Hole) {
 	gravityVector := Velocity{0, 0}
-
-	if j.Position.X < h.Position.X {
-		gravityVector.Dx = h.Position.X - j.Position.X
-	} else {
-		gravityVector.Dx = h.Position.X - j.Position.X
-	}
-
-	if j.Position.Y < h.Position.Y {
-		gravityVector.Dy = h.Position.Y - j.Position.Y
-	} else {
-		gravityVector.Dy = h.Position.Y - j.Position.Y
-	}
+	gravityVector.Dx = h.Position.X - j.Position.X
+	gravityVector.Dy = h.Position.Y - j.Position.Y
 
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()
 
 	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	j.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * junkGravityDamping
-	j.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * junkGravityDamping
+	j.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * JunkGravityDamping
+	j.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * JunkGravityDamping
 }

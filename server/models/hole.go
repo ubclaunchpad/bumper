@@ -28,10 +28,10 @@ type Hole struct {
 }
 
 // CreateHole initializes and returns an instance of a Hole
-func CreateHole(position Position) Hole {
+func CreateHole(position Position) *Hole {
 	life := math.Floor(rand.Float64()*((MaxHoleLife-MinHoleLife)+1)) + MinHoleLife
 	radius := math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius
-	return Hole{
+	h := Hole{
 		Position:      position,
 		Radius:        radius,
 		GravityRadius: radius * gravityRadiusFactor,
@@ -39,6 +39,7 @@ func CreateHole(position Position) Hole {
 		IsAlive:       false,
 		StartingLife:  life,
 	}
+	return &h
 }
 
 // Update reduces this holes life and increases radius if max not reached

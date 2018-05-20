@@ -157,7 +157,7 @@ func TestPlayerBumpJunk(t *testing.T) {
 				t.Error("Error: Player velocity not affected")
 			}
 
-			// Second collision right away should have no effect becuase of the debounce period.
+			// Second collision right away should have no effect because of the debounce period.
 			lastVelocity := j.Velocity
 			j.HitBy(p)
 			if j.Velocity.Dx != lastVelocity.Dx || j.Velocity.Dy != lastVelocity.Dy {
@@ -219,7 +219,7 @@ func TestJunkBumpJunk(t *testing.T) {
 		t.Error("Error: Junk 2's velocity incorrectly affected")
 	}
 
-	// Second collision right away should have no effect becuase of the debounce period.
+	// Second collision right away should have no effect because of the debounce period.
 	lastVelocity := j1.Velocity
 	j1.HitJunk(&j2)
 	if j1.Velocity.Dx != lastVelocity.Dx || j1.Velocity.Dy != lastVelocity.Dy {

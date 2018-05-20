@@ -94,7 +94,6 @@ func TestHoleLifeCycle(t *testing.T) {
 				Life:          tc.life,
 				GravityRadius: 5,
 				IsAlive:       true,
-				IsCollidable:  false,
 				StartingLife:  tc.life,
 			}
 

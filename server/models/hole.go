@@ -21,7 +21,6 @@ type Hole struct {
 	Position      Position `json:"position"`
 	Radius        float64  `json:"radius"`
 	GravityRadius float64  `json:"-"`
-	IsCollidable  bool     `json:"isCollidable"`
 	IsAlive       bool     `json:"isAlive"`
 	Life          float64  `json:"-"`
 	StartingLife  float64  `json:"-"`

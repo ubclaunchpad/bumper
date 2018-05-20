@@ -100,7 +100,7 @@ func TestHoleLifeCycle(t *testing.T) {
 			for i := 0; i < tc.numUpdates; i++ {
 				h.Update()
 			}
-			if h.IsHoleDead() != tc.wantIsDead {
+			if h.IsDead() != tc.wantIsDead {
 				t.Errorf("End of hole lifecycle is incorrectly reached or not reached")
 			}
 

@@ -55,7 +55,7 @@ func CreateArena(height float64, width float64) *Arena {
 func (a *Arena) UpdatePositions() {
 	for i, hole := range a.Holes {
 		hole.Update()
-		if hole.IsHoleDead() {
+		if hole.IsDead() {
 			// remove that hole from the holes
 			a.Holes = append(a.Holes[:i], a.Holes[i+1:]...)
 			// generate a new hole

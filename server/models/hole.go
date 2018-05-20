@@ -54,6 +54,7 @@ func (h *Hole) Update() {
 	}
 }
 
-func (h *Hole) IsHoleDead() bool {
+// IsDead checks the lifespan of the hole
+func (h *Hole) IsDead() bool {
 	return h.Life < 0
 }

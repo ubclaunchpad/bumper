@@ -1,0 +1,11 @@
+{
+  "Enable": [
+      "megacheck",
+      "interfacer",
+      "goconst",
+      "misspell",
+      "gofmt",
+      "goimports",
+      "vet"
+  ]
+}

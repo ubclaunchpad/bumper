@@ -39,7 +39,7 @@ func CreateArena(height float64, width float64) *Arena {
 	for i := 0; i < HoleCount; i++ {
 		position := a.generateCoordinate(models.MinHoleRadius)
 		hole := models.CreateHole(position)
-		a.Holes = append(a.Holes, &hole)
+		a.Holes = append(a.Holes, hole)
 	}
 
 	for i := 0; i < JunkCount; i++ {
@@ -57,10 +57,14 @@ func CreateArena(height float64, width float64) *Arena {
 
 // UpdatePositions calculates the next state of each object
 func (a *Arena) UpdatePositions() {
-	for _, hole := range a.Holes {
+	for i, hole := range a.Holes {
 		hole.Update()
 		if hole.IsHoleDead() {
-			*hole = models.CreateHole(a.generateCoordinate(models.MaxHoleRadius))
+			// remove that hole from the holes
+			a.Holes = append(a.Holes[:i], a.Holes[i+1:]...)
+			// generate a new hole
+			hole = models.CreateHole(a.generateCoordinate(models.MaxHoleRadius))
+			a.Holes = append(a.Holes, hole)
 		}
 	}
 	for _, junk := range a.Junk {

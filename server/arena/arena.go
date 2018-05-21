@@ -256,14 +256,22 @@ func (a *Arena) addJunk() {
 	a.Junk = append(a.Junk, &junk)
 }
 
+// remove junk without considering order
 func (a *Arena) removeJunk(index int) {
-
+	a.Junk[index] = a.Junk[len(a.Junk)-1]
+	a.Junk[len(a.Junk)-1] = nil
+	a.Junk = a.Junk[:len(a.Junk)-1]
 }
 
+// adds a hole in a random spot
 func (a *Arena) addHole() {
-
+	h := models.CreateHole(a.generateCoordinate(models.MinHoleRadius))
+	a.Holes = append(a.Holes, h)
 }
 
+// remove hole without considering order
 func (a *Arena) removeHole(index int) {
-
+	a.Holes[index] = a.Holes[len(a.Holes)-1]
+	a.Holes[len(a.Holes)-1] = nil
+	a.Holes = a.Holes[:len(a.Holes)-1]
 }

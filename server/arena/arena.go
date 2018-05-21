@@ -31,8 +31,14 @@ type Arena struct {
 
 // CreateArena constructor for arena initializes holes and junk
 func CreateArena(height float64, width float64, holeCount int, junkCount int) *Arena {
-	a := Arena{sync.RWMutex{}, height, width, nil, nil, nil}
-	a.Players = make(map[string]*models.Player)
+	a := Arena{
+		sync.RWMutex{},
+		height,
+		width,
+		make([]*models.Hole, 0, holeCount),
+		make([]*models.Junk, 0, junkCount),
+		make(map[string]*models.Player),
+	}
 
 	for i := 0; i < holeCount; i++ {
 		position := a.generateCoordinate(models.MinHoleRadius)

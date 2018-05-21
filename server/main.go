@@ -183,7 +183,7 @@ func main() {
 
 	arena.MessageChannel = MessageChannel
 	game := Game{
-		Arena:       arena.CreateArena(2400, 2800),
+		Arena:       arena.CreateArena(2400, 2800, 20, 30),
 		RefreshRate: time.Millisecond * 17, // 60 Hz
 	}
 

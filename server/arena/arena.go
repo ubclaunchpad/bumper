@@ -11,10 +11,8 @@ import (
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
-// Game related constants
+// Arena related constants
 const (
-	JunkCount          = 30
-	HoleCount          = 20
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
@@ -32,17 +30,17 @@ type Arena struct {
 }
 
 // CreateArena constructor for arena initializes holes and junk
-func CreateArena(height float64, width float64) *Arena {
+func CreateArena(height float64, width float64, holeCount int, junkCount int) *Arena {
 	a := Arena{sync.RWMutex{}, height, width, nil, nil, nil}
 	a.Players = make(map[string]*models.Player)
 
-	for i := 0; i < HoleCount; i++ {
+	for i := 0; i < holeCount; i++ {
 		position := a.generateCoordinate(models.MinHoleRadius)
 		hole := models.CreateHole(position)
 		a.Holes = append(a.Holes, hole)
 	}
 
-	for i := 0; i < JunkCount; i++ {
+	for i := 0; i < junkCount; i++ {
 		position := a.generateCoordinate(models.JunkRadius)
 		junk := models.CreateJunk(position)
 		a.Junk = append(a.Junk, &junk)

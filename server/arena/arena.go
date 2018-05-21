@@ -56,11 +56,8 @@ func (a *Arena) UpdatePositions() {
 	for i, hole := range a.Holes {
 		hole.Update()
 		if hole.IsDead() {
-			// remove that hole from the holes
-			a.Holes = append(a.Holes[:i], a.Holes[i+1:]...)
-			// generate a new hole
-			hole = models.CreateHole(a.generateCoordinate(models.MaxHoleRadius))
-			a.Holes = append(a.Holes, hole)
+			a.removeHole(i)
+			a.addHole()
 		}
 	}
 	for _, junk := range a.Junk {
@@ -76,6 +73,20 @@ func (a *Arena) CollisionDetection() {
 	a.playerCollisions()
 	a.holeCollisions()
 	a.junkCollisions()
+}
+
+// GetState blah blah blah
+func (a *Arena) GetState() *models.UpdateMessage {
+	players := make([]*models.Player, 0, len(a.Players))
+	for _, player := range a.Players {
+		players = append(players, player)
+	}
+
+	return &models.UpdateMessage{
+		Holes:   a.Holes,
+		Junk:    a.Junk,
+		Players: players,
+	}
 }
 
 // AddPlayer adds a new player to the arena
@@ -186,9 +197,7 @@ func (a *Arena) holeCollisions() {
 					playerScored.AddPoints(models.PointsPerJunk)
 				}
 
-				// remove that junk from the junk
-				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
-				//create a new junk to hold the count steady
+				a.removeJunk(i)
 				a.addJunk()
 			} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
 				junk.ApplyGravity(hole)

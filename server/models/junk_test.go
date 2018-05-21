@@ -206,7 +206,7 @@ func TestJunkBumpJunk(t *testing.T) {
 	j2.Velocity = otherJunkVelocity
 
 	// Hit Junk with Other Junk
-	j1.HitJunk(&j2)
+	j1.HitJunk(j2)
 
 	// Both Junk's velocities should have been affected, not black boxed :(
 	if j1.Velocity.Dx != (initialJunkVelocity.Dx*-JunkVTransferFactor)+(otherJunkVelocity.Dx*JunkVTransferFactor) ||
@@ -221,7 +221,7 @@ func TestJunkBumpJunk(t *testing.T) {
 
 	// Second collision right away should have no effect because of the debounce period.
 	lastVelocity := j1.Velocity
-	j1.HitJunk(&j2)
+	j1.HitJunk(j2)
 	if j1.Velocity.Dx != lastVelocity.Dx || j1.Velocity.Dy != lastVelocity.Dy {
 		t.Error("Error: Junk/Junk collision debouncing failed")
 	}

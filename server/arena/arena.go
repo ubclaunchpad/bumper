@@ -41,15 +41,11 @@ func CreateArena(height float64, width float64, holeCount int, junkCount int) *A
 	}
 
 	for i := 0; i < holeCount; i++ {
-		position := a.generateCoordinate(models.MinHoleRadius)
-		hole := models.CreateHole(position)
-		a.Holes = append(a.Holes, hole)
+		a.addHole()
 	}
 
 	for i := 0; i < junkCount; i++ {
-		position := a.generateCoordinate(models.JunkRadius)
-		junk := models.CreateJunk(position)
-		a.Junk = append(a.Junk, &junk)
+		a.addJunk()
 	}
 
 	return &a
@@ -253,7 +249,7 @@ func (a *Arena) generateRandomColor() (string, error) {
 func (a *Arena) addJunk() {
 	position := a.generateCoordinate(models.JunkRadius)
 	junk := models.CreateJunk(position)
-	a.Junk = append(a.Junk, &junk)
+	a.Junk = append(a.Junk, junk)
 }
 
 // remove junk without considering order

@@ -26,8 +26,8 @@ type Junk struct {
 }
 
 // CreateJunk initializes and returns an instance of a Junk
-func CreateJunk(position Position) Junk {
-	return Junk{
+func CreateJunk(position Position) *Junk {
+	return &Junk{
 		Position:  position,
 		Velocity:  Velocity{0, 0},
 		Color:     "white",

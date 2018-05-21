@@ -193,7 +193,7 @@ func (a *Arena) holeCollisions() {
 				// remove that junk from the junk
 				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
 				//create a new junk to hold the count steady
-				a.generateJunk()
+				a.addJunk()
 			} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
 				junk.ApplyGravity(hole)
 			}
@@ -250,8 +250,20 @@ func (a *Arena) generateRandomColor() (string, error) {
 }
 
 // adds a junk in a random spot
-func (a *Arena) generateJunk() {
+func (a *Arena) addJunk() {
 	position := a.generateCoordinate(models.JunkRadius)
 	junk := models.CreateJunk(position)
 	a.Junk = append(a.Junk, &junk)
+}
+
+func (a *Arena) removeJunk(index int) {
+
+}
+
+func (a *Arena) addHole() {
+
+}
+
+func (a *Arena) removeHole(index int) {
+
 }

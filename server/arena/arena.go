@@ -262,10 +262,15 @@ func (a *Arena) addJunk() {
 }
 
 // remove junk without considering order
-func (a *Arena) removeJunk(index int) {
+func (a *Arena) removeJunk(index int) bool {
+	if len(a.Junk) < index+1 {
+		return false
+	}
+
 	a.Junk[index] = a.Junk[len(a.Junk)-1]
 	a.Junk[len(a.Junk)-1] = nil
 	a.Junk = a.Junk[:len(a.Junk)-1]
+	return true
 }
 
 // adds a hole in a random spot
@@ -275,8 +280,13 @@ func (a *Arena) addHole() {
 }
 
 // remove hole without considering order
-func (a *Arena) removeHole(index int) {
+func (a *Arena) removeHole(index int) bool {
+	if len(a.Holes) < index+1 {
+		return false
+	}
+
 	a.Holes[index] = a.Holes[len(a.Holes)-1]
 	a.Holes[len(a.Holes)-1] = nil
 	a.Holes = a.Holes[:len(a.Holes)-1]
+	return true
 }

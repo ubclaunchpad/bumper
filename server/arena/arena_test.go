@@ -49,3 +49,36 @@ func TestAddPlayer(t *testing.T) {
 		})
 	}
 }
+
+func TestRemoveObject(t *testing.T) {
+	a := CreateArena(testHeight, testWidth, 0, 0)
+
+	testCount := 10
+	testCases := []struct {
+		description string
+		remove      func(int) bool
+		add         func()
+	}{
+		{"Holes", a.removeHole, a.addHole},
+		{"Junk", a.removeJunk, a.addJunk},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			for i := 0; i < testCount; i++ {
+				tc.add()
+			}
+
+			for i := 0; i < testCount; i++ {
+				ok := tc.remove(0)
+				if !ok {
+					t.Errorf("%s removal error", tc.description)
+				}
+			}
+
+			ok := tc.remove(0)
+			if ok {
+				t.Errorf("Removal from empty slice of %s returned true", tc.description)
+			}
+		})
+	}
+}

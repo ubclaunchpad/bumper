@@ -50,7 +50,7 @@ func TestAddPlayer(t *testing.T) {
 	}
 }
 
-func TestRemoveObject(t *testing.T) {
+func TestAddRemoveObject(t *testing.T) {
 	a := CreateArena(testHeight, testWidth, 0, 0)
 
 	testCount := 10
@@ -71,7 +71,7 @@ func TestRemoveObject(t *testing.T) {
 			for i := 0; i < testCount; i++ {
 				ok := tc.remove(0)
 				if !ok {
-					t.Errorf("%s removal error", tc.description)
+					t.Errorf("%s removal error at count %d", tc.description, i)
 				}
 			}
 

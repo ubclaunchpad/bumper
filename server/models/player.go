@@ -36,6 +36,7 @@ type KeysPressed struct {
 // Player contains data and state about a player's object
 type Player struct {
 	Name     string      `json:"name"`
+	ID       string      `json:"id"`
 	Position Position    `json:"position"`
 	Velocity Velocity    `json:"-"`
 	Color    string      `json:"color"`
@@ -48,9 +49,10 @@ type Player struct {
 
 // CreatePlayer constructs an instance of player with
 // given position, color, and WebSocket connection
-func CreatePlayer(n string, p Position, c string, ws *websocket.Conn) *Player {
+func CreatePlayer(id string, n string, p Position, c string, ws *websocket.Conn) *Player {
 	return &Player{
 		Name:     n,
+		ID:       id,
 		Position: p,
 		Velocity: Velocity{},
 		Color:    c,

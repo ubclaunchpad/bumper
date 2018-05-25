@@ -79,14 +79,13 @@ func (a *Arena) CollisionDetection() {
 }
 
 // AddPlayer adds a new player to the arena
-func (a *Arena) AddPlayer(n string, ws *websocket.Conn) error {
+func (a *Arena) AddPlayer(id string, n string, ws *websocket.Conn) error {
 	color, err := a.generateRandomColor()
 	if err != nil {
 		return err
 	}
-
 	position := a.generateCoordinate(models.PlayerRadius)
-	a.Players[n] = models.CreatePlayer(n, position, color, ws)
+	a.Players[id] = models.CreatePlayer(id, n, position, color, ws)
 	return nil
 }
 

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/rs/xid"
 	"github.com/ubclaunchpad/bumper/server/arena"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
@@ -30,11 +29,6 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func genUniqueId() string {
-	id := xid.New()
-	return id.String()
-}
-
 // ServeHTTP handles a connection from a client
 // Upgrades client's connection to WebSocket and listens for messages
 func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +40,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer ws.Close()
 
 	name := r.URL.Query().Get("name")
-	id := genUniqueId()
+	id := models.GenUniqueID()
 	for {
 		var msg models.Message
 		err := ws.ReadJSON(&msg)

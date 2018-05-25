@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+	"github.com/rs/xid"
 )
 
 // Player related constants
@@ -61,6 +62,11 @@ func CreatePlayer(id string, n string, p Position, c string, ws *websocket.Conn)
 		mutex:    sync.Mutex{},
 		ws:       ws,
 	}
+}
+
+func GenUniqueID() string {
+	id := xid.New()
+	return id.String()
 }
 
 // AddPoints adds numPoints to player p

@@ -3,6 +3,8 @@ package arena
 import (
 	"fmt"
 	"testing"
+
+	"github.com/ubclaunchpad/bumper/server/models"
 )
 
 const (
@@ -12,13 +14,14 @@ const (
 	testJunkCount = 30
 )
 
-// sets up a fresh instance of an arena for testing
-func createTestArena() *Arena {
-	return CreateArena(testHeight, testWidth, testHoleCount, testJunkCount)
-}
+var (
+	testVelocity    = models.Velocity{Dx: 1, Dy: 1}
+	centerPosition  = models.Position{X: testWidth / 2, Y: testHeight / 2}
+	quarterPosition = models.Position{X: testWidth / 4, Y: testHeight / 4}
+)
 
 func TestCreateArena(t *testing.T) {
-	a := createTestArena()
+	a := CreateArena(testHeight, testWidth, testHoleCount, testJunkCount)
 
 	holeCount := len(a.Holes)
 	if holeCount != testHoleCount {
@@ -32,7 +35,7 @@ func TestCreateArena(t *testing.T) {
 }
 
 func TestAddPlayer(t *testing.T) {
-	a := createTestArena()
+	a := CreateArena(testHeight, testWidth, testHoleCount, testJunkCount)
 
 	numPlayers := 3
 	for i := 0; i < numPlayers; i++ {
@@ -78,6 +81,36 @@ func TestAddRemoveObject(t *testing.T) {
 			ok := tc.remove(0)
 			if ok {
 				t.Errorf("Removal from empty slice of %s returned true", tc.description)
+			}
+		})
+	}
+}
+
+func TestPlayerToPlayerCollisions(t *testing.T) {
+
+	testCases := []struct {
+		otherPlayer      string
+		testPosition     models.Position
+		expectedPosition models.Position
+	}{
+		{"colliding", quarterPosition, models.Position{X: 700.375, Y: 600.375}},
+		{"non-colliding", centerPosition, quarterPosition},
+	}
+
+	for _, tc := range testCases {
+		t.Run("Player to Player collision", func(t *testing.T) {
+			a := CreateArena(testHeight, testWidth, 0, 0)
+			a.AddPlayer("test", nil)
+			testPlayer := a.Players["test"]
+			testPlayer.Position = quarterPosition
+			testPlayer.Velocity = testVelocity
+
+			a.AddPlayer(tc.otherPlayer, nil)
+			a.Players[tc.otherPlayer].Position = tc.testPosition
+
+			a.playerCollisions()
+			if testPlayer.Position != tc.expectedPosition {
+				t.Errorf("%s detection failed. Got player at %v. Expected player at %v", tc.otherPlayer, testPlayer.Position, tc.expectedPosition)
 			}
 		})
 	}

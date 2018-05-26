@@ -29,6 +29,10 @@
   name = "github.com/gorilla/websocket"
   version = "1.2.0"
 
+[[constraint]]
+  name = "github.com/rs/xid"
+  version = "1.2.0"
+
 [prune]
   go-tests = true
   unused-packages = true

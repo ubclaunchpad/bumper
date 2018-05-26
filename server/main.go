@@ -40,12 +40,13 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer ws.Close()
 
 	name := r.URL.Query().Get("name")
+	id := models.GenUniqueID()
 	for {
 		var msg models.Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("%v\n", err)
-			delete(g.Arena.Players, name)
+			delete(g.Arena.Players, id)
 			break
 		}
 
@@ -58,7 +59,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			err := g.Arena.AddPlayer(name, ws)
+			err := g.Arena.AddPlayer(id, name, ws)
 			if err != nil {
 				log.Printf("Error adding player:\n%v", err)
 				continue
@@ -66,7 +67,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			initialMsg := models.Message{
 				Type: "initial",
-				Data: name,
+				Data: id,
 			}
 			MessageChannel <- initialMsg
 
@@ -77,11 +78,11 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				log.Printf("%v\n", err)
 				continue
 			}
-			if _, ok := g.Arena.Players[name]; ok {
+			if _, ok := g.Arena.Players[id]; ok {
 				if kh.IsPressed {
-					g.Arena.Players[name].KeyDownHandler(kh.Key)
+					g.Arena.Players[id].KeyDownHandler(kh.Key)
 				} else {
-					g.Arena.Players[name].KeyUpHandler(kh.Key)
+					g.Arena.Players[id].KeyUpHandler(kh.Key)
 				}
 			}
 
@@ -110,13 +111,13 @@ func tick(g *Game) {
 		}
 
 		// update every client
-		for name := range g.Arena.Players {
-			p := g.Arena.Players[name]
+		for id := range g.Arena.Players {
+			p := g.Arena.Players[id]
 			err := p.SendJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)
 				p.Close()
-				delete(g.Arena.Players, name)
+				delete(g.Arena.Players, id)
 			}
 		}
 	}
@@ -128,8 +129,8 @@ func messageEmitter(g *Game) {
 
 		switch msg.Type {
 		case "initial":
-			name := msg.Data.(string)
-			p := g.Arena.Players[name]
+			id := msg.Data.(string)
+			p := g.Arena.Players[id]
 
 			initalMsg := models.Message{
 				Type: "initial",
@@ -144,23 +145,23 @@ func messageEmitter(g *Game) {
 			if err != nil {
 				log.Printf("error: %v", err)
 				p.Close()
-				delete(g.Arena.Players, name)
+				delete(g.Arena.Players, id)
 			}
 
 		case "death":
-			name := msg.Data.(string)
+			id := msg.Data.(string)
 			deathMsg := models.Message{
 				Type: "death",
 				Data: nil,
 			}
 
-			p := g.Arena.Players[name]
+			p := g.Arena.Players[id]
 			err := p.SendJSON(&deathMsg)
 			if err != nil {
 				log.Printf("error: %v", err)
 				p.Close()
 			}
-			delete(g.Arena.Players, name)
+			delete(g.Arena.Players, id)
 
 		default:
 			log.Println("Unknown message type to emit")

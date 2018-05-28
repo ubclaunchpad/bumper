@@ -1,21 +1,29 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"math/rand"
 	"net/http"
 	"time"
 
+	firebase "firebase.google.com/go"
 	"github.com/gorilla/websocket"
 	"github.com/ubclaunchpad/bumper/server/arena"
 	"github.com/ubclaunchpad/bumper/server/models"
+	"google.golang.org/api/option"
 )
 
 // Game represents a session
 type Game struct {
 	Arena       *arena.Arena
 	RefreshRate time.Duration
+}
+
+type score struct {
+	Name  string
+	Score int
 }
 
 // MessageChannel is used by the server to emit messages to a client
@@ -188,6 +196,34 @@ func main() {
 		RefreshRate: time.Millisecond * 17, // 60 Hz
 	}
 
+	// Initialize default DB App
+	opt := option.WithCredentialsFile("BumperDB-3b7d790985b1.json")
+	ctx := context.Background()
+	config := &firebase.Config{
+		DatabaseURL: "https://bumperdb-d7f48.firebaseio.com",
+	}
+	app, err := firebase.NewApp(ctx, config, opt)
+	if err != nil {
+		log.Fatalf("error initializing app: %v", err)
+	}
+
+	// Access DB Client
+	client, err := app.Database(ctx)
+	if err != nil {
+		log.Fatalf("error getting DB client: %v", err)
+	}
+
+	testData := score{
+		Name:  "Graeme",
+		Score: 100,
+	}
+
+	// Send test data to DB
+	err = client.NewRef("leaderboard/graeme").Set(ctx, testData)
+	if err != nil {
+		log.Fatalf("Couldn't set data: %v", err)
+	}
+
 	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.Handle("/connect", &game)
 	go messageEmitter(&game)
@@ -195,7 +231,7 @@ func main() {
 	go tick(&game)
 
 	log.Println("Starting server on localhost:9090")
-	err := http.ListenAndServe(":9090", nil)
+	err = http.ListenAndServe(":9090", nil)
 	if err != nil {
 		log.Fatal("Error starting server")
 	}

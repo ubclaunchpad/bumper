@@ -41,7 +41,8 @@ func TestAddPlayer(t *testing.T) {
 	for i := 0; i < numPlayers; i++ {
 		t.Run("TestAddPlayer", func(t *testing.T) {
 
-			err := a.AddPlayer(fmt.Sprintf("player%d", i), nil)
+			name := fmt.Sprintf("player%d", i)
+			err := a.AddPlayer(name, name, nil)
 			if err != nil {
 				t.Errorf("Failed to add player: %v", err)
 			}
@@ -100,12 +101,12 @@ func TestPlayerToPlayerCollisions(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run("Player to Player collision", func(t *testing.T) {
 			a := CreateArena(testHeight, testWidth, 0, 0)
-			a.AddPlayer("test", nil)
+			a.AddPlayer("test", "", nil)
 			testPlayer := a.Players["test"]
 			testPlayer.Position = quarterPosition
 			testPlayer.Velocity = testVelocity
 
-			a.AddPlayer(tc.otherPlayer, nil)
+			a.AddPlayer(tc.otherPlayer, "", nil)
 			a.Players[tc.otherPlayer].Position = tc.testPosition
 
 			a.playerCollisions()

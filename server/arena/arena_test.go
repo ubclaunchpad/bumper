@@ -116,3 +116,19 @@ func TestPlayerToPlayerCollisions(t *testing.T) {
 		})
 	}
 }
+
+func TestPlayerToJunkCollisions(t *testing.T) {
+
+}
+
+func TestJunkToJunkCollisions(t *testing.T) {
+
+}
+
+func TestHoleToPlayerCollisions(t *testing.T) {
+
+}
+
+func TestHoleToJunkCollisions(t *testing.T) {
+
+}

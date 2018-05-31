@@ -105,18 +105,9 @@ func tick(g *Game) {
 	for {
 		time.Sleep(g.RefreshRate)
 
-		players := make([]*models.Player, 0, len(g.Arena.Players))
-		for _, player := range g.Arena.Players {
-			players = append(players, player)
-		}
-
 		msg := models.Message{
 			Type: "update",
-			Data: models.UpdateMessage{
-				Holes:   g.Arena.Holes,
-				Junk:    g.Arena.Junk,
-				Players: players,
-			},
+			Data: g.Arena.GetState(),
 		}
 
 		// update every client
@@ -184,7 +175,7 @@ func main() {
 
 	arena.MessageChannel = MessageChannel
 	game := Game{
-		Arena:       arena.CreateArena(2400, 2800),
+		Arena:       arena.CreateArena(2400, 2800, 20, 30),
 		RefreshRate: time.Millisecond * 17, // 60 Hz
 	}
 

@@ -20,6 +20,15 @@ var (
 	quarterPosition = models.Position{X: testWidth / 4, Y: testHeight / 4}
 )
 
+func CreateArenaWithPlayer(p models.Position) *Arena {
+	a := CreateArena(testHeight, testWidth, 0, 0)
+	a.AddPlayer("test", "", nil)
+	testPlayer := a.Players["test"]
+	testPlayer.Position = p
+	testPlayer.Velocity = testVelocity
+	return a
+}
+
 func TestCreateArena(t *testing.T) {
 	a := CreateArena(testHeight, testWidth, testHoleCount, testJunkCount)
 
@@ -88,7 +97,6 @@ func TestAddRemoveObject(t *testing.T) {
 }
 
 func TestPlayerToPlayerCollisions(t *testing.T) {
-
 	testCases := []struct {
 		otherPlayer      string
 		testPosition     models.Position
@@ -100,29 +108,68 @@ func TestPlayerToPlayerCollisions(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run("Player to Player collision", func(t *testing.T) {
-			a := CreateArena(testHeight, testWidth, 0, 0)
-			a.AddPlayer("test", "", nil)
-			testPlayer := a.Players["test"]
-			testPlayer.Position = quarterPosition
-			testPlayer.Velocity = testVelocity
+			a := CreateArenaWithPlayer(quarterPosition)
 
 			a.AddPlayer(tc.otherPlayer, "", nil)
 			a.Players[tc.otherPlayer].Position = tc.testPosition
 
 			a.playerCollisions()
-			if testPlayer.Position != tc.expectedPosition {
-				t.Errorf("%s detection failed. Got player at %v. Expected player at %v", tc.otherPlayer, testPlayer.Position, tc.expectedPosition)
+			if a.Players["test"].Position != tc.expectedPosition {
+				t.Errorf("%s detection failed. Got player at %v. Expected player at %v", tc.otherPlayer, a.Players["test"].Position, tc.expectedPosition)
 			}
 		})
 	}
 }
 
 func TestPlayerToJunkCollisions(t *testing.T) {
+	a := CreateArenaWithPlayer(quarterPosition)
 
+	testCases := []struct {
+		description    string
+		testPosition   models.Position
+		expectedPlayer *models.Player
+	}{
+		{"non-colliding", centerPosition, nil},
+		{"colliding", quarterPosition, a.Players["test"]},
+	}
+	for i, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			a.addJunk()
+			a.Junk[i].Position = tc.testPosition
+
+			a.playerCollisions()
+			if a.Junk[i].LastPlayerHit != tc.expectedPlayer {
+				t.Errorf("%s detection failed. Test Player at %v. Junk at %v. Junk Last Player Hit %v", tc.description, a.Players["test"].Position, a.Junk[i].Position, a.Junk[i].LastPlayerHit)
+			}
+		})
+	}
 }
 
 func TestJunkToJunkCollisions(t *testing.T) {
+	testCases := []struct {
+		description      string
+		testPosition     models.Position
+		expectedVelocity models.Velocity
+	}{
+		{"non-colliding", centerPosition, testVelocity},
+		{"colliding", quarterPosition, models.Velocity{Dx: -0.5, Dy: -0.5}},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			a := CreateArena(testHeight, testWidth, 0, 0)
+			a.addJunk()
+			a.Junk[0].Position = quarterPosition
+			a.Junk[0].Velocity = testVelocity
 
+			a.addJunk()
+			a.Junk[1].Position = tc.testPosition
+
+			a.junkCollisions()
+			if a.Junk[0].Velocity != tc.expectedVelocity {
+				t.Errorf("%s detection failed. Expected %v. Got %v", tc.description, tc.expectedVelocity, a.Junk[0].Velocity)
+			}
+		})
+	}
 }
 
 func TestHoleToPlayerCollisions(t *testing.T) {

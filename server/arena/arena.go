@@ -75,7 +75,7 @@ func (a *Arena) CollisionDetection() {
 	a.junkCollisions()
 }
 
-// GetState blah blah blah
+// GetState assembles an UpdateMessage from the current state of the arena
 func (a *Arena) GetState() *models.UpdateMessage {
 	players := make([]*models.Player, 0, len(a.Players))
 	for _, player := range a.Players {

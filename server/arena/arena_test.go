@@ -172,10 +172,12 @@ func TestJunkToJunkCollisions(t *testing.T) {
 	}
 }
 
+// TODO: Complete once Game package refactoring has happened
 func TestHoleToPlayerCollisions(t *testing.T) {
 
 }
 
+// TODO: Complete once Game package refactoring has happened
 func TestHoleToJunkCollisions(t *testing.T) {
 
 }

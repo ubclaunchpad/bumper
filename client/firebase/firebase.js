@@ -1,7 +1,7 @@
 import * as firebase from 'firebase';
 
 const config = {
-  apiKey: '----',
+  apiKey: 'AIzaSyA4CbYttLND1GH-uoLF523KYkn4tadF6rY',
   authDomain: 'bumperdb-d7f48.firebaseapp.com',
   databaseURL: 'https://bumperdb-d7f48.firebaseio.com',
   projectId: 'bumperdb-d7f48',

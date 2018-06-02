@@ -1,6 +1,8 @@
 package models
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"math"
 	"sync"
@@ -48,6 +50,12 @@ type Player struct {
 	ws       *websocket.Conn
 }
 
+// Datatype for interacting with the Leaderboard DB
+type score struct {
+	Name  string
+	Score int
+}
+
 // CreatePlayer constructs an instance of player with
 // given position, color, and WebSocket connection
 func CreatePlayer(id string, n string, p Position, c string, ws *websocket.Conn) *Player {
@@ -72,6 +80,28 @@ func GenUniqueID() string {
 // AddPoints adds numPoints to player p
 func (p *Player) AddPoints(numPoints int) {
 	p.Points = p.Points + numPoints
+
+	// Send updated score to Leaderboard.
+	scoreData := score{
+		Name:  p.ID,
+		Score: p.Points,
+	}
+
+	// Send test data to DB
+	fmt.Println(scoreData)
+
+	err := DBC.DBCon.NewRef("leaderboard/Test").Set(context.Background(), scoreData)
+	if err != nil {
+		log.Fatalf("Couldn't set data: %v", err)
+	}
+
+	// Fetch Leaderboard data
+	var data score
+	err = DBC.DBCon.NewRef("leaderboard/Test").Get(context.Background(), &data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("%s has a score of %d\n", data.Name, data.Score)
 }
 
 // SendJSON sends JSON data through the player's websocket connection

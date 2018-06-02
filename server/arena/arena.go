@@ -2,7 +2,9 @@ package arena
 
 import (
 	"bytes"
+	"context"
 	"errors"
+	"log"
 	"math"
 	"math/rand"
 	"sync"
@@ -166,13 +168,30 @@ func (a *Arena) holeCollisions() {
 
 		for name, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-				// TODO: send a you're dead signal - err := client.WriteJSON(&msg)
-				// Also should award some points to the bumper... Not as straight forward as the junk
+				// TODO: Should award some points to the bumper... Not as straight forward as the junk
 				deathMsg := models.Message{
 					Type: "death",
 					Data: name,
 				}
 				MessageChannel <- deathMsg
+
+				// Temporary - Print Leaderboard data
+				query := models.DBC.DBCon.NewRef("leaderboard/Testers").OrderByChild("Score").LimitToFirst(5)
+				result, err := query.GetOrdered(context.Background())
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				// Results will be logged in the increasing order of balance.
+				for _, r := range result {
+					var playerScore models.Score
+					err = r.Unmarshal(&playerScore)
+					if err != nil {
+						log.Fatal(err)
+					}
+					log.Printf("%s => %v\n", r.Key(), playerScore)
+				}
+
 			} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
 				player.ApplyGravity(hole)
 			}

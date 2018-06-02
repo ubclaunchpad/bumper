@@ -9,6 +9,12 @@ import (
 	"google.golang.org/api/option"
 )
 
+// Score datatype for interacting with the Leaderboard DB
+type Score struct {
+	Name  string `json:"name"`
+	Score int    `json:"score"`
+}
+
 // DBClient contains connection to Firebase DB
 type DBClient struct {
 	DBCon *db.Client

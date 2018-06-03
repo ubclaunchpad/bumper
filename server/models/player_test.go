@@ -18,6 +18,34 @@ var (
 	centerPosPlayerTest = Position{testWidthPlayerTest / 2, testHeightPlayerTest / 2}
 )
 
+//parameter specific key handler testing
+func keyHandledExpect(p Player, t *testing.T, key int, expect bool, description string) {
+	switch key {
+	case UpKey:
+		if p.Controls.Up != expect {
+			t.Error("Error ", description, " up key control")
+		}
+		break
+	case RightKey:
+		if p.Controls.Right != expect {
+			t.Error("Error ", description, " right key control")
+		}
+		break
+	case LeftKey:
+		if p.Controls.Left != expect {
+			t.Error("Error ", description, " left key control")
+		}
+		break
+	case DownKey:
+		if p.Controls.Down != expect {
+			t.Error("Error ", description, " down key control")
+		}
+		break
+	default:
+		t.Error("Unknown key handling")
+	}
+}
+
 func TestAddPoints(t *testing.T) {
 	p := new(Player)
 	p.AddPoints(10)
@@ -43,7 +71,7 @@ func TestUpdatePosition(t *testing.T) {
 	p := new(Player)
 	p.Angle = 0
 	p.Position = centerPosPlayerTest
-	rangeAngle := 2
+	rangeAngle := 3
 	testCases := []struct {
 		description    string
 		playerVelocity Velocity
@@ -132,7 +160,7 @@ func TestUpdatePosition(t *testing.T) {
 		})
 	}
 }
-func TestHitjunk(t *testing.T) {
+func TestHitJunk(t *testing.T) {
 	testCases := []struct {
 		description    string
 		playerVelocity Velocity
@@ -152,18 +180,37 @@ func TestHitjunk(t *testing.T) {
 			p := new(Player)
 			p.Velocity = tc.playerVelocity
 			p.hitJunk()
-			if p.Velocity.Dx != tc.playerVelocity.Dx*JunkBounceFactor {
+			playerDx := tc.playerVelocity.Dx * JunkBounceFactor
+			playerDy := tc.playerVelocity.Dy * JunkBounceFactor
+
+			if p.Velocity.Dx != playerDx {
 				t.Error("Error calculating player Dx hitting junk")
 			}
-			if p.Velocity.Dy != tc.playerVelocity.Dy*JunkBounceFactor {
+			if p.Velocity.Dy != playerDy {
 				t.Error("Error calculating player Dy hitting junk")
 			}
-			if p.Velocity.Dx < tc.playerVelocity.Dx*JunkBounceFactor {
-				t.Error("Error x axis bounce factor greater than 1")
-			}
-			if p.Velocity.Dy < tc.playerVelocity.Dy*JunkBounceFactor {
-				t.Error("Error y axis bounce factor greater than 1")
-			}
+		})
+	}
+}
+
+func TestKeyHandler(t *testing.T) {
+	p := new(Player)
+	keyPress := []struct {
+		description string
+		key         int
+	}{
+		{"Up Key", UpKey},
+		{"Right Key", RightKey},
+		{"Left Key", LeftKey},
+		{"Down Key", DownKey},
+	}
+	//test keydownhandler
+	for _, tc := range keyPress {
+		t.Run(tc.description, func(t *testing.T) {
+			p.KeyDownHandler(tc.key)
+			keyHandledExpect(*p, t, tc.key, true, "key-down-handling")
+			p.KeyUpHandler(tc.key)
+			keyHandledExpect(*p, t, tc.key, false, "key-up-handling")
 		})
 	}
 }

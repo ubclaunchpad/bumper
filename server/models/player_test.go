@@ -22,25 +22,25 @@ var (
 )
 
 //parameter specific key handler testing
-func keyHandledExpect(p Player, t *testing.T, key int, expect bool, description string) {
+func keyHandledExpect(p *Player, t *testing.T, key int, expect bool, description string) {
 	switch key {
 	case UpKey:
-		if p.Controls.Up != expect {
+		if (*p).Controls.Up != expect {
 			t.Error("Error ", description, " up key control")
 		}
 		break
 	case RightKey:
-		if p.Controls.Right != expect {
+		if (*p).Controls.Right != expect {
 			t.Error("Error ", description, " right key control")
 		}
 		break
 	case LeftKey:
-		if p.Controls.Left != expect {
+		if (*p).Controls.Left != expect {
 			t.Error("Error ", description, " left key control")
 		}
 		break
 	case DownKey:
-		if p.Controls.Down != expect {
+		if (*p).Controls.Down != expect {
 			t.Error("Error ", description, " down key control")
 		}
 		break
@@ -232,9 +232,9 @@ func TestKeyHandler(t *testing.T) {
 	for _, tc := range keyPress {
 		t.Run(tc.description, func(t *testing.T) {
 			p.KeyDownHandler(tc.key)
-			keyHandledExpect(*p, t, tc.key, true, "key-down-handling")
+			keyHandledExpect(p, t, tc.key, true, "key-down-handling")
 			p.KeyUpHandler(tc.key)
-			keyHandledExpect(*p, t, tc.key, false, "key-up-handling")
+			keyHandledExpect(p, t, tc.key, false, "key-up-handling")
 		})
 	}
 }

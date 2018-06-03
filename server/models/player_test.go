@@ -28,22 +28,18 @@ func keyHandledExpect(p *Player, t *testing.T, key int, expect bool, description
 		if (*p).Controls.Up != expect {
 			t.Error("Error ", description, " up key control")
 		}
-		break
 	case RightKey:
 		if (*p).Controls.Right != expect {
 			t.Error("Error ", description, " right key control")
 		}
-		break
 	case LeftKey:
 		if (*p).Controls.Left != expect {
 			t.Error("Error ", description, " left key control")
 		}
-		break
 	case DownKey:
 		if (*p).Controls.Down != expect {
 			t.Error("Error ", description, " down key control")
 		}
-		break
 	default:
 		t.Error("Unknown key handling")
 	}
@@ -51,19 +47,6 @@ func keyHandledExpect(p *Player, t *testing.T, key int, expect bool, description
 
 func isWithinTolerance(test float64, target float64, tolerance float64) bool {
 	if (test < (target + tolerance)) && (test > (target - tolerance)) {
-		return true
-	}
-	return false
-}
-
-func isAngleWrap(test float64, increment float64, tolerance float64) bool {
-	var wrapValue float64
-	if increment >= 0 {
-		wrapValue = 0
-	} else {
-		wrapValue = -359.9
-	}
-	if math.Mod(test+increment, 360) == wrapValue {
 		return true
 	}
 	return false
@@ -126,7 +109,7 @@ func TestUpdatePosition(t *testing.T) {
 				prevAngle := p.Angle
 				p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 				angleDifference := p.Angle - prevAngle
-				if !isWithinTolerance(math.Abs(angleDifference), 0.1, roundingError5SigFig) {
+				if !isWithinTolerance(math.Abs(angleDifference), angleIncrement, roundingError5SigFig) {
 					t.Error("Error calculating left control, angle increment is", angleDifference)
 				}
 			}
@@ -137,7 +120,7 @@ func TestUpdatePosition(t *testing.T) {
 				prevAngle := p.Angle
 				p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 				angleDifference := p.Angle - prevAngle
-				if !isWithinTolerance(math.Abs(angleDifference), 0.1, roundingError5SigFig) {
+				if !isWithinTolerance(math.Abs(angleDifference), angleIncrement, roundingError5SigFig) {
 					t.Error("Error calculating right control, angle increment is", angleDifference)
 				}
 			}

@@ -7,13 +7,6 @@ bump other players and objects off to stay alive
 Play the latest version [here](http://bumper.ubclaunchpad.com)!  
 
 ## Docker Quickstart
-Create a .env file in the root directory containing the following variables:
-```
-NODE_ENV=$YOUR_ENVIRONMENT
-SERVER_URL=$YOUR_SERVER_URL
-SERVER_PORT=$YOUR_PORT
-```
-
 Install Docker and the Docker Compose toolset. Then run:
 ```bash
 docker-compose -f docker-compose.dev.yml up

@@ -27,7 +27,6 @@ const config = {
   plugins: [
     new webpack.EnvironmentPlugin([
       'NODE_ENV',
-      'SERVER_URL',
     ]),
   ]
 };

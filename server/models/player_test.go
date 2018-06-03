@@ -12,6 +12,9 @@ const (
 	testWidthPlayerTest  = 800
 	testNamePlayerTest   = "testy"
 	testColorPlayerTest  = "blue"
+	rangeAngle           = 360
+	angleIncrement       = 0.1
+	roundingError5SigFig = 0.00001
 )
 
 var (
@@ -46,6 +49,26 @@ func keyHandledExpect(p Player, t *testing.T, key int, expect bool, description 
 	}
 }
 
+func isWithinTolerance(test float64, target float64, tolerance float64) bool {
+	if (test < (target + tolerance)) && (test > (target - tolerance)) {
+		return true
+	}
+	return false
+}
+
+func isAngleWrap(test float64, increment float64, tolerance float64) bool {
+	var wrapValue float64
+	if increment >= 0 {
+		wrapValue = 0
+	} else {
+		wrapValue = -359.9
+	}
+	if math.Mod(test+increment, 360) == wrapValue {
+		return true
+	}
+	return false
+}
+
 func TestAddPoints(t *testing.T) {
 	p := new(Player)
 	p.AddPoints(10)
@@ -71,7 +94,6 @@ func TestUpdatePosition(t *testing.T) {
 	p := new(Player)
 	p.Angle = 0
 	p.Position = centerPosPlayerTest
-	rangeAngle := 3
 	testCases := []struct {
 		description    string
 		playerVelocity Velocity
@@ -103,8 +125,9 @@ func TestUpdatePosition(t *testing.T) {
 			for i := 0; i < rangeAngle; i++ {
 				prevAngle := p.Angle
 				p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
-				if (p.Angle - prevAngle) != 0.1 {
-					t.Error("Error calculating left control")
+				angleDifference := p.Angle - prevAngle
+				if !isWithinTolerance(math.Abs(angleDifference), 0.1, roundingError5SigFig) {
+					t.Error("Error calculating left control, angle increment is", angleDifference)
 				}
 			}
 			p.Controls.Left = false
@@ -113,8 +136,9 @@ func TestUpdatePosition(t *testing.T) {
 			for i := 0; i < rangeAngle; i++ {
 				prevAngle := p.Angle
 				p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
-				if (p.Angle - prevAngle) != -0.1 {
-					t.Error("Error calculating right control")
+				angleDifference := p.Angle - prevAngle
+				if !isWithinTolerance(math.Abs(angleDifference), 0.1, roundingError5SigFig) {
+					t.Error("Error calculating right control, angle increment is", angleDifference)
 				}
 			}
 			p.Controls.Left = true
@@ -147,7 +171,7 @@ func TestUpdatePosition(t *testing.T) {
 			prevMagnitude := p.Velocity.magnitude()
 			p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 			if p.Velocity.magnitude() > prevMagnitude {
-				t.Error("Error calculating friction")
+				t.Error("Error calculating friction", p.Velocity.magnitude(), "expected to be less than", prevMagnitude)
 			}
 
 			// p.Controls.Up = true
@@ -155,7 +179,7 @@ func TestUpdatePosition(t *testing.T) {
 			// prevMagnitude = p.Velocity.magnitude()
 			// p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 			// if p.Velocity.magnitude() < prevMagnitude {
-			// 	t.Error("Error calculating acceleration")
+			// 	t.Error("Error calculating acceleration", p.Velocity.magnitude(), "expected to be greater than", prevMagnitude)
 			// }
 		})
 	}
@@ -212,53 +236,5 @@ func TestKeyHandler(t *testing.T) {
 			p.KeyUpHandler(tc.key)
 			keyHandledExpect(*p, t, tc.key, false, "key-up-handling")
 		})
-	}
-}
-
-func TestKeyDownHandler(t *testing.T) {
-	p := new(Player)
-	key := UpKey
-	p.KeyDownHandler(key)
-	if !p.Controls.Up {
-		t.Error("Error key-down-handling up key control")
-	}
-	key = RightKey
-	p.KeyDownHandler(key)
-	if !p.Controls.Right {
-		t.Error("Error key-down-handling right key control")
-	}
-	key = DownKey
-	p.KeyDownHandler(key)
-	if !p.Controls.Down {
-		t.Error("Error key-down-handling down key control")
-	}
-	key = LeftKey
-	p.KeyDownHandler(key)
-	if !p.Controls.Left {
-		t.Error("Error key-down-handling left key control")
-	}
-}
-
-func TestKeyUpHandler(t *testing.T) {
-	p := new(Player)
-	key := UpKey
-	p.KeyUpHandler(key)
-	if p.Controls.Up {
-		t.Error("Error key-up-handling up key control")
-	}
-	key = RightKey
-	p.KeyUpHandler(key)
-	if p.Controls.Right {
-		t.Error("Error key-up-handling right key control")
-	}
-	key = DownKey
-	p.KeyUpHandler(key)
-	if p.Controls.Down {
-		t.Error("Error key-up-handling down key control")
-	}
-	key = LeftKey
-	p.KeyUpHandler(key)
-	if p.Controls.Left {
-		t.Error("Error key-up-handling left key control")
 	}
 }

@@ -3,8 +3,6 @@ import React from 'react';
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
 
-// import { firebase } from './firebase/index';
-
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
@@ -275,13 +273,6 @@ export default class App extends React.Component {
       ctx.fillStyle = '#FFFFFF';
     });
     ctx.closePath();
-
-    // Test Firebase connection
-    // console.log(firebase);
-    // console.log(firebase.database());
-
-    // let ref = firebase.database().ref('leaderboard');
-    // console.log(ref);
   }
 
   drawHoles() {

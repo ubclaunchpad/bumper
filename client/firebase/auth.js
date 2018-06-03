@@ -1,2 +1,0 @@
-import auth from './firebase';
-

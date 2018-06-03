@@ -13,7 +13,7 @@ docker-compose -f docker-compose.dev.yml up
 ```
 
 ## Manual Quickstart
-Go and Node are required. Ensure that environment variables are set or passed into the run commands for the client and server. 
+Go and Node are required.  
 
 ### Server
 [dep](https://github.com/golang/dep) is used for handling server dependencies.

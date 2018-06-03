@@ -11,6 +11,9 @@ services:
     ports:
       - "8080:8080"
   server:
-    build: .
+    build:
+      context: .
+      target: server
+    command: go run main.go
     ports:
       - "9090:9090"

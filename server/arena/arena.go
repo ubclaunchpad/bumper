@@ -13,10 +13,8 @@ import (
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
-// Game related constants
+// Arena related constants
 const (
-	JunkCount          = 30
-	HoleCount          = 20
 	MinDistanceBetween = models.MaxHoleRadius
 )
 
@@ -34,20 +32,22 @@ type Arena struct {
 }
 
 // CreateArena constructor for arena initializes holes and junk
-func CreateArena(height float64, width float64) *Arena {
-	a := Arena{sync.RWMutex{}, height, width, nil, nil, nil}
-	a.Players = make(map[string]*models.Player)
-
-	for i := 0; i < HoleCount; i++ {
-		position := a.generateCoordinate(models.MinHoleRadius)
-		hole := models.CreateHole(position)
-		a.Holes = append(a.Holes, hole)
+func CreateArena(height float64, width float64, holeCount int, junkCount int) *Arena {
+	a := Arena{
+		sync.RWMutex{},
+		height,
+		width,
+		make([]*models.Hole, 0, holeCount),
+		make([]*models.Junk, 0, junkCount),
+		make(map[string]*models.Player),
 	}
 
-	for i := 0; i < JunkCount; i++ {
-		position := a.generateCoordinate(models.JunkRadius)
-		junk := models.CreateJunk(position)
-		a.Junk = append(a.Junk, &junk)
+	for i := 0; i < holeCount; i++ {
+		a.addHole()
+	}
+
+	for i := 0; i < junkCount; i++ {
+		a.addJunk()
 	}
 
 	return &a
@@ -58,11 +58,8 @@ func (a *Arena) UpdatePositions() {
 	for i, hole := range a.Holes {
 		hole.Update()
 		if hole.IsDead() {
-			// remove that hole from the holes
-			a.Holes = append(a.Holes[:i], a.Holes[i+1:]...)
-			// generate a new hole
-			hole = models.CreateHole(a.generateCoordinate(models.MaxHoleRadius))
-			a.Holes = append(a.Holes, hole)
+			a.removeHole(i)
+			a.addHole()
 		}
 	}
 	for _, junk := range a.Junk {
@@ -78,6 +75,20 @@ func (a *Arena) CollisionDetection() {
 	a.playerCollisions()
 	a.holeCollisions()
 	a.junkCollisions()
+}
+
+// GetState assembles an UpdateMessage from the current state of the arena
+func (a *Arena) GetState() *models.UpdateMessage {
+	players := make([]*models.Player, 0, len(a.Players))
+	for _, player := range a.Players {
+		players = append(players, player)
+	}
+
+	return &models.UpdateMessage{
+		Holes:   a.Holes,
+		Junk:    a.Junk,
+		Players: players,
+	}
 }
 
 // AddPlayer adds a new player to the arena
@@ -204,10 +215,8 @@ func (a *Arena) holeCollisions() {
 					playerScored.AddPoints(models.PointsPerJunk)
 				}
 
-				// remove that junk from the junk
-				a.Junk = append(a.Junk[:i], a.Junk[i+1:]...)
-				//create a new junk to hold the count steady
-				a.generateJunk()
+				a.removeJunk(i)
+				a.addJunk()
 			} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
 				junk.ApplyGravity(hole)
 			}
@@ -264,8 +273,38 @@ func (a *Arena) generateRandomColor() (string, error) {
 }
 
 // adds a junk in a random spot
-func (a *Arena) generateJunk() {
+func (a *Arena) addJunk() {
 	position := a.generateCoordinate(models.JunkRadius)
 	junk := models.CreateJunk(position)
-	a.Junk = append(a.Junk, &junk)
+	a.Junk = append(a.Junk, junk)
+}
+
+// remove junk without considering order
+func (a *Arena) removeJunk(index int) bool {
+	if len(a.Junk) < index+1 {
+		return false
+	}
+
+	a.Junk[index] = a.Junk[len(a.Junk)-1]
+	a.Junk[len(a.Junk)-1] = nil
+	a.Junk = a.Junk[:len(a.Junk)-1]
+	return true
+}
+
+// adds a hole in a random spot
+func (a *Arena) addHole() {
+	h := models.CreateHole(a.generateCoordinate(models.MinHoleRadius))
+	a.Holes = append(a.Holes, h)
+}
+
+// remove hole without considering order
+func (a *Arena) removeHole(index int) bool {
+	if len(a.Holes) < index+1 {
+		return false
+	}
+
+	a.Holes[index] = a.Holes[len(a.Holes)-1]
+	a.Holes[len(a.Holes)-1] = nil
+	a.Holes = a.Holes[:len(a.Holes)-1]
+	return true
 }

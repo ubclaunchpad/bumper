@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math"
 	"sync"
@@ -81,9 +80,7 @@ func (p *Player) AddPoints(numPoints int) {
 		Score: p.Points,
 	}
 
-	// Send test data to DB
-	fmt.Println(scoreData)
-
+	// Send score data to DB
 	err := DBC.DBCon.NewRef("leaderboard/Testers/"+p.ID).Set(context.Background(), scoreData)
 	if err != nil {
 		log.Fatalf("Couldn't set data: %v", err)

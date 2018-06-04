@@ -36,7 +36,7 @@ $ dep ensure -add github.com/my/dependency
 ### Start the Client
 
 ```bash
-$ make clinet
+$ make client
 ```
 
 Play at localhost:8080!

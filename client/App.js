@@ -62,7 +62,7 @@ export default class App extends React.Component {
   // connect player on load
   connectPlayer() {
     if (window.WebSocket) {
-      this.socket = new WebSocket(`${address}`);
+      this.socket = new WebSocket(address);
       this.socket.onopen = () => {
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
       };
@@ -137,8 +137,7 @@ export default class App extends React.Component {
   }
 
   initializeArena(data) {
-    this.state.player.color = data.playerID;
-
+    this.state.player.id = data.playerID;
     this.setState({
       arena: { width: data.arenaWidth, height: data.arenaHeight },
       player: this.state.player,
@@ -166,7 +165,8 @@ export default class App extends React.Component {
     let playerPosition = null;
     let playerOffset = null;
     data.players.forEach((player) => {
-      if (player.name !== '' && player.color === this.state.player.color) {
+      if (player.name !== '' && player.id === this.state.player.id) {
+        console.log('hello its me');
         playerPosition = player.position;
         this.setState({ playerAbsolutePosition: playerPosition });
 

@@ -8,5 +8,6 @@
 /server/vendor/
 /server/server
 /server/server.exe
+/server/gin-bin
 
 .inertia.toml

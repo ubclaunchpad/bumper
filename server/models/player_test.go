@@ -65,7 +65,7 @@ func TestCreatePlayer(t *testing.T) {
 	ws := new(*websocket.Conn)
 
 	//Test initialization of player
-	p := CreatePlayer(testid, testNamePlayerTest, centerPosPlayerTest, testColorPlayerTest, *ws)
+	p := CreatePlayer(testID, testNamePlayerTest, centerPosPlayerTest, testColorPlayerTest, *ws)
 
 	//Test name assignment of player
 	if p.Name != testNamePlayerTest {

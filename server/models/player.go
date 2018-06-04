@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/xid"
+	"github.com/ubclaunchpad/bumper/server/firebasedb"
 )
 
 // Player related constants
@@ -75,13 +76,13 @@ func (p *Player) AddPoints(numPoints int) {
 	p.Points = p.Points + numPoints
 
 	// Send updated score to Leaderboard.
-	scoreData := Score{
+	scoreData := firebasedb.Score{
 		Name:  p.Name,
 		Score: p.Points,
 	}
 
 	// Send score data to DB
-	err := DBC.DBCon.NewRef("leaderboard/Testers/"+p.ID).Set(context.Background(), scoreData)
+	err := firebasedb.DBC.DBCon.NewRef("leaderboard/Testers/"+p.ID).Set(context.Background(), scoreData)
 	if err != nil {
 		log.Fatalf("Couldn't set data: %v", err)
 	}

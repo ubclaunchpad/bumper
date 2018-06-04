@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/ubclaunchpad/bumper/server/arena"
+	"github.com/ubclaunchpad/bumper/server/firebasedb"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
@@ -179,8 +180,8 @@ func main() {
 		RefreshRate: time.Millisecond * 17, // 60 Hz
 	}
 
-	models.DBC.ConnectDB()
-	if models.DBC.DBCon == nil {
+	firebasedb.DBC.ConnectDB()
+	if firebasedb.DBC.DBCon == nil {
 		log.Fatal("DBClient not initialized correctly")
 	}
 

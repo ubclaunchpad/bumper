@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+	"github.com/ubclaunchpad/bumper/server/firebasedb"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
@@ -187,7 +188,7 @@ func (a *Arena) holeCollisions() {
 				MessageChannel <- deathMsg
 
 				// Temporary - Print Leaderboard data
-				query := models.DBC.DBCon.NewRef("leaderboard/Testers").OrderByChild("Score").LimitToFirst(5)
+				query := firebasedb.DBC.DBCon.NewRef("leaderboard/Testers").OrderByChild("Score").LimitToFirst(5)
 				result, err := query.GetOrdered(context.Background())
 				if err != nil {
 					log.Fatal(err)
@@ -195,7 +196,7 @@ func (a *Arena) holeCollisions() {
 
 				// Results will be logged in the increasing order of balance.
 				for _, r := range result {
-					var playerScore models.Score
+					var playerScore firebasedb.Score
 					err = r.Unmarshal(&playerScore)
 					if err != nil {
 						log.Fatal(err)

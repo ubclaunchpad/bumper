@@ -179,7 +179,7 @@ func TestHitJunk(t *testing.T) {
 
 func TestKeyHandler(t *testing.T) {
 	p := new(Player)
-	keyPressDownHandler := []struct {
+	testCases := []struct {
 		description  string
 		key          int
 		expectedKeys KeysPressed
@@ -189,35 +189,18 @@ func TestKeyHandler(t *testing.T) {
 		{"Right Key KeyDownHandler", RightKey, KeysPressed{Up: true, Right: true, Left: false, Down: false}, p.KeyDownHandler},
 		{"Left Key KeyDownHandler", LeftKey, KeysPressed{Up: true, Right: true, Left: true, Down: false}, p.KeyDownHandler},
 		{"Down Key KeyDownHandler", DownKey, KeysPressed{Up: true, Right: true, Left: true, Down: true}, p.KeyDownHandler},
-	}
-
-	keyPressUpHandler := []struct {
-		description  string
-		key          int
-		expectedKeys KeysPressed
-		fp           func(int)
-	}{
-		{"Up Key KeyDownHandler", UpKey, KeysPressed{Up: false, Right: true, Left: true, Down: true}, p.KeyUpHandler},
-		{"Right Key KeyDownHandler", RightKey, KeysPressed{Up: false, Right: false, Left: true, Down: true}, p.KeyUpHandler},
-		{"Left Key KeyDownHandler", LeftKey, KeysPressed{Up: false, Right: false, Left: false, Down: true}, p.KeyUpHandler},
-		{"Down Key KeyDownHandler", DownKey, KeysPressed{Up: false, Right: false, Left: false, Down: false}, p.KeyUpHandler},
+		{"Up Key KeyUpHandler", UpKey, KeysPressed{Up: false, Right: true, Left: true, Down: true}, p.KeyUpHandler},
+		{"Right Key KeyUpHandler", RightKey, KeysPressed{Up: false, Right: false, Left: true, Down: true}, p.KeyUpHandler},
+		{"Left Key KeyUpHandler", LeftKey, KeysPressed{Up: false, Right: false, Left: false, Down: true}, p.KeyUpHandler},
+		{"Down Key KeyUpHandler", DownKey, KeysPressed{Up: false, Right: false, Left: false, Down: false}, p.KeyUpHandler},
 	}
 
 	//test keydownhandler
-	for _, tc := range keyPressDownHandler {
+	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			tc.fp(tc.key)
-			if (*p).Controls != tc.expectedKeys {
-				t.Error("Error: key-down-handling. Keys Pressed:", (*p).Controls)
-			}
-		})
-	}
-
-	for _, tc := range keyPressUpHandler {
-		t.Run(tc.description, func(t *testing.T) {
-			tc.fp(tc.key)
-			if (*p).Controls != tc.expectedKeys {
-				t.Error("Error: key-up-handling. Keys Pressed:", (*p).Controls)
+			if p.Controls != tc.expectedKeys {
+				t.Errorf("Error: %s. Keys Pressed: %v", tc.description, p.Controls)
 			}
 		})
 	}

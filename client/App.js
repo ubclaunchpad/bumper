@@ -47,7 +47,7 @@ export default class App extends React.Component {
   }
 
   openGameOverModal() {
-    const thisPlayer = this.state.players.find(p => p.color === this.state.player.color);
+    const thisPlayer = this.state.players.find(p => p.id === this.state.player.id);
 
     this.setState({
       showGameOverModal: true,
@@ -166,7 +166,6 @@ export default class App extends React.Component {
     let playerOffset = null;
     data.players.forEach((player) => {
       if (player.name !== '' && player.id === this.state.player.id) {
-        console.log('hello its me');
         playerPosition = player.position;
         this.setState({ playerAbsolutePosition: playerPosition });
 
@@ -207,7 +206,7 @@ export default class App extends React.Component {
         hole.position.y += playerOffset.y;
       });
       data.players.forEach((player) => {
-        if (player.name !== '' && player.color !== this.state.player.color) {
+        if (player.name !== '' && player.id !== this.state.player.id) {
           player.position.x -= playerPosition.x;
           player.position.y -= playerPosition.y;
           player.position.x += playerOffset.x;
@@ -246,7 +245,7 @@ export default class App extends React.Component {
     });
 
     const thisPlayer = rankedPlayers.find((p, idx) => {
-      if (p.color === this.state.player.color) {
+      if (p.id === this.state.player.id) {
         this.state.player.rank = idx + 1;
         return true;
       }

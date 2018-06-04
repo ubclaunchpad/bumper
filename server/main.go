@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -199,9 +200,6 @@ func main() {
 	go run(&game)
 	go tick(&game)
 
-	log.Println("Starting server on localhost:9090")
-	err := http.ListenAndServe(":9090", nil)
-	if err != nil {
-		log.Fatal("Error starting server")
-	}
+	log.Println("Starting server on localhost:" + os.Getenv("PORT"))
+	log.Println(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }

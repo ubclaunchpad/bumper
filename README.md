@@ -6,24 +6,37 @@ bump other players and objects off to stay alive
 ## Getting Started
 Play the latest version [here](http://bumper.ubclaunchpad.com)!  
 
-## Development
-### Running the server
-[dep](https://github.com/golang/dep) is used for handling server dependencies.
+## Docker Quickstart
+Install Docker and the Docker Compose toolset. Then run:
+
 ```bash
-$ cd ./server
-$ go get -u github.com/golang/dep/cmd/dep
-$ dep ensure
-$ go run main.go
+make docker-start
 ```
+
+## Manual Quickstart
+
+Go and Node are required. To install the required dependencies:
+
+```bash
+$ make deps
+```
+
+### Run the Server
+
+```bash
+$ make server
+```
+
 To add dependencies:
+
 ```bash
 $ dep ensure -add github.com/my/dependency
 ```
 
-### Running the client
+### Start the Client
+
 ```bash
-$ cd ./client
-$ npm install
-$ npm start
+$ make client
 ```
+
 Play at localhost:8080!

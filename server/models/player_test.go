@@ -18,6 +18,7 @@ const (
 )
 
 var (
+	testID              = "testid"
 	centerPosPlayerTest = Position{testWidthPlayerTest / 2, testHeightPlayerTest / 2}
 )
 
@@ -64,7 +65,7 @@ func TestCreatePlayer(t *testing.T) {
 	ws := new(*websocket.Conn)
 
 	//Test initialization of player
-	p := CreatePlayer(testNamePlayerTest, centerPosPlayerTest, testColorPlayerTest, *ws)
+	p := CreatePlayer(testid, testNamePlayerTest, centerPosPlayerTest, testColorPlayerTest, *ws)
 
 	//Test name assignment of player
 	if p.Name != testNamePlayerTest {

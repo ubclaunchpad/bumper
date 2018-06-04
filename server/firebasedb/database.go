@@ -2,7 +2,6 @@ package firebasedb
 
 import (
 	"context"
-	"flag"
 	"log"
 
 	firebase "firebase.google.com/go"
@@ -25,13 +24,9 @@ type DBClient struct {
 var DBC DBClient
 
 // ConnectDB connects the DB handle to firebase db.
-func (DBC *DBClient) ConnectDB() {
+func (DBC *DBClient) ConnectDB(credentialsPath string) {
 	// Initialize default DB App
-	if flag.Lookup("test.v") == nil {
-		opt := option.WithCredentialsFile("firebasedb/BumperDB-3b7d790985b1.json")
-	} else {
-		opt := option.WithCredentialsFile("BumperDB-3b7d790985b1.json")
-	}
+	opt := option.WithCredentialsFile(credentialsPath)
 
 	ctx := context.Background()
 	config := &firebase.Config{

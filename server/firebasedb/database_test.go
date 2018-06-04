@@ -6,7 +6,7 @@ import (
 )
 
 func TestConnectDB(t *testing.T) {
-	DBC.ConnectDB()
+	DBC.ConnectDB("BumperDB-3b7d790985b1.json")
 
 	if DBC.DBCon == nil {
 		log.Fatal("DBClient not initialized correctly")

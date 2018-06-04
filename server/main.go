@@ -180,7 +180,7 @@ func main() {
 		RefreshRate: time.Millisecond * 17, // 60 Hz
 	}
 
-	firebasedb.DBC.ConnectDB()
+	firebasedb.DBC.ConnectDB("firebasedb/BumperDB-3b7d790985b1.json")
 	if firebasedb.DBC.DBCon == nil {
 		log.Fatal("DBClient not initialized correctly")
 	}

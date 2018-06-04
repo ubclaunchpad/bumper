@@ -23,26 +23,9 @@ var (
 )
 
 //parameter specific key handler testing
-func keyHandledExpect(p *Player, t *testing.T, key int, expect bool, description string) {
-	switch key {
-	case UpKey:
-		if (*p).Controls.Up != expect {
-			t.Error("Error ", description, " up key control")
-		}
-	case RightKey:
-		if (*p).Controls.Right != expect {
-			t.Error("Error ", description, " right key control")
-		}
-	case LeftKey:
-		if (*p).Controls.Left != expect {
-			t.Error("Error ", description, " left key control")
-		}
-	case DownKey:
-		if (*p).Controls.Down != expect {
-			t.Error("Error ", description, " down key control")
-		}
-	default:
-		t.Error("Unknown key handling")
+func keyHandledExpect(p *Player, t *testing.T, key int, expect KeysPressed, description string) {
+	if (*p).Controls != expect {
+		t.Error("Error ", description, "Keys Pressed:", expect)
 	}
 }
 
@@ -203,22 +186,40 @@ func TestHitJunk(t *testing.T) {
 
 func TestKeyHandler(t *testing.T) {
 	p := new(Player)
-	keyPress := []struct {
-		description string
-		key         int
+	keyPressDownHandler := []struct {
+		description  string
+		key          int
+		expectedKeys KeysPressed
 	}{
-		{"Up Key", UpKey},
-		{"Right Key", RightKey},
-		{"Left Key", LeftKey},
-		{"Down Key", DownKey},
+		{"Up Key KeyDownHandler", UpKey, KeysPressed{Up: true, Right: false, Left: false, Down: false}},
+		{"Right Key KeyDownHandler", RightKey, KeysPressed{Up: true, Right: true, Left: false, Down: false}},
+		{"Left Key KeyDownHandler", LeftKey, KeysPressed{Up: true, Right: true, Left: true, Down: false}},
+		{"Down Key KeyDownHandler", DownKey, KeysPressed{Up: true, Right: true, Left: true, Down: true}},
 	}
+
+	keyPressUpHandler := []struct {
+		description  string
+		key          int
+		expectedKeys KeysPressed
+	}{
+		{"Up Key KeyDownHandler", UpKey, KeysPressed{Up: false, Right: true, Left: true, Down: true}},
+		{"Right Key KeyDownHandler", RightKey, KeysPressed{Up: false, Right: false, Left: true, Down: true}},
+		{"Left Key KeyDownHandler", LeftKey, KeysPressed{Up: false, Right: false, Left: false, Down: true}},
+		{"Down Key KeyDownHandler", DownKey, KeysPressed{Up: false, Right: false, Left: false, Down: false}},
+	}
+
 	//test keydownhandler
-	for _, tc := range keyPress {
+	for _, tc := range keyPressDownHandler {
 		t.Run(tc.description, func(t *testing.T) {
 			p.KeyDownHandler(tc.key)
-			keyHandledExpect(p, t, tc.key, true, "key-down-handling")
+			keyHandledExpect(p, t, tc.key, tc.expectedKeys, "key-down-handling")
+		})
+	}
+
+	for _, tc := range keyPressUpHandler {
+		t.Run(tc.description, func(t *testing.T) {
 			p.KeyUpHandler(tc.key)
-			keyHandledExpect(p, t, tc.key, false, "key-up-handling")
+			keyHandledExpect(p, t, tc.key, tc.expectedKeys, "key-up-handling")
 		})
 	}
 }

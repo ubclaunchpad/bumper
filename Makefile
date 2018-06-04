@@ -15,7 +15,7 @@ docker-start:
 client:
 	(cd ./client ; npm start)
 
-# Starts the server
+# Starts the server (exposed on port 9090)
 .PHONY: server
 server:
-	(cd ./server ; PORT=9090 ; go run main.go)
+	(cd ./server ; PORT=8080 ; gin -p 9090 -a 8080 -i run main.go)

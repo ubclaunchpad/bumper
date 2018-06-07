@@ -1,6 +1,5 @@
 /* eslint-disable */
 const webpack = require('webpack');
-const MinifyPlugin = require('babel-minify-webpack-plugin');
 
 const config = {
   entry: './index.js',
@@ -26,8 +25,10 @@ const config = {
     ],
   },
   plugins: [
-    new webpack.EnvironmentPlugin(['NODE_ENV']),
+    new webpack.EnvironmentPlugin([
+      'NODE_ENV',
+    ]),
   ]
 };
 
-module.exports = env => config;
+module.exports = config;

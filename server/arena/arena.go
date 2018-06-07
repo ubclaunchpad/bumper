@@ -67,7 +67,10 @@ func (a *Arena) UpdatePositions() {
 		junk.UpdatePosition(a.Height, a.Width)
 	}
 	for _, player := range a.Players {
-		player.UpdatePosition(a.Height, a.Width)
+		// check whether player has been spawned
+		if player.Name != "" {
+			player.UpdatePosition(a.Height, a.Width)
+		}
 	}
 }
 
@@ -93,13 +96,23 @@ func (a *Arena) GetState() *models.UpdateMessage {
 }
 
 // AddPlayer adds a new player to the arena
-func (a *Arena) AddPlayer(id string, n string, ws *websocket.Conn) error {
+// player has no position or name until spawned
+// TODO player has no color until spawned
+func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
 	color, err := a.generateRandomColor()
 	if err != nil {
 		return err
 	}
+	a.Players[id] = models.CreatePlayer(id, "", models.Position{}, color, ws)
+	return nil
+}
+
+// SpawnPlayer spawns the player with a position on the map
+// TODO choose color here as well
+func (a *Arena) SpawnPlayer(id string, name string) error {
 	position := a.generateCoordinate(models.PlayerRadius)
-	a.Players[id] = models.CreatePlayer(id, n, position, color, ws)
+	a.Players[id].Position = position
+	a.Players[id].Name = name
 	return nil
 }
 

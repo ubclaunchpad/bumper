@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  client:
+    build:
+      context: .
+      target: client
+    volumes:
+      - ./client:/app
+    command: npm start
+    ports:
+      - "8080:8080"
+  server:
+    build:
+      context: .
+      target: server
+    volumes:
+      - ./server:/go/src/github.com/ubclaunchpad/bumper/server
+    environment:
+      - PORT=8080
+    command: sh -c "go get github.com/codegangsta/gin ; gin -p 9090 -a 8080 -i run main.go"
+    ports:
+      - "9090:9090"

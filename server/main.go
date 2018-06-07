@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -39,9 +40,19 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer ws.Close()
-
-	name := r.URL.Query().Get("name")
+	var initialMsg models.Message
 	id := models.GenUniqueID()
+
+	err = g.Arena.AddPlayer(id, ws)
+	if err != nil {
+		log.Printf("Error adding player:\n%v", err)
+	} else {
+		initialMsg = models.Message{
+			Type: "connect",
+			Data: id,
+		}
+		MessageChannel <- initialMsg
+	}
 	for {
 		var msg models.Message
 		err := ws.ReadJSON(&msg)
@@ -50,9 +61,9 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			delete(g.Arena.Players, id)
 			break
 		}
-
 		switch msg.Type {
 		case "spawn":
+
 			var spawn models.SpawnHandlerMessage
 			err = json.Unmarshal([]byte(msg.Data.(string)), &spawn)
 			if err != nil {
@@ -60,18 +71,22 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			err := g.Arena.AddPlayer(id, name, ws)
+			err := g.Arena.SpawnPlayer(id, spawn.Name)
 			if err != nil {
-				log.Printf("Error adding player:\n%v", err)
+				log.Printf("Error spawning player:\n%v", err)
 				continue
 			}
-
-			initialMsg := models.Message{
-				Type: "initial",
-				Data: id,
+		case "reconnect":
+			err = g.Arena.AddPlayer(id, ws)
+			if err != nil {
+				log.Printf("Error adding player:\n%v", err)
+			} else {
+				connectMsg := models.Message{
+					Type: "connect",
+					Data: id,
+				}
+				MessageChannel <- connectMsg
 			}
-			MessageChannel <- initialMsg
-
 		case "keyHandler":
 			var kh models.KeyHandlerMessage
 			err = json.Unmarshal([]byte(msg.Data.(string)), &kh)
@@ -129,7 +144,7 @@ func messageEmitter(g *Game) {
 		msg := <-MessageChannel
 
 		switch msg.Type {
-		case "initial":
+		case "connect":
 			id := msg.Data.(string)
 			p := g.Arena.Players[id]
 
@@ -138,7 +153,7 @@ func messageEmitter(g *Game) {
 				Data: models.ConnectionMessage{
 					ArenaWidth:  g.Arena.Width,
 					ArenaHeight: g.Arena.Height,
-					PlayerID:    p.Color,
+					PlayerID:    id,
 				},
 			}
 
@@ -191,9 +206,6 @@ func main() {
 	go run(&game)
 	go tick(&game)
 
-	log.Println("Starting server on localhost:9090")
-	err := http.ListenAndServe(":9090", nil)
-	if err != nil {
-		log.Fatal("Error starting server")
-	}
+	log.Println("Starting server on localhost:" + os.Getenv("PORT"))
+	log.Println(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }

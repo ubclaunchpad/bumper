@@ -198,23 +198,6 @@ func (a *Arena) holeCollisions() {
 				}
 				MessageChannel <- deathMsg
 
-				// Temporary - Print Leaderboard data
-				// query := firebasedb.DBC.DBCon.NewRef("leaderboard/Testers").OrderByChild("Score").LimitToFirst(5)
-				// result, err := query.GetOrdered(context.Background())
-				// if err != nil {
-				// 	log.Fatal(err)
-				// }
-
-				// // Results will be logged in the increasing order of balance.
-				// for _, r := range result {
-				// 	var playerScore firebasedb.Score
-				// 	err = r.Unmarshal(&playerScore)
-				// 	if err != nil {
-				// 		log.Fatal(err)
-				// 	}
-				// 	log.Printf("%s => %v\n", r.Key(), playerScore)
-				// }
-
 			} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
 				player.ApplyGravity(hole)
 			}

@@ -60,3 +60,34 @@ func UpdatePlayerScore(p *models.Player) {
 		log.Fatalf("Couldn't set data: %v", err)
 	}
 }
+
+// FetchPlayerScore retreives the score for the given player
+func FetchPlayerScore(p *models.Player) LeaderboardEntry {
+
+	var scoreData LeaderboardEntry
+	err := DBC.DBCon.NewRef("leaderboard/Testers/"+p.ID).Get(context.Background(), &scoreData)
+	if err != nil {
+		log.Fatalf("Couldn't set data: %v", err)
+	}
+	return scoreData
+}
+
+// FetchTop5Players prints the top 5 player - for debugging, no test written.
+func FetchTop5Players() {
+
+	query := DBC.DBCon.NewRef("leaderboard/Testers").OrderByChild("Score").LimitToFirst(5)
+	result, err := query.GetOrdered(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Results will be logged in the increasing order of balance.
+	for _, r := range result {
+		var playerScore LeaderboardEntry
+		err = r.Unmarshal(&playerScore)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("%s => %v\n", r.Key(), playerScore)
+	}
+}

@@ -18,4 +18,4 @@ client:
 # Starts the server (exposed on port 9090)
 .PHONY: server
 server:
-	(cd ./server ; PORT=8080 ; gin -p 9090 -a 8080 -i run main.go)
+	(cd ./server ; PORT=8081 ; gin -p 9090 -a 8081 -i run main.go)

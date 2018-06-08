@@ -300,13 +300,6 @@ export default class App extends React.Component {
       }
     });
     ctx.closePath();
-
-    // Test Firebase connection
-    // console.log(firebase);
-    // console.log(firebase.database());
-
-    // const ref = firebase.database().ref('leaderboard');
-    // console.log(ref);
   }
 
   drawHoles() {

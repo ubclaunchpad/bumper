@@ -197,7 +197,6 @@ func (a *Arena) holeCollisions() {
 					Data: name,
 				}
 				MessageChannel <- deathMsg
-
 			} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
 				player.ApplyGravity(hole)
 			}

@@ -3,6 +3,8 @@ import React from 'react';
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
 
+import * as firebasedb from './firebasedb/firebasedb';
+
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
@@ -44,6 +46,8 @@ export default class App extends React.Component {
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
     this.connectPlayer();
+    firebasedb.registerNewTesterEvent();
+    firebasedb.registerTesterUpdateEvent();
   }
 
   openGameOverModal() {
@@ -296,6 +300,13 @@ export default class App extends React.Component {
       }
     });
     ctx.closePath();
+
+    // Test Firebase connection
+    // console.log(firebase);
+    // console.log(firebase.database());
+
+    // const ref = firebase.database().ref('leaderboard');
+    // console.log(ref);
   }
 
   drawHoles() {

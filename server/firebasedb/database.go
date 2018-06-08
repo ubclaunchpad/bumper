@@ -11,8 +11,8 @@ import (
 	"google.golang.org/api/option"
 )
 
-// Score datatype for interacting with the Leaderboard DB
-type Score struct {
+// LeaderboardEntry datatype for interacting with the Leaderboard DB
+type LeaderboardEntry struct {
 	Name  string `json:"name"`
 	Score int    `json:"score"`
 }
@@ -49,7 +49,7 @@ func (DBC *DBClient) ConnectDB(credentialsPath string) {
 // UpdatePlayerScore updates the score for the given player in the database
 func UpdatePlayerScore(p *models.Player) {
 
-	scoreData := Score{
+	scoreData := LeaderboardEntry{
 		Name:  p.Name,
 		Score: p.Points,
 	}

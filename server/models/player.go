@@ -1,14 +1,12 @@
 package models
 
 import (
-	"context"
 	"log"
 	"math"
 	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/xid"
-	"github.com/ubclaunchpad/bumper/server/firebasedb"
 )
 
 // Player related constants
@@ -74,18 +72,6 @@ func GenUniqueID() string {
 // AddPoints adds numPoints to player p
 func (p *Player) AddPoints(numPoints int) {
 	p.Points = p.Points + numPoints
-
-	// Send updated score to Leaderboard.
-	scoreData := firebasedb.Score{
-		Name:  p.Name,
-		Score: p.Points,
-	}
-
-	// Send score data to DB
-	err := firebasedb.DBC.DBCon.NewRef("leaderboard/Testers/"+p.ID).Set(context.Background(), scoreData)
-	if err != nil {
-		log.Fatalf("Couldn't set data: %v", err)
-	}
 }
 
 // SendJSON sends JSON data through the player's websocket connection

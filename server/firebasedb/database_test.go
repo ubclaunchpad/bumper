@@ -12,3 +12,7 @@ func TestConnectDB(t *testing.T) {
 		log.Fatal("DBClient not initialized correctly")
 	}
 }
+
+func TestUpdatePlayerScore(t *testing.T) {
+	// TODO
+}

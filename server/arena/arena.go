@@ -227,6 +227,7 @@ func (a *Arena) holeCollisions() {
 				playerScored := junk.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerJunk)
+					go firebasedb.UpdatePlayerScore(playerScored)
 				}
 
 				a.removeJunk(i)

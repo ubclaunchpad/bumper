@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 
+	"github.com/ubclaunchpad/bumper/server/models"
+
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
 	"google.golang.org/api/option"
@@ -41,5 +43,20 @@ func (DBC *DBClient) ConnectDB(credentialsPath string) {
 	DBC.DBCon, err = app.Database(ctx)
 	if err != nil {
 		log.Fatalf("error getting DB client: %v", err)
+	}
+}
+
+// UpdatePlayerScore updates the score for the given player in the database
+func UpdatePlayerScore(p *models.Player) {
+
+	scoreData := Score{
+		Name:  p.Name,
+		Score: p.Points,
+	}
+
+	// Send score data to DB
+	err := DBC.DBCon.NewRef("leaderboard/Testers/"+p.ID).Set(context.Background(), scoreData)
+	if err != nil {
+		log.Fatalf("Couldn't set data: %v", err)
 	}
 }

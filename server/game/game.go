@@ -11,6 +11,14 @@ import (
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
+// An instance of Upgrader that upgrades a connection to a WebSocket
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		log.Printf("Accepting client from remote address %v\n", r.RemoteAddr)
+		return true
+	},
+}
+
 // Game represents a session
 type Game struct {
 	Arena       *arena.Arena
@@ -26,12 +34,11 @@ func CreateGame() *Game {
 	return &g
 }
 
-// An instance of Upgrader that upgrades a connection to a WebSocket
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		log.Printf("Accepting client from remote address %v\n", r.RemoteAddr)
-		return true
-	},
+// StartGame runs goroutines required to start a session
+func (g *Game) StartGame() {
+	go g.messageEmitter()
+	go g.run()
+	go g.tick()
 }
 
 // ServeHTTP handles a connection from a client
@@ -111,7 +118,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (g *Game) Run() {
+func (g *Game) run() {
 	for {
 		time.Sleep(g.RefreshRate)
 
@@ -120,7 +127,7 @@ func (g *Game) Run() {
 	}
 }
 
-func (g *Game) Tick() {
+func (g *Game) tick() {
 	for {
 		time.Sleep(g.RefreshRate)
 
@@ -142,7 +149,7 @@ func (g *Game) Tick() {
 	}
 }
 
-func (g *Game) MessageEmitter() {
+func (g *Game) messageEmitter() {
 	for {
 		msg := <-arena.MessageChannel
 

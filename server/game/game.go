@@ -110,3 +110,80 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func (g *Game) Run() {
+	for {
+		time.Sleep(g.RefreshRate)
+
+		g.Arena.UpdatePositions()
+		g.Arena.CollisionDetection()
+	}
+}
+
+func (g *Game) Tick() {
+	for {
+		time.Sleep(g.RefreshRate)
+
+		msg := models.Message{
+			Type: "update",
+			Data: g.Arena.GetState(),
+		}
+
+		// update every client
+		for id := range g.Arena.Players {
+			p := g.Arena.Players[id]
+			err := p.SendJSON(&msg)
+			if err != nil {
+				log.Printf("error: %v", err)
+				p.Close()
+				delete(g.Arena.Players, id)
+			}
+		}
+	}
+}
+
+func (g *Game) MessageEmitter() {
+	for {
+		msg := <-arena.MessageChannel
+
+		switch msg.Type {
+		case "connect":
+			id := msg.Data.(string)
+			p := g.Arena.Players[id]
+
+			initalMsg := models.Message{
+				Type: "initial",
+				Data: models.ConnectionMessage{
+					ArenaWidth:  g.Arena.Width,
+					ArenaHeight: g.Arena.Height,
+					PlayerID:    id,
+				},
+			}
+
+			err := p.SendJSON(&initalMsg)
+			if err != nil {
+				log.Printf("error: %v", err)
+				p.Close()
+				delete(g.Arena.Players, id)
+			}
+
+		case "death":
+			id := msg.Data.(string)
+			deathMsg := models.Message{
+				Type: "death",
+				Data: nil,
+			}
+
+			p := g.Arena.Players[id]
+			err := p.SendJSON(&deathMsg)
+			if err != nil {
+				log.Printf("error: %v", err)
+				p.Close()
+			}
+			delete(g.Arena.Players, id)
+
+		default:
+			log.Println("Unknown message type to emit")
+		}
+	}
+}

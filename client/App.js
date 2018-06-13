@@ -2,6 +2,7 @@ import React from 'react';
 
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
+import Minimap from './components/Minimap';
 
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
@@ -520,6 +521,7 @@ export default class App extends React.Component {
             }
           />
         }
+        <Minimap />
       </div>
     );
   }

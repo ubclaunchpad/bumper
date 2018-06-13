@@ -17,16 +17,11 @@ type LeaderboardEntry struct {
 	Score int    `json:"score"`
 }
 
-// DBClient contains connection to Firebase DB
-type DBClient struct {
-	DBCon *db.Client
-}
-
 // DBC is a connection handle to the firebase database
-var DBC DBClient
+var DBC *db.Client
 
 // ConnectDB connects the DB handle to firebase db.
-func (DBC *DBClient) ConnectDB(credentialsPath string) {
+func ConnectDB(credentialsPath string) {
 	// Initialize default DB App
 	opt := option.WithCredentialsFile(credentialsPath)
 
@@ -40,7 +35,7 @@ func (DBC *DBClient) ConnectDB(credentialsPath string) {
 	}
 
 	// Connect access to the DB Client
-	DBC.DBCon, err = app.Database(ctx)
+	DBC, err = app.Database(ctx)
 	if err != nil {
 		log.Fatalf("error getting DB client: %v", err)
 	}
@@ -56,7 +51,7 @@ func UpdatePlayerScore(p *models.Player) {
 	}
 
 	// Send score data to DB
-	err := DBC.DBCon.NewRef("leaderboard/Testers/"+p.ID).Set(context.Background(), scoreData)
+	err := DBC.NewRef("leaderboard/Testers/"+p.ID).Set(context.Background(), scoreData)
 	if err != nil {
 		log.Fatalf("Couldn't set data: %v", err)
 	}
@@ -66,7 +61,7 @@ func UpdatePlayerScore(p *models.Player) {
 func FetchPlayerScore(p *models.Player) LeaderboardEntry {
 
 	var scoreData LeaderboardEntry
-	err := DBC.DBCon.NewRef("leaderboard/Testers/"+p.ID).Get(context.Background(), &scoreData)
+	err := DBC.NewRef("leaderboard/Testers/"+p.ID).Get(context.Background(), &scoreData)
 	if err != nil {
 		log.Fatalf("Couldn't set data: %v", err)
 	}
@@ -76,7 +71,7 @@ func FetchPlayerScore(p *models.Player) LeaderboardEntry {
 // FetchTop5Players prints the top 5 player - for debugging, no test written.
 func FetchTop5Players() {
 
-	query := DBC.DBCon.NewRef("leaderboard/Testers").OrderByChild("Score").LimitToFirst(5)
+	query := DBC.NewRef("leaderboard/Testers").OrderByChild("Score").LimitToFirst(5)
 	result, err := query.GetOrdered(context.Background())
 	if err != nil {
 		log.Fatal(err)

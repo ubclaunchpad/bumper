@@ -2,8 +2,10 @@ import React from 'react';
 
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
-
-import * as firebasedb from './firebasedb/firebasedb';
+import {
+  registerNewTesterEvent,
+  registerTesterUpdateEvent,
+} from './firebasedb/firebasedb';
 
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
@@ -46,8 +48,8 @@ export default class App extends React.Component {
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
     this.connectPlayer();
-    firebasedb.registerNewTesterEvent();
-    firebasedb.registerTesterUpdateEvent();
+    registerNewTesterEvent();
+    registerTesterUpdateEvent();
   }
 
   openGameOverModal() {

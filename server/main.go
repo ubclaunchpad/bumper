@@ -195,9 +195,9 @@ func main() {
 		RefreshRate: time.Millisecond * 17, // 60 Hz
 	}
 
-	firebasedb.DBC.ConnectDB("firebasedb/BumperDB-3b7d790985b1.json")
-	if firebasedb.DBC.DBCon == nil {
-		log.Fatal("DBClient not initialized correctly")
+	firebasedb.ConnectDB("firebasedb/BumperDB-3b7d790985b1.json")
+	if firebasedb.DBC == nil {
+		log.Println("DBClient not initialized correctly")
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))

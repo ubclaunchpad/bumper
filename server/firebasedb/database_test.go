@@ -9,16 +9,16 @@ import (
 
 func TestConnectDB(t *testing.T) {
 	// Connect to DB
-	DBC.ConnectDB("BumperDB-3b7d790985b1.json")
+	ConnectDB("BumperDB-3b7d790985b1.json")
 
-	if DBC.DBCon == nil {
+	if DBC == nil {
 		log.Fatal("DBClient not initialized correctly")
 	}
 }
 
 func TestUpdateFetchPlayerScore(t *testing.T) {
 	// Connect to DB
-	DBC.ConnectDB("BumperDB-3b7d790985b1.json")
+	ConnectDB("BumperDB-3b7d790985b1.json")
 
 	// Create a Player
 	p := new(models.Player)

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Modal, Button } from 'react-bootstrap';
 
 class WelcomeModal extends React.Component {
   constructor(props) {
@@ -24,21 +25,31 @@ class WelcomeModal extends React.Component {
   render() {
     return (
       <div style={styles.backdrop}>
-        <div style={styles.modal}>
-          Welcome to Bumper
-          <div>
-            player name:
-            <input
-              type="text"
-              value={this.state.inputName}
-              onChange={this.handleChange}
-            />
-          </div>
-          <div style={styles.buttonLayout}>
-            <button id="btn" onClick={() => this.props.onSubmit(this.state.inputName)}>
-              submit
-            </button>
-          </div>
+        <div className="static-modal">
+          <Modal.Dialog>
+            <Modal.Header>
+              <Modal.Title>Welcome to Bumper</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div>
+                player name:
+                <input
+                  type="text"
+                  value={this.state.inputName}
+                  onChange={this.handleChange}
+                />
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                bsStyle="primary"
+                id="btn"
+                onClick={() => this.props.onSubmit(this.state.inputName)}
+              >
+              Submit
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
         </div>
       </div>
     );

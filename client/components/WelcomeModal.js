@@ -28,11 +28,13 @@ class WelcomeModal extends React.Component {
         <div className="static-modal">
           <Modal.Dialog>
             <Modal.Header>
-              <Modal.Title>Welcome to Bumper</Modal.Title>
+              <Modal.Title>Welcome to Bumper!</Modal.Title>
             </Modal.Header>
             <Modal.Body>
+              <h5 align="left"> Instructions: </h5>
+              <p align="left"> Navigate your rocketship around space using your keyboard arrow keys. Bump space junk and other players into the black holes to earn points! But make sure to watch out for the black holes yourself or youll get sucked in!</p>
               <div>
-                player name:
+                Enter name:
                 <input
                   type="text"
                   value={this.state.inputName}
@@ -46,7 +48,7 @@ class WelcomeModal extends React.Component {
                 id="btn"
                 onClick={() => this.props.onSubmit(this.state.inputName)}
               >
-              Submit
+              Start Bumping!
               </Button>
             </Modal.Footer>
           </Modal.Dialog>

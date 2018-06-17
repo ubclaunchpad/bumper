@@ -14,7 +14,7 @@ cache:
 
 before_install:
   - cd $TRAVIS_BUILD_DIR/client
-  - if [ ! -d "node_modules" ]; then npm install; fi
+  - npm install
   - go get -u github.com/mattn/goveralls
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - cd $TRAVIS_BUILD_DIR/server

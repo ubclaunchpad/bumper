@@ -10,4 +10,6 @@
 /server/server.exe
 /server/gin-bin
 
+/server/firebasedb/BumperDB-3b7d790985b1.json
+
 .inertia.toml

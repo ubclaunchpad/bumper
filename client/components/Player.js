@@ -7,8 +7,6 @@ export function drawPlayer(p, canvas, scale) {
   const playerSize = PLAYER_RADIUS / scale;
 
   if (p.name !== '') {
-    console.log('draw ' + p.name + ': ' + p.position.x + ', ' + p.position.y);
-
     // Proportions
     const proportionBackCenter = 3 / 4;
     const proportionWingOuterTop = 4 / 7;

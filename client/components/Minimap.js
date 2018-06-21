@@ -1,50 +1,57 @@
-import React from 'react';
+import { drawPlayer } from './Player';
 
-class Minimap extends React.Component {
+// const PLAYER_RADIUS = 25;
+const EDGE_BUFFER = 5;
+const MAP_SCALE = 12;
+
+export default class Minimap {
   constructor(props) {
-    super(props);
-    this.state = {
-    };
+    this.canvas = props.canvas;
+    this.arena = props.arena;
 
-    // this.handleChange = this.handleChange.bind(this);
+    this.junk = null;
+    this.holes = null;
+    this.players = null;
+
+    this.drawMap = this.drawMap.bind(this);
+    this.update = this.update.bind(this);
   }
 
-  componentDidMount() {
+  update(data) {
+    this.junk = JSON.parse(JSON.stringify(data.junk));
+    this.holes = JSON.parse(JSON.stringify(data.holes));
+    this.players = JSON.parse(JSON.stringify(data.players));
   }
 
-  //   handleChange(e) {
-  //   }
+  drawMap() {
+    const ctx = this.canvas.getContext('2d');
 
-  render() {
-    return (
-      <div style={styles.modal}>
-        Minimap
-      </div>
-    );
+    const mapWidth = this.arena.width / MAP_SCALE;
+    const mapHeight = this.arena.height / MAP_SCALE;
+    const mapX = this.canvas.width - mapWidth - EDGE_BUFFER;
+    const mapY = this.canvas.height - mapHeight - EDGE_BUFFER;
+
+    // draw map bg
+    ctx.beginPath();
+    ctx.rect(mapX, mapY, mapWidth, mapHeight);
+    ctx.fillStyle = 'rgba(5,225,255,0.3)';
+    ctx.fill();
+    ctx.closePath();
+
+    console.log("mapX: " + mapX + " MapY: " + mapY);
+    console.log("mapWidth: " + mapWidth + " MapHeight: " + mapHeight);
+
+    if (this.players) {
+      this.players.forEach((p) => {
+        const mapPlayer = JSON.parse(JSON.stringify(p));
+        mapPlayer.position.x = (p.position.x / MAP_SCALE) + mapX;
+        mapPlayer.position.y = (p.position.y / MAP_SCALE) + mapY;
+
+        mapPlayer.name = 'maperplayer';
+
+        // console.log(mapPlayer.position.x);
+        drawPlayer(mapPlayer, this.canvas, 2);
+      });
+    }
   }
 }
-
-const styles = {
-  modal: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    position: 'fixed',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(5,225,255,0.3)',
-    borderRadius: 5,
-    height: window.innerHeight / 8,
-    width: window.innerWidth / 8,
-    padding: 50,
-    zIndex: 10,
-  },
-  buttonLayout: {
-    flexDirection: 'row',
-  },
-};
-
-
-export default Minimap;

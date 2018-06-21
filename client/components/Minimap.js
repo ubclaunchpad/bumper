@@ -1,9 +1,8 @@
-import { drawPlayer } from './Player';
-
-const JUNK_SIZE = 2;
+import { drawPlayer, drawJunk, drawMapHole } from './GameObjects';
 
 const EDGE_BUFFER = 5;
 const MAP_SCALE = 12;
+const OBJECT_SCALE = 4;
 
 export default class Minimap {
   constructor(props) {
@@ -54,25 +53,17 @@ export default class Minimap {
     // draw players and whatnot on map
     if (this.players) {
       this.players.forEach((p) => {
-        drawPlayer(p, this.canvas, 4);
+        drawPlayer(p, this.canvas, OBJECT_SCALE);
       });
     }
     if (this.junk) {
       this.junk.forEach((j) => {
-        ctx.beginPath();
-        ctx.rect(j.position.x - (JUNK_SIZE / 2), j.position.y - (JUNK_SIZE / 2), JUNK_SIZE, JUNK_SIZE);
-        ctx.fillStyle = j.color;
-        ctx.fill();
-        ctx.closePath();
+        drawJunk(j, this.canvas, OBJECT_SCALE);
       });
     }
     if (this.holes) {
       this.holes.forEach((h) => {
-        ctx.beginPath();
-        ctx.arc(h.position.x, h.position.y, h.radius / 8, 0, 2*Math.PI);
-        ctx.fillStyle = 'rgb(255,225,225)';
-        ctx.fill();
-        ctx.stroke();
+        drawMapHole(h, this.canvas);
       });
     }
   }

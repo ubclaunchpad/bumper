@@ -1,6 +1,50 @@
 const PLAYER_RADIUS = 25;
+const JUNK_SIZE = 15;
 
-// eslint-disable-next-line
+export function drawJunk(j, canvas, scale) {
+  const ctx = canvas.getContext('2d');
+  const junkSize = JUNK_SIZE / scale;
+
+  ctx.beginPath();
+  ctx.rect(j.position.x - (junkSize / 2), j.position.y - (junkSize / 2), junkSize, junkSize);
+  ctx.fillStyle = j.color;
+  ctx.fill();
+  ctx.closePath();
+}
+
+export function drawHole(h, canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  for (let i = 0; i < 720; i += 1) {
+    const angle = 0.1 * i;
+    const x = h.position.x + (1 + 1 * angle) * Math.cos(angle);
+    const y = h.position.y + (1 + 1 * angle) * Math.sin(angle);
+
+    // Find distance between the point (x, y) and the point (h.position.x, h.position.y)
+    const x1 = Math.abs(h.position.x - x);
+    const y1 = Math.abs(h.position.y - y);
+    const distance = Math.hypot(x1, y1);
+
+    // Only draw the line segment if it will correspond to a spiral with the correct radius
+    if (distance <= h.radius) {
+      ctx.lineTo(x, y);
+    }
+  }
+  ctx.strokeStyle = h.isAlive ? 'white' : 'rgba(255, 255, 255, 0.5)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.closePath();
+}
+
+export function drawMapHole(h, canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.arc(h.position.x, h.position.y, h.radius / 8, 0, 2 * Math.PI);
+  ctx.fillStyle = 'rgb(255,225,225)';
+  ctx.fill();
+  ctx.stroke();
+}
+
 export function drawPlayer(p, canvas, scale) {
   const ctx = canvas.getContext('2d');
   const { x, y } = p.position;

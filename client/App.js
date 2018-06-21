@@ -2,10 +2,8 @@ import React from 'react';
 
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
-import { drawPlayer } from './components/Player';
+import { drawPlayer, drawHole, drawJunk } from './components/GameObjects';
 import Minimap from './components/Minimap';
-
-const JUNK_SIZE = 15;
 
 const address = process.env.NODE_ENV === 'production'
   ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com/connect'
@@ -170,6 +168,7 @@ export default class App extends React.Component {
       return;
     }
 
+    // The minimap requires the update data before it is translated
     this.Minimap.update(data);
 
     let playerPosition = null;
@@ -308,49 +307,6 @@ export default class App extends React.Component {
     ctx.closePath();
   }
 
-  drawHoles() {
-    this.state.holes.forEach((h) => {
-      const ctx = this.canvas.getContext('2d');
-      ctx.beginPath();
-      for (let i = 0; i < 720; i += 1) {
-        const angle = 0.1 * i;
-        const x = h.position.x + (1 + 1 * angle) * Math.cos(angle);
-        const y = h.position.y + (1 + 1 * angle) * Math.sin(angle);
-
-        // Find distance between the point (x, y) and the point (h.position.x, h.position.y)
-        const x1 = Math.abs(h.position.x - x);
-        const y1 = Math.abs(h.position.y - y);
-        const distance = Math.hypot(x1, y1);
-
-        // Only draw the line segment if it will correspond to a spiral with the correct radius
-        if (distance <= h.radius) {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.strokeStyle = h.isAlive ? 'white' : 'rgba(255, 255, 255, 0.5)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.closePath();
-    });
-  }
-
-  drawJunk() {
-    this.state.junk.forEach((j) => {
-      const ctx = this.canvas.getContext('2d');
-      ctx.beginPath();
-      ctx.rect(j.position.x - (JUNK_SIZE / 2), j.position.y - (JUNK_SIZE / 2), JUNK_SIZE, JUNK_SIZE);
-      ctx.fillStyle = j.color;
-      ctx.fill();
-      ctx.closePath();
-    });
-  }
-
-  drawPlayers() {
-    this.state.players.forEach((p) => {
-      drawPlayer(p, this.canvas, 1);
-    });
-  }
-
   drawWalls() {
     if (this.state.playerAbsolutePosition) {
       if (this.state.playerAbsolutePosition.x < (this.canvas.width / 2)) {
@@ -392,9 +348,17 @@ export default class App extends React.Component {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.Minimap.drawMap();
-    this.drawHoles();
-    this.drawJunk();
-    this.drawPlayers();
+
+    this.state.holes.forEach((h) => {
+      drawHole(h, this.canvas);
+    });
+    this.state.junk.forEach((j) => {
+      drawJunk(j, this.canvas, 1);
+    });
+    this.state.players.forEach((p) => {
+      drawPlayer(p, this.canvas, 1);
+    });
+
     this.drawLeaderboard();
     this.drawWalls();
   }

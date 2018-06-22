@@ -8,10 +8,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-<<<<<<< HEAD
 	"github.com/ubclaunchpad/bumper/server/database"
-=======
->>>>>>> master
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 

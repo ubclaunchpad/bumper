@@ -1,4 +1,4 @@
-package firebasedb
+package database
 
 import (
 	"context"

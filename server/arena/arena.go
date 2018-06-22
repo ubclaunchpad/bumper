@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-	"github.com/ubclaunchpad/bumper/server/firebasedb"
+	"github.com/ubclaunchpad/bumper/server/database"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
@@ -207,7 +207,7 @@ func (a *Arena) holeCollisions() {
 				playerScored := junk.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerJunk)
-					go firebasedb.UpdatePlayerScore(playerScored)
+					go database.UpdatePlayerScore(playerScored)
 				}
 
 				a.removeJunk(i)

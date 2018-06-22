@@ -1,4 +1,4 @@
-package firebasedb
+package database
 
 import (
 	"log"
@@ -9,7 +9,7 @@ import (
 
 func TestConnectDB(t *testing.T) {
 	// Connect to DB
-	ConnectDB("BumperDB-3b7d790985b1.json")
+	ConnectDB("../service-account.json")
 
 	if DBC == nil {
 		log.Fatal("DBClient not initialized correctly")
@@ -18,7 +18,7 @@ func TestConnectDB(t *testing.T) {
 
 func TestUpdateFetchPlayerScore(t *testing.T) {
 	// Connect to DB
-	ConnectDB("BumperDB-3b7d790985b1.json")
+	ConnectDB("../service-account.json")
 
 	// Create a Player
 	p := new(models.Player)

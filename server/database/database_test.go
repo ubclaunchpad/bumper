@@ -22,6 +22,8 @@ func TestUpdateFetchPlayerScore(t *testing.T) {
 
 	// Create a Player
 	p := new(models.Player)
+	p.ID = "tester"
+	p.Name = "tester"
 	p.AddPoints(100)
 	UpdatePlayerScore(p)
 

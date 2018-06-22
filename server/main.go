@@ -18,7 +18,7 @@ func main() {
 	arena.MessageChannel = make(chan models.Message)
 	game := game.CreateGame()
 
-	firebasedb.ConnectDB("firebasedb/BumperDB-3b7d790985b1.json")
+	firebasedb.ConnectDB("service-account.json")
 	if firebasedb.DBC == nil {
 		log.Println("DBClient not initialized correctly")
 	}

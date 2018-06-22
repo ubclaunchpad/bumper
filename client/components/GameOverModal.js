@@ -1,4 +1,5 @@
 import React from 'react';
+import { Modal, Button } from 'react-bootstrap';
 
 // eslint-disable-next-line
 class GameOverModal extends React.Component {
@@ -8,16 +9,28 @@ class GameOverModal extends React.Component {
     const timeString = `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
     return (
       <div style={styles.backdrop}>
-        <div style={styles.modal}>
-          <b>GAME OVER</b>
-          <div>
-            <div><b>Time alive:</b> <span>{timeString}</span></div>
-            <div><b>Points earned:</b> <span>{this.props.finalPoints}</span></div>
-            <div><b>Final ranking:</b> <span>{this.props.finalRanking}</span></div>
-          </div>
-          <button style={styles.restartButton} onClick={() => this.props.onRestart()}>
-            Restart game
-          </button>
+        <div className="static-modal">
+          <Modal.Dialog>
+            <Modal.Header>
+              <Modal.Title>GAME OVER</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div>
+                <div><b>Time alive:</b> <span>{timeString}</span></div>
+                <div><b>Points earned:</b> <span>{this.props.finalPoints}</span></div>
+                <div><b>Final ranking:</b> <span>{this.props.finalRanking}</span></div>
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                bsStyle="primary"
+                id="btn"
+                onClick={() => this.props.onRestart()}
+              >
+              Restart Game
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
         </div>
       </div>
     );

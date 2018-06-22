@@ -8,7 +8,10 @@ import (
 	"time"
 
 	"github.com/ubclaunchpad/bumper/server/arena"
+<<<<<<< HEAD
 	"github.com/ubclaunchpad/bumper/server/database"
+=======
+>>>>>>> master
 	"github.com/ubclaunchpad/bumper/server/game"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
@@ -18,11 +21,14 @@ func main() {
 	arena.MessageChannel = make(chan models.Message)
 	game := game.CreateGame()
 
+<<<<<<< HEAD
 	database.ConnectDB("service-account.json")
 	if database.DBC == nil {
 		log.Println("DBClient not initialized correctly")
 	}
 
+=======
+>>>>>>> master
 	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.Handle("/connect", game)
 	game.StartGame()

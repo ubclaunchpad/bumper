@@ -192,6 +192,7 @@ func (a *Arena) holeCollisions() {
 		for name, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
 				// TODO: Should award some points to the bumper... Not as straight forward as the junk
+				go database.UpdatePlayerScore(player)
 				deathMsg := models.Message{
 					Type: "death",
 					Data: name,
@@ -207,7 +208,6 @@ func (a *Arena) holeCollisions() {
 				playerScored := junk.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerJunk)
-					go database.UpdatePlayerScore(playerScored)
 				}
 
 				a.removeJunk(i)

@@ -44,52 +44,54 @@ func ConnectDB(credentialsPath string) {
 // UpdatePlayerScore updates the score for the given player in the database
 // Use as a goroutine to make it non-blocking. (Not fully thread safe yet)
 func UpdatePlayerScore(p *models.Player) {
+	if DBC == nil {
+		return
+	}
 
 	scoreData := LeaderboardEntry{
 		Name:  p.Name,
 		Score: p.Points,
 	}
 
-	// Send score data to DB
-	if DBC != nil {
-		err := DBC.NewRef("leaderboard/Testers/"+p.ID).Set(context.Background(), scoreData)
-		if err != nil {
-			log.Printf("Couldn't set data: %v", err)
-		}
+	err := DBC.NewRef("leaderboard/"+p.ID).Set(context.Background(), scoreData)
+	if err != nil {
+		log.Printf("Couldn't set data: %v", err)
 	}
 }
 
 // FetchPlayerScore retreives the score for the given player
-func FetchPlayerScore(p *models.Player) LeaderboardEntry {
+func FetchPlayerScore(p *models.Player) *LeaderboardEntry {
+	if DBC == nil {
+		return &LeaderboardEntry{}
+	}
 
 	var scoreData LeaderboardEntry
-	if DBC != nil {
-		err := DBC.NewRef("leaderboard/Testers/"+p.ID).Get(context.Background(), &scoreData)
-		if err != nil {
-			log.Printf("Couldn't set data: %v", err)
-		}
+	err := DBC.NewRef("leaderboard/"+p.ID).Get(context.Background(), &scoreData)
+	if err != nil {
+		log.Printf("Couldn't set data: %v", err)
 	}
-	return scoreData
+	return &scoreData
 }
 
 // FetchTop5Players prints the top 5 player - for debugging, no test written.
 func FetchTop5Players() {
+	if DBC == nil {
+		return
+	}
 
-	if DBC != nil {
-		query := DBC.NewRef("leaderboard/Testers").OrderByChild("Score").LimitToFirst(5)
-		result, err := query.GetOrdered(context.Background())
+	query := DBC.NewRef("leaderboard/").OrderByChild("Score").LimitToFirst(5)
+	result, err := query.GetOrdered(context.Background())
+	if err != nil {
+		log.Print(err)
+	}
+
+	// Results will be logged in the increasing order of balance.
+	for _, r := range result {
+		var playerScore LeaderboardEntry
+		err = r.Unmarshal(&playerScore)
 		if err != nil {
-			log.Print(err)
+			log.Fatal(err)
 		}
-
-		// Results will be logged in the increasing order of balance.
-		for _, r := range result {
-			var playerScore LeaderboardEntry
-			err = r.Unmarshal(&playerScore)
-			if err != nil {
-				log.Fatal(err)
-			}
-			log.Printf("%s => %v\n", r.Key(), playerScore)
-		}
+		log.Printf("%s => %v\n", r.Key(), playerScore)
 	}
 }

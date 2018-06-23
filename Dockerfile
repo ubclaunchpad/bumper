@@ -20,6 +20,7 @@ RUN go build -o server; cp server /app
 
 # Copy build to final stage
 FROM alpine
+RUN apk add ca-certificates
 WORKDIR /app/build
 COPY --from=client /client/public/ .
 WORKDIR /app

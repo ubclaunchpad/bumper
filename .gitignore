@@ -9,6 +9,6 @@
 /server/server
 /server/server.exe
 /server/gin-bin
-/server/service-account.json
+**service-account.json
 
 .inertia.toml

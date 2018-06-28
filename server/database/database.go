@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/ubclaunchpad/bumper/server/models"
 
@@ -22,6 +23,11 @@ var DBC *db.Client
 
 // ConnectDB connects the DB handle to firebase db.
 func ConnectDB(credentialsPath string) {
+	if _, err := os.Stat(credentialsPath); os.IsNotExist(err) {
+		log.Println("Firebase credentials not found")
+		return
+	}
+
 	// Initialize default DB App
 	opt := option.WithCredentialsFile(credentialsPath)
 

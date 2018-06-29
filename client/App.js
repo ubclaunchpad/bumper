@@ -4,6 +4,8 @@ import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
 import { drawGame, drawWalls } from './components/GameObjects';
 import Minimap from './components/Minimap';
+import { registerNewTesterEvent, registerTesterUpdateEvent } from './database/database';
+
 
 const address = process.env.NODE_ENV === 'production'
   ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com/connect'
@@ -45,6 +47,8 @@ export default class App extends React.Component {
     this.canvas = document.getElementById('ctx');
     this.minimap = document.getElementById('map');
     this.connectPlayer();
+    registerNewTesterEvent();
+    registerTesterUpdateEvent();
   }
 
   openGameOverModal() {

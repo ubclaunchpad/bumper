@@ -73,6 +73,19 @@ export default class Minimap extends React.Component {
   }
 
   render() {
+    this.state.players.forEach((p) => {
+      p.position.x = (p.position.x / MAP_SCALE) + this.mapX;
+      p.position.y = (p.position.y / MAP_SCALE) + this.mapY;
+    });
+    this.state.holes.forEach((h) => {
+      h.position.x = (h.position.x / MAP_SCALE) + this.mapX;
+      h.position.y = (h.position.y / MAP_SCALE) + this.mapY;
+    });
+    this.state.junk.forEach((j) => {
+      j.position.x = (j.position.x / MAP_SCALE) + this.mapX;
+      j.position.y = (j.position.y / MAP_SCALE) + this.mapY;
+    });
+
     return (
       <div style={styles.mapModal}>
         Minimap

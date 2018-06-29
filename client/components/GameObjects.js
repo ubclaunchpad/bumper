@@ -1,6 +1,68 @@
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
+export function drawGame(data, canvas) {
+  let playerPosition = null;
+  let playerOffset = null;
+
+  const junk = JSON.parse(JSON.stringify(data.junk));
+  const holes = JSON.parse(JSON.stringify(data.holes));
+  const players = JSON.parse(JSON.stringify(data.players));
+
+  players.forEach((player) => {
+    if (player.name !== '' && player.id === data.player.id) {
+      playerPosition = player.position;
+
+      player.position = { x: playerPosition.x, y: playerPosition.y };
+      playerOffset = { x: playerPosition.x, y: playerPosition.y };
+      if (player.position.x > canvas.width / 2) {
+        if ((player.position.x < data.arena.width - (canvas.width / 2))) {
+          player.position.x = canvas.width / 2;
+          playerOffset.x = canvas.width / 2;
+        } else {
+          playerOffset.x = player.position.x - (data.arena.width - canvas.width);
+          player.position.x -= (data.arena.width - canvas.width);
+        }
+      }
+      if (player.position.y > canvas.height / 2) {
+        if ((player.position.y < data.arena.height - (canvas.height / 2))) {
+          player.position.y = canvas.height / 2;
+          playerOffset.y = canvas.height / 2;
+        } else {
+          playerOffset.y = player.position.y - (data.arena.height - canvas.height);
+          player.position.y -= (data.arena.height - canvas.height);
+        }
+      }
+    }
+  });
+
+  if (playerPosition != null) {
+    junk.forEach((j) => {
+      j.position.x -= playerPosition.x;
+      j.position.y -= playerPosition.y;
+      j.position.x += playerOffset.x;
+      j.position.y += playerOffset.y;
+      drawJunk(j, canvas, 1);
+    });
+    holes.forEach((h) => {
+      h.position.x -= playerPosition.x;
+      h.position.y -= playerPosition.y;
+      h.position.x += playerOffset.x;
+      h.position.y += playerOffset.y;
+      drawHole(h, canvas);
+    });
+    players.forEach((p) => {
+      if (p.name !== '' && p.id !== data.player.id) {
+        p.position.x -= playerPosition.x;
+        p.position.y -= playerPosition.y;
+        p.position.x += playerOffset.x;
+        p.position.y += playerOffset.y;
+      }
+      drawPlayer(p, canvas, 1);
+    });
+  }
+}
+
 export function drawJunk(j, canvas, scale) {
   const ctx = canvas.getContext('2d');
   const junkSize = JUNK_SIZE / scale;
@@ -17,8 +79,8 @@ export function drawHole(h, canvas) {
   ctx.beginPath();
   for (let i = 0; i < 720; i += 1) {
     const angle = 0.1 * i;
-    const x = h.position.x + (1 + 1 * angle) * Math.cos(angle);
-    const y = h.position.y + (1 + 1 * angle) * Math.sin(angle);
+    const x = h.position.x + ((1 + angle) * Math.cos(angle));
+    const y = h.position.y + ((1 + angle) * Math.sin(angle));
 
     // Find distance between the point (x, y) and the point (h.position.x, h.position.y)
     const x1 = Math.abs(h.position.x - x);

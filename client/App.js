@@ -2,7 +2,7 @@ import React from 'react';
 
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
-import { drawPlayer, drawHole, drawJunk } from './components/GameObjects';
+import { drawGame } from './components/GameObjects';
 import Minimap from './components/Minimap';
 
 const address = process.env.NODE_ENV === 'production'
@@ -171,62 +171,11 @@ export default class App extends React.Component {
       return;
     }
 
-    // The minimap requires the update data before it is translated
-    // const minimap = document.getElementById('map');
-    if (this.minimap) this.minimap.update(data);
-
-    let playerPosition = null;
-    let playerOffset = null;
     data.players.forEach((player) => {
       if (player.name !== '' && player.id === this.state.player.id) {
-        playerPosition = player.position;
-        this.setState({ playerAbsolutePosition: playerPosition });
-
-        player.position = { x: playerPosition.x, y: playerPosition.y };
-        playerOffset = { x: playerPosition.x, y: playerPosition.y };
-        if (player.position.x > this.canvas.width / 2) {
-          if ((player.position.x < this.state.arena.width - (this.canvas.width / 2))) {
-            player.position.x = this.canvas.width / 2;
-            playerOffset.x = this.canvas.width / 2;
-          } else {
-            playerOffset.x = player.position.x - (this.state.arena.width - this.canvas.width);
-            player.position.x -= (this.state.arena.width - this.canvas.width);
-          }
-        }
-        if (player.position.y > this.canvas.height / 2) {
-          if ((player.position.y < this.state.arena.height - (this.canvas.height / 2))) {
-            player.position.y = this.canvas.height / 2;
-            playerOffset.y = this.canvas.height / 2;
-          } else {
-            playerOffset.y = player.position.y - (this.state.arena.height - this.canvas.height);
-            player.position.y -= (this.state.arena.height - this.canvas.height);
-          }
-        }
+        this.setState({ playerAbsolutePosition: player.position });
       }
     });
-
-    if (playerPosition != null) {
-      data.junk.forEach((junk) => {
-        junk.position.x -= playerPosition.x;
-        junk.position.y -= playerPosition.y;
-        junk.position.x += playerOffset.x;
-        junk.position.y += playerOffset.y;
-      });
-      data.holes.forEach((hole) => {
-        hole.position.x -= playerPosition.x;
-        hole.position.y -= playerPosition.y;
-        hole.position.x += playerOffset.x;
-        hole.position.y += playerOffset.y;
-      });
-      data.players.forEach((player) => {
-        if (player.name !== '' && player.id !== this.state.player.id) {
-          player.position.x -= playerPosition.x;
-          player.position.y -= playerPosition.y;
-          player.position.x += playerOffset.x;
-          player.position.y += playerOffset.y;
-        }
-      });
-    }
 
     this.setState({
       junk: data.junk,
@@ -351,17 +300,9 @@ export default class App extends React.Component {
   draw() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    if (this.minimap) this.minimap.drawMap();
+    // if (this.minimap) this.minimap.drawMap();
 
-    this.state.holes.forEach((h) => {
-      drawHole(h, this.canvas);
-    });
-    this.state.junk.forEach((j) => {
-      drawJunk(j, this.canvas, 1);
-    });
-    this.state.players.forEach((p) => {
-      drawPlayer(p, this.canvas, 1);
-    });
+    drawGame(this.state, this.canvas);
 
     this.drawLeaderboard();
     this.drawWalls();
@@ -379,14 +320,14 @@ export default class App extends React.Component {
     return (
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
-        {
+        {/* {
           this.state.showMiniMap &&
           <Minimap
             id="map"
             canvas={this.canvas}
             arena={this.state.arena}
           />
-        }
+        } */}
         {
           this.state.showWelcomeModal &&
           <WelcomeModal

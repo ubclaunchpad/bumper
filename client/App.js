@@ -145,13 +145,6 @@ export default class App extends React.Component {
       player: this.state.player,
       timeStarted: new Date(),
     });
-
-
-    // const mapProps = {
-    //   canvas: this.canvas,
-    //   arena: { width: data.arenaWidth, height: data.arenaHeight },
-    // };
-    // this.minimap = new Minimap(mapProps);
   }
 
   initializeGame(data) {
@@ -320,14 +313,17 @@ export default class App extends React.Component {
     return (
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
-        {/* {
+        {
           this.state.showMiniMap &&
           <Minimap
             id="map"
             canvas={this.canvas}
             arena={this.state.arena}
+            junk={this.state.junk}
+            players={this.state.players}
+            holes={this.state.holes}
           />
-        } */}
+        }
         {
           this.state.showWelcomeModal &&
           <WelcomeModal

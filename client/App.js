@@ -2,7 +2,7 @@ import React from 'react';
 
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
-import { drawGame } from './components/GameObjects';
+import { drawGame, drawWalls } from './components/GameObjects';
 import Minimap from './components/Minimap';
 
 const address = process.env.NODE_ENV === 'production'
@@ -164,12 +164,6 @@ export default class App extends React.Component {
       return;
     }
 
-    data.players.forEach((player) => {
-      if (player.name !== '' && player.id === this.state.player.id) {
-        this.setState({ playerAbsolutePosition: player.position });
-      }
-    });
-
     this.setState({
       junk: data.junk,
       holes: data.holes,
@@ -253,52 +247,20 @@ export default class App extends React.Component {
     ctx.closePath();
   }
 
-  drawWalls() {
-    if (this.state.playerAbsolutePosition) {
-      if (this.state.playerAbsolutePosition.x < (this.canvas.width / 2)) {
-        const ctx = this.canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.rect(0, 0, 10, this.state.arena.height);
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-        ctx.closePath();
-      }
-      if (this.state.playerAbsolutePosition.x > this.state.arena.width - (this.canvas.width / 2)) {
-        const ctx = this.canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.rect(this.canvas.width - 10, 0, 10, this.state.arena.height);
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-        ctx.closePath();
-      }
-      if (this.state.playerAbsolutePosition.y < (this.canvas.height / 2)) {
-        const ctx = this.canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.rect(0, 0, this.state.arena.width, 10);
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-        ctx.closePath();
-      }
-      if (this.state.playerAbsolutePosition.y > this.state.arena.height - (this.canvas.height / 2)) {
-        const ctx = this.canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.rect(0, this.canvas.height - 10, this.state.arena.width, 10);
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-        ctx.closePath();
-      }
-    }
-  }
-
   draw() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    // if (this.minimap) this.minimap.drawMap();
 
     drawGame(this.state, this.canvas);
 
     this.drawLeaderboard();
-    this.drawWalls();
+
+    // Drawing the walls requires the players position
+    this.state.players.forEach((player) => {
+      if (player.name !== '' && player.id === this.state.player.id) {
+        drawWalls(player, this.state.arena, this.canvas);
+      }
+    });
   }
 
   keyDownHandler(e) {
@@ -316,7 +278,6 @@ export default class App extends React.Component {
         {
           this.state.showMiniMap &&
           <Minimap
-            id="map"
             canvas={this.canvas}
             arena={this.state.arena}
             junk={this.state.junk}

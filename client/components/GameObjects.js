@@ -215,3 +215,37 @@ export function drawPlayer(p, canvas, scale) {
     // TODO: Rocket Window
   }
 }
+
+export function drawWalls(player, arena, canvas) {
+  if (player.position) {
+    const ctx = canvas.getContext('2d');
+    if (player.position.x < (canvas.width / 2)) {
+      ctx.beginPath();
+      ctx.rect(0, 0, 10, arena.height);
+      ctx.fillStyle = 'yellow';
+      ctx.fill();
+      ctx.closePath();
+    }
+    if (player.position.x > arena.width - (canvas.width / 2)) {
+      ctx.beginPath();
+      ctx.rect(canvas.width - 10, 0, 10, arena.height);
+      ctx.fillStyle = 'yellow';
+      ctx.fill();
+      ctx.closePath();
+    }
+    if (player.position.y < (canvas.height / 2)) {
+      ctx.beginPath();
+      ctx.rect(0, 0, arena.width, 10);
+      ctx.fillStyle = 'yellow';
+      ctx.fill();
+      ctx.closePath();
+    }
+    if (player.position.y > arena.height - (canvas.height / 2)) {
+      ctx.beginPath();
+      ctx.rect(0, canvas.height - 10, arena.width, 10);
+      ctx.fillStyle = 'yellow';
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+}

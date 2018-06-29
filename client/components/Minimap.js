@@ -16,22 +16,26 @@ export default class Minimap extends React.Component {
     this.mapX = props.canvas.width - this.mapWidth - EDGE_BUFFER;
     this.mapY = props.canvas.height - this.mapHeight - EDGE_BUFFER;
 
-    this.state = {
-      junk: props.junk,
-      holes: props.holes,
-      players: props.players,
-    };
+    this.junk = props.junk;
+    this.holes = props.holes;
+    this.players = props.players;
 
     this.drawMap = this.drawMap.bind(this);
+  }
+
+  componentDidUpdate() {
+    this.junk = this.props.junk;
+    this.holes = this.props.holes;
+    this.players = this.props.players;
   }
 
   drawMap() {
     const ctx = this.canvas.getContext('2d');
 
     // Deep copy and then translate all game objects
-    const junk = JSON.parse(JSON.stringify(this.state.junk));
-    const holes = JSON.parse(JSON.stringify(this.state.holes));
-    const players = JSON.parse(JSON.stringify(this.state.players));
+    const junk = JSON.parse(JSON.stringify(this.junk));
+    const holes = JSON.parse(JSON.stringify(this.holes));
+    const players = JSON.parse(JSON.stringify(this.players));
 
     players.forEach((p) => {
       p.position.x = (p.position.x / MAP_SCALE) + this.mapX;
@@ -69,32 +73,7 @@ export default class Minimap extends React.Component {
     this.drawMap();
 
     return (
-      // <div style={styles.mapModal}>
-      <div>
-        Minimap
-      </div>
+      <div />
     );
   }
 }
-
-// const styles = {
-//   mapModal: {
-//     display: 'flex',
-//     flexDirection: 'column',
-//     justifyContent: 'center',
-//     position: 'fixed',
-//     top: 0,
-//     bottom: 0,
-//     left: 0,
-//     right: 0,
-//     backgroundColor: 'rgba(5,225,255,0.3)',
-//     borderRadius: 5,
-//     height: window.innerHeight / MAP_SCALE,
-//     width: window.innerWidth / MAP_SCALE,
-//     padding: 50,
-//     zIndex: 10,
-//   },
-//   buttonLayout: {
-//     flexDirection: 'row',
-//   },
-// };

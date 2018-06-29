@@ -67,31 +67,11 @@ export default class Minimap extends React.Component {
     }
     if (this.holes) {
       this.holes.forEach((h) => {
-        drawMapHole(h, this.canvas);
+        drawMapHole(h, this.canvas, OBJECT_SCALE);
       });
     }
   }
 
-  // renders() {
-  //   const minutes = this.props.finalTime.getMinutes();
-  //   const seconds = this.props.finalTime.getSeconds();
-  //   const timeString = `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
-  //   return (
-  //     <div style={styles.backdrop}>
-  //       <div style={styles.modal}>
-  //         <b>GAME OVER</b>
-  //         <div>
-  //           <div><b>Time alive:</b> <span>{timeString}</span></div>
-  //           <div><b>Points earned:</b> <span>{this.props.finalPoints}</span></div>
-  //           <div><b>Final ranking:</b> <span>{this.props.finalRanking}</span></div>
-  //         </div>
-  //         <button style={styles.restartButton} onClick={() => this.props.onRestart()}>
-  //           Restart game
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
   render() {
     return (
       <div style={styles.mapModal}>

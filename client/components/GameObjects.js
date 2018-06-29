@@ -36,10 +36,10 @@ export function drawHole(h, canvas) {
   ctx.closePath();
 }
 
-export function drawMapHole(h, canvas) {
+export function drawMapHole(h, canvas, scale) {
   const ctx = canvas.getContext('2d');
   ctx.beginPath();
-  ctx.arc(h.position.x, h.position.y, h.radius / 8, 0, 2 * Math.PI);
+  ctx.arc(h.position.x, h.position.y, h.radius / scale, 0, 2 * Math.PI);
   ctx.fillStyle = 'rgb(255,225,225)';
   ctx.fill();
   ctx.stroke();

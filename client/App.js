@@ -14,6 +14,7 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
+      showMiniMap: false,
       showWelcomeModal: true,
       showGameOverModal: false,
       isInitialized: false,
@@ -42,6 +43,7 @@ export default class App extends React.Component {
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
+    this.minimap = document.getElementById('map');
     this.connectPlayer();
   }
 
@@ -74,6 +76,7 @@ export default class App extends React.Component {
     this.state.player.name = inputName;
     this.setState({
       showWelcomeModal: false,
+      showMiniMap: true,
       player: this.state.player,
     });
   }
@@ -144,11 +147,11 @@ export default class App extends React.Component {
     });
 
 
-    const mapProps = {
-      canvas: this.canvas,
-      arena: { width: data.arenaWidth, height: data.arenaHeight },
-    };
-    this.Minimap = new Minimap(mapProps);
+    // const mapProps = {
+    //   canvas: this.canvas,
+    //   arena: { width: data.arenaWidth, height: data.arenaHeight },
+    // };
+    // this.minimap = new Minimap(mapProps);
   }
 
   initializeGame(data) {
@@ -169,7 +172,8 @@ export default class App extends React.Component {
     }
 
     // The minimap requires the update data before it is translated
-    this.Minimap.update(data);
+    // const minimap = document.getElementById('map');
+    if (this.minimap) this.minimap.update(data);
 
     let playerPosition = null;
     let playerOffset = null;
@@ -347,7 +351,7 @@ export default class App extends React.Component {
   draw() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.Minimap.drawMap();
+    if (this.minimap) this.minimap.drawMap();
 
     this.state.holes.forEach((h) => {
       drawHole(h, this.canvas);
@@ -376,6 +380,14 @@ export default class App extends React.Component {
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
+          this.state.showMiniMap &&
+          <Minimap
+            id="map"
+            canvas={this.canvas}
+            arena={this.state.arena}
+          />
+        }
+        {
           this.state.showWelcomeModal &&
           <WelcomeModal
             name={this.state.player.name}
@@ -387,7 +399,7 @@ export default class App extends React.Component {
           <GameOverModal
             {...this.state.gameOverData}
             onRestart={() => {
-              this.setState({ showWelcomeModal: true, showGameOverModal: false });
+              this.setState({ showMiniMap: false, showWelcomeModal: true, showGameOverModal: false });
               }
             }
           />

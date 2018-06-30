@@ -33,7 +33,7 @@ func ConnectDB(credentialsPath string) {
 
 	ctx := context.Background()
 	config := &firebase.Config{
-		DatabaseURL: "https://bumperdb-d7f48.firebaseio.com",
+		DatabaseURL: os.Getenv("DATABASE_URL"),
 	}
 	app, err := firebase.NewApp(ctx, config, opt)
 	if err != nil {

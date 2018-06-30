@@ -3,6 +3,9 @@ version: '3'
 services:
   bumper:
     build: .
-    # network_mode: "host"
+    environment:
+      - PORT=${PORT}
+      - SERVER_URL=${SERVER_URL}
+      - DATABASE_URL=${DATABASE_URL}
     ports:
-      - "80:9090"
+      - "80:${PORT}"

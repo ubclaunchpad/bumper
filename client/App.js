@@ -10,11 +10,7 @@ import {
 const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
-console.log(process.env);
-
-const address = process.env.NODE_ENV === 'production'
-  ? 'ws://ec2-54-193-127-203.us-west-1.compute.amazonaws.com/connect'
-  : 'ws://localhost:9090/connect';
+const address = process.env.SERVER_URL;
 
 export default class App extends React.Component {
   constructor(props) {
@@ -70,7 +66,7 @@ export default class App extends React.Component {
   // connect player on load
   connectPlayer() {
     if (window.WebSocket) {
-      this.socket = new WebSocket(address);
+      this.socket = new WebSocket(`ws://${address}/connect`);
       this.socket.onopen = () => {
         this.socket.onmessage = event => this.handleMessage(JSON.parse(event.data));
       };

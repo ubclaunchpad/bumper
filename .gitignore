@@ -1,6 +1,8 @@
 **.DS_Store
 **npm-debug.log
 
+**.env
+
 /client/node_modules/
 
 /server/bin

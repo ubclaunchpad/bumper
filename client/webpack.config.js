@@ -1,5 +1,6 @@
 /* eslint-disable */
 const webpack = require('webpack');
+const dotenv = require('dotenv').config({ path: '../.env' });
 
 const config = {
   entry: './index.js',
@@ -25,9 +26,9 @@ const config = {
     ],
   },
   plugins: [
-    new webpack.EnvironmentPlugin([
-      'NODE_ENV',
-    ]),
+    new webpack.DefinePlugin({
+      "process.env": dotenv.parsed,
+    }),
   ]
 };
 

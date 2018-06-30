@@ -11,12 +11,12 @@ const config = {
 };
 
 const devConfig = {
-  apiKey: 'AIzaSyA4CbYttLND1GH-uoLF523KYkn4tadF6rY',
-  authDomain: 'bumperdb-d7f48.firebaseapp.com',
-  databaseURL: 'https://bumperdb-d7f48.firebaseio.com',
-  projectId: 'bumperdb-d7f48',
-  storageBucket: 'bumperdb-d7f48.appspot.com',
-  messagingSenderId: '234111044340',
+  apiKey: 'AIzaSyD2p9WKP5cAugArSvUD1m8aUeqZRPnCu7Q',
+  authDomain: 'bumperdevdb.firebaseapp.com',
+  databaseURL: 'https://bumperdevdb.firebaseio.com',
+  projectId: 'bumperdevdb',
+  storageBucket: 'bumperdevdb.appspot.com',
+  messagingSenderId: '174823897090',
 };
 
 if (!firebase.apps.length) {

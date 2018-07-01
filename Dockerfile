@@ -4,6 +4,8 @@ WORKDIR /client
 ADD client/package.json .
 RUN npm install
 ADD client .
+## ENV DEPENDENCY
+ADD .env .
 RUN npm run build
 
 # Build server
@@ -12,6 +14,7 @@ WORKDIR /app
 ENV SRC_DIR=/go/src/github.com/ubclaunchpad/bumper/server
 RUN apk add --update --no-cache git
 ADD server $SRC_DIR
+## ENV DEPENDENCY
 ADD server/service-account.json .
 WORKDIR $SRC_DIR
 RUN go get -u github.com/golang/dep/cmd/dep

@@ -28,7 +28,7 @@ class WelcomeModal extends React.Component {
         <div className="static-modal">
           <Modal.Dialog>
             <Modal.Header>
-              <Modal.Title>Weeeelcome to Bumper!</Modal.Title>
+              <Modal.Title>Welcome to Bumper!</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <h5 align="left"> Instructions: </h5>

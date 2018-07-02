@@ -13,7 +13,7 @@ export default class Leaderboard extends React.Component {
 
     return (
       <div style={styles.container}>
-        <Panel bsStyle="success">
+        <Panel>
           <Panel.Heading componentClass="h4">
             <Panel.Title>
               <div style={styles.header}>
@@ -23,7 +23,7 @@ export default class Leaderboard extends React.Component {
           </Panel.Heading>
           <ListGroup>
             {
-              this.props.players.map(p => <ListGroupItem>{p.name}</ListGroupItem>)
+              this.props.players.map(p => <ListGroupItem key={p.name}>{p.name} {p.name ? p.points : ''}</ListGroupItem>)
             }
           </ListGroup>
         </Panel>

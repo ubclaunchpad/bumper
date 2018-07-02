@@ -31,6 +31,7 @@ func ConnectDB(credentialsPath string) {
 	// Initialize default DB App
 	opt := option.WithCredentialsFile(credentialsPath)
 
+	log.Printf("Connecting to %v", os.Getenv("DATABASE_URL"))
 	ctx := context.Background()
 	config := &firebase.Config{
 		DatabaseURL: os.Getenv("DATABASE_URL"),

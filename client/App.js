@@ -282,7 +282,6 @@ export default class App extends React.Component {
         {
           this.state.showMiniMap &&
           <Minimap
-            canvas={this.canvas}
             arena={this.state.arena}
             junk={this.state.junk}
             players={this.state.players}

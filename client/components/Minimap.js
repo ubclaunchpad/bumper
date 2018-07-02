@@ -9,18 +9,21 @@ const HOLE_SCALE = 10;
 export default class Minimap extends React.Component {
   constructor(props) {
     super(props);
-    this.canvas = props.canvas;
 
     this.mapWidth = props.arena.width / MAP_SCALE;
     this.mapHeight = props.arena.height / MAP_SCALE;
-    this.mapX = props.canvas.width - this.mapWidth - EDGE_BUFFER;
-    this.mapY = props.canvas.height - this.mapHeight - EDGE_BUFFER;
 
     this.junk = props.junk;
     this.holes = props.holes;
     this.players = props.players;
 
     this.drawMap = this.drawMap.bind(this);
+  }
+
+  async componentDidMount() {
+    this.canvas = document.getElementById('mapctx');
+    this.mapX = this.canvas.width - this.mapWidth - EDGE_BUFFER;
+    this.mapY = this.canvas.height - this.mapHeight - EDGE_BUFFER;
   }
 
   componentDidUpdate() {
@@ -70,10 +73,24 @@ export default class Minimap extends React.Component {
   }
 
   render() {
-    this.drawMap();
+    if (this.canvas) {
+      this.drawMap();
+    }
 
     return (
-      <div />
+      <div style={styles.canvasContainer}>
+        <canvas id="mapctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
+      </div>
     );
   }
 }
+
+const styles = {
+  canvas: {
+    background: '#05ffff03',
+    textAlign: 'center',
+  },
+  canvasContainer: {
+    textAlign: 'center',
+  },
+};

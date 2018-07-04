@@ -54,19 +54,6 @@ export default class Minimap extends React.Component {
     const holes = JSON.parse(JSON.stringify(this.holes));
     const players = JSON.parse(JSON.stringify(this.players));
 
-    players.forEach((p) => {
-      p.position.x = (p.position.x / MAP_SCALE) + this.mapX;
-      p.position.y = (p.position.y / MAP_SCALE) + this.mapY;
-    });
-    holes.forEach((h) => {
-      h.position.x = (h.position.x / MAP_SCALE) + this.mapX;
-      h.position.y = (h.position.y / MAP_SCALE) + this.mapY;
-    });
-    junk.forEach((j) => {
-      j.position.x = (j.position.x / MAP_SCALE) + this.mapX;
-      j.position.y = (j.position.y / MAP_SCALE) + this.mapY;
-    });
-
     // draw map bg
     ctx.beginPath();
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -76,15 +63,26 @@ export default class Minimap extends React.Component {
     ctx.fill();
     ctx.closePath();
 
-    // draw players and whatnot on map
     players.forEach((p) => {
-      drawPlayer(p, this.canvas, OBJECT_SCALE);
-    });
-    junk.forEach((j) => {
-      drawJunk(j, this.canvas, OBJECT_SCALE);
+      if (p) {
+        p.position.x = (p.position.x / MAP_SCALE) + this.mapX;
+        p.position.y = (p.position.y / MAP_SCALE) + this.mapY;
+        drawPlayer(p, this.canvas, OBJECT_SCALE);
+      }
     });
     holes.forEach((h) => {
-      drawMapHole(h, this.canvas, HOLE_SCALE);
+      if (h) {
+        h.position.x = (h.position.x / MAP_SCALE) + this.mapX;
+        h.position.y = (h.position.y / MAP_SCALE) + this.mapY;
+        drawMapHole(h, this.canvas, HOLE_SCALE);
+      }
+    });
+    junk.forEach((j) => {
+      if (j) {
+        j.position.x = (j.position.x / MAP_SCALE) + this.mapX;
+        j.position.y = (j.position.y / MAP_SCALE) + this.mapY;
+        drawJunk(j, this.canvas, OBJECT_SCALE);
+      }
     });
   }
 

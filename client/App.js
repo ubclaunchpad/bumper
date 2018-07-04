@@ -45,7 +45,6 @@ export default class App extends React.Component {
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
-    this.minimap = document.getElementById('map');
     this.connectPlayer();
     registerNewTesterEvent();
     registerTesterUpdateEvent();

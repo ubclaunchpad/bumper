@@ -2,6 +2,7 @@ import React from 'react';
 import { drawPlayer, drawJunk, drawMapHole } from './GameObjects';
 
 const EDGE_BUFFER = 5;
+const BORDER_WIDTH = 3;
 const MAP_SCALE = 12;
 const OBJECT_SCALE = 4;
 const HOLE_SCALE = 10;
@@ -32,6 +33,19 @@ export default class Minimap extends React.Component {
     this.players = this.props.players;
   }
 
+  drawMapBorder() {
+    const ctx = this.canvas.getContext('2d');
+
+    ctx.beginPath();
+    ctx.rect(this.mapX - BORDER_WIDTH, this.mapY - BORDER_WIDTH, BORDER_WIDTH, this.mapHeight + (BORDER_WIDTH * 2)); // Left
+    ctx.rect(this.mapX + this.mapWidth, this.mapY - BORDER_WIDTH, BORDER_WIDTH, this.mapHeight + (BORDER_WIDTH * 2)); // Right
+    ctx.rect(this.mapX - BORDER_WIDTH, this.mapY - BORDER_WIDTH, this.mapWidth + (BORDER_WIDTH * 2), BORDER_WIDTH); // Top
+    ctx.rect(this.mapX - BORDER_WIDTH, this.mapY + this.mapHeight, this.mapWidth + (BORDER_WIDTH * 2), BORDER_WIDTH); // Bottom
+    ctx.fillStyle = 'yellow';
+    ctx.fill();
+    ctx.closePath();
+  }
+
   drawMap() {
     const ctx = this.canvas.getContext('2d');
 
@@ -55,6 +69,8 @@ export default class Minimap extends React.Component {
 
     // draw map bg
     ctx.beginPath();
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawMapBorder();
     ctx.rect(this.mapX, this.mapY, this.mapWidth, this.mapHeight);
     ctx.fillStyle = 'rgba(5,225,255,0.3)';
     ctx.fill();
@@ -87,10 +103,14 @@ export default class Minimap extends React.Component {
 
 const styles = {
   canvas: {
-    background: '#05ffff03',
     textAlign: 'center',
   },
   canvasContainer: {
     textAlign: 'center',
+    position: 'fixed',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
 };

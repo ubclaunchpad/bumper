@@ -9,32 +9,31 @@ export function drawGame(data, canvas) {
   const holes = JSON.parse(JSON.stringify(data.holes));
   const players = JSON.parse(JSON.stringify(data.players));
 
-  players.forEach((player) => {
-    if (player.name !== '' && player.id === data.player.id) {
-      playerPosition = player.position;
+  const player = players.find(p => p.id === data.player.id);
+  if (player.name !== '') {
+    playerPosition = player.position;
 
-      player.position = { x: playerPosition.x, y: playerPosition.y };
-      playerOffset = { x: playerPosition.x, y: playerPosition.y };
-      if (player.position.x > canvas.width / 2) {
-        if ((player.position.x < data.arena.width - (canvas.width / 2))) {
-          player.position.x = canvas.width / 2;
-          playerOffset.x = canvas.width / 2;
-        } else {
-          playerOffset.x = player.position.x - (data.arena.width - canvas.width);
-          player.position.x -= (data.arena.width - canvas.width);
-        }
-      }
-      if (player.position.y > canvas.height / 2) {
-        if ((player.position.y < data.arena.height - (canvas.height / 2))) {
-          player.position.y = canvas.height / 2;
-          playerOffset.y = canvas.height / 2;
-        } else {
-          playerOffset.y = player.position.y - (data.arena.height - canvas.height);
-          player.position.y -= (data.arena.height - canvas.height);
-        }
+    player.position = { x: playerPosition.x, y: playerPosition.y };
+    playerOffset = { x: playerPosition.x, y: playerPosition.y };
+    if (player.position.x > canvas.width / 2) {
+      if ((player.position.x < data.arena.width - (canvas.width / 2))) {
+        player.position.x = canvas.width / 2;
+        playerOffset.x = canvas.width / 2;
+      } else {
+        playerOffset.x = player.position.x - (data.arena.width - canvas.width);
+        player.position.x -= (data.arena.width - canvas.width);
       }
     }
-  });
+    if (player.position.y > canvas.height / 2) {
+      if ((player.position.y < data.arena.height - (canvas.height / 2))) {
+        player.position.y = canvas.height / 2;
+        playerOffset.y = canvas.height / 2;
+      } else {
+        playerOffset.y = player.position.y - (data.arena.height - canvas.height);
+        player.position.y -= (data.arena.height - canvas.height);
+      }
+    }
+  }
 
   if (playerPosition != null) {
     junk.forEach((j) => {

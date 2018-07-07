@@ -259,11 +259,10 @@ export default class App extends React.Component {
     this.drawLeaderboard();
 
     // Drawing the walls requires the players position
-    this.state.players.forEach((player) => {
-      if (player.name !== '' && player.id === this.state.player.id) {
-        drawWalls(player, this.state.arena, this.canvas);
-      }
-    });
+    const player = this.state.players.find(p => p.id === this.state.player.id);
+    if (player.name !== '') {
+      drawWalls(player, this.state.arena, this.canvas);
+    }
   }
 
   keyDownHandler(e) {

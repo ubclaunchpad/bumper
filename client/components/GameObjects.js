@@ -2,28 +2,27 @@ const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
 export function drawGame(data, canvas) {
-  let playerPosition = null;
-  let playerOffset = null;
-
-  const junk = JSON.parse(JSON.stringify(data.junk));
-  const holes = JSON.parse(JSON.stringify(data.holes));
-  const players = JSON.parse(JSON.stringify(data.players));
-
-  const player = players.find(p => p.id === data.player.id);
+  const player = data.players.find(p => p.id === data.player.id);
   if (player.name !== '') {
-    playerPosition = player.position;
+    // Save a copy of the player's original position.
+    const rawPlayerPosition = { x: player.position.x, y: player.position.y };
+    // Offset defaults to position.
+    const playerOffset = { x: player.position.x, y: player.position.y };
 
-    player.position = { x: playerPosition.x, y: playerPosition.y };
-    playerOffset = { x: playerPosition.x, y: playerPosition.y };
+    // If the player's x coord is < half the canvas width we don't need to translate it
+    // becuase then the x coord of the screen we're drawing is 0.
     if (player.position.x > canvas.width / 2) {
+      // If the player is past half the screen lock them at half till they're close to the rightmost arena edge.
       if ((player.position.x < data.arena.width - (canvas.width / 2))) {
         player.position.x = canvas.width / 2;
         playerOffset.x = canvas.width / 2;
       } else {
+        // The player is less than half a canvas width from the rightmost edge. Now let them approach the edge.
         playerOffset.x = player.position.x - (data.arena.width - canvas.width);
         player.position.x -= (data.arena.width - canvas.width);
       }
     }
+    // The same logic applies in the Y direction locking the edges of the arena to the edges of the visible canvas.
     if (player.position.y > canvas.height / 2) {
       if ((player.position.y < data.arena.height - (canvas.height / 2))) {
         player.position.y = canvas.height / 2;
@@ -33,31 +32,33 @@ export function drawGame(data, canvas) {
         player.position.y -= (data.arena.height - canvas.height);
       }
     }
-  }
+    const objectXTranslation = playerOffset.x - rawPlayerPosition.x;
+    const objectYTranslation = playerOffset.y - rawPlayerPosition.y;
 
-  if (playerPosition != null) {
-    junk.forEach((j) => {
-      j.position.x -= playerPosition.x;
-      j.position.y -= playerPosition.y;
-      j.position.x += playerOffset.x;
-      j.position.y += playerOffset.y;
-      drawJunk(j, canvas, 1);
+    data.junk.map((j) => {
+      const drawableJunk = { ...j };
+      drawableJunk.position.x += objectXTranslation;
+      drawableJunk.position.y += objectYTranslation;
+      drawJunk(drawableJunk, canvas, 1);
+      return true;
     });
-    holes.forEach((h) => {
-      h.position.x -= playerPosition.x;
-      h.position.y -= playerPosition.y;
-      h.position.x += playerOffset.x;
-      h.position.y += playerOffset.y;
-      drawHole(h, canvas);
+
+    data.holes.map((h) => {
+      const drawableHole = { ...h };
+      drawableHole.position.x += objectXTranslation;
+      drawableHole.position.y += objectYTranslation;
+      drawHole(drawableHole, canvas);
+      return true;
     });
-    players.forEach((p) => {
+
+    data.players.map((p) => {
+      const drawablePlayer = { ...p };
       if (p.name !== '' && p.id !== data.player.id) {
-        p.position.x -= playerPosition.x;
-        p.position.y -= playerPosition.y;
-        p.position.x += playerOffset.x;
-        p.position.y += playerOffset.y;
+        drawablePlayer.position.x += objectXTranslation;
+        drawablePlayer.position.y += objectYTranslation;
+        drawPlayer(drawablePlayer, canvas, 1);
       }
-      drawPlayer(p, canvas, 1);
+      return true;
     });
   }
 }

@@ -25,6 +25,8 @@
   },
   "devDependencies": {
     "babel-minify-webpack-plugin": "^0.3.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-stage-3": "^6.24.1",
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",

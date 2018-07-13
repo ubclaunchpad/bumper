@@ -2,7 +2,14 @@ const PLAYER_RADIUS = 25;
 const JUNK_SIZE = 15;
 
 export function drawGame(data, canvas) {
-  const player = data.players.find(p => p.id === data.player.id);
+  const rawPlayer = data.players.find(p => p.id === data.player.id);
+  // Need to copy the player and his position as it gets altered below.
+  // If you don't do this and another frame is draw before the next update message is
+  // recieved than the translated position is used to calcluate the next translations and
+  // it causes a glitchy effect.
+  const player = { ...rawPlayer };
+  player.position = { ...data.players[0].position };
+
   if (player.name !== '') {
     // Save a copy of the player's original position.
     const rawPlayerPosition = { x: player.position.x, y: player.position.y };
@@ -37,7 +44,8 @@ export function drawGame(data, canvas) {
     const objectYTranslation = playerOffset.y - rawPlayerPosition.y;
 
     data.junk.map((j) => {
-      const drawableJunk = { ...j };
+      // An alternative to make a deep copy of the parts we need to draw.
+      const drawableJunk = { color: j.color, position: { x: j.position.x, y: j.position.y } };
       drawableJunk.position.x += objectXTranslation;
       drawableJunk.position.y += objectYTranslation;
       drawJunk(drawableJunk, canvas, 1);
@@ -46,6 +54,8 @@ export function drawGame(data, canvas) {
 
     data.holes.map((h) => {
       const drawableHole = { ...h };
+      // The spread operate doesn't do a deep copy so copy the position aswell
+      drawableHole.position = { ...h.position };
       drawableHole.position.x += objectXTranslation;
       drawableHole.position.y += objectYTranslation;
       drawHole(drawableHole, canvas);
@@ -55,12 +65,14 @@ export function drawGame(data, canvas) {
     data.players.map((p) => {
       const drawablePlayer = { ...p };
       if (drawablePlayer.name !== '' && drawablePlayer.id !== data.player.id) {
+        drawablePlayer.position = { ...p.position };
         drawablePlayer.position.x += objectXTranslation;
         drawablePlayer.position.y += objectYTranslation;
+        drawPlayer(drawablePlayer, canvas, 1);
       }
-      drawPlayer(drawablePlayer, canvas, 1);
       return true;
     });
+    drawPlayer(player, canvas, 1);
   }
 }
 

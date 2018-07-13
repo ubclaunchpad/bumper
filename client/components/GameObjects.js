@@ -32,6 +32,7 @@ export function drawGame(data, canvas) {
         player.position.y -= (data.arena.height - canvas.height);
       }
     }
+
     const objectXTranslation = playerOffset.x - rawPlayerPosition.x;
     const objectYTranslation = playerOffset.y - rawPlayerPosition.y;
 
@@ -53,11 +54,11 @@ export function drawGame(data, canvas) {
 
     data.players.map((p) => {
       const drawablePlayer = { ...p };
-      if (p.name !== '' && p.id !== data.player.id) {
+      if (drawablePlayer.name !== '' && drawablePlayer.id !== data.player.id) {
         drawablePlayer.position.x += objectXTranslation;
         drawablePlayer.position.y += objectYTranslation;
-        drawPlayer(drawablePlayer, canvas, 1);
       }
+      drawPlayer(drawablePlayer, canvas, 1);
       return true;
     });
   }

@@ -11,9 +11,6 @@ export default class Minimap extends React.Component {
   constructor(props) {
     super(props);
 
-    this.mapWidth = props.arena.width / MAP_SCALE;
-    this.mapHeight = props.arena.height / MAP_SCALE;
-
     this.junk = props.junk;
     this.holes = props.holes;
     this.players = props.players;
@@ -23,6 +20,10 @@ export default class Minimap extends React.Component {
 
   async componentDidMount() {
     this.canvas = document.getElementById('mapctx');
+
+    this.mapWidth = this.props.arena.width / MAP_SCALE;
+    this.mapHeight = this.props.arena.height / MAP_SCALE;
+
     this.mapX = this.canvas.width - this.mapWidth - EDGE_BUFFER;
     this.mapY = this.canvas.height - this.mapHeight - EDGE_BUFFER;
   }

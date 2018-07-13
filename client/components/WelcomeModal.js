@@ -1,11 +1,12 @@
 import React from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, DropdownButton, MenuItem, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
 
 class WelcomeModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       inputName: props.name,
+      country: props.country,
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -22,6 +23,10 @@ class WelcomeModal extends React.Component {
     this.setState({ inputName: e.target.value });
   }
 
+  handleSelect(eventKey) {
+    this.setState({ country: eventKey });
+  }
+
   render() {
     return (
       <div style={styles.backdrop}>
@@ -33,20 +38,34 @@ class WelcomeModal extends React.Component {
             <Modal.Body>
               <h5 align="left"> Instructions: </h5>
               <p align="left"> Navigate your rocketship around space using your keyboard arrow keys. Bump space junk and other players into the black holes to earn points! But make sure to watch out for the black holes yourself or youll get sucked in!</p>
-              <div>
-                Enter name:
-                <input
-                  type="text"
-                  value={this.state.inputName}
-                  onChange={this.handleChange}
-                />
-              </div>
+
+              <form>
+        <FormGroup
+          controlId="formBasicText"
+        >
+        <ControlLabel> Name</ControlLabel>
+          <FormControl
+            type="text"
+            value={this.state.inputName}
+            onChange={this.handleChange}
+          />
+        </FormGroup>
+        <FormGroup controlId="formControlsSelect">
+        <ControlLabel> Country</ControlLabel>
+
+      <FormControl componentClass="select" placeholder="select">
+        <option value="select">None</option>
+        <option value="other">Argentina</option>
+        <option value="other">Australia</option>
+      </FormControl>
+    </FormGroup>
+      </form>
             </Modal.Body>
             <Modal.Footer>
               <Button
                 bsStyle="primary"
                 id="btn"
-                onClick={() => this.props.onSubmit(this.state.inputName)}
+                onClick={() => this.props.onSubmit(this.state.inputName, this.state.country)}
               >
               Start Bumping!
               </Button>

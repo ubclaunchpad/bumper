@@ -89,7 +89,7 @@ export default class Minimap extends React.Component {
 
   render() {
     if (this.canvas) {
-      // this.drawMap();
+      this.drawMap();
     }
 
     return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, DropdownButton, MenuItem, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
+import { Modal, Button, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
 
 class WelcomeModal extends React.Component {
   constructor(props) {
@@ -10,6 +10,7 @@ class WelcomeModal extends React.Component {
     };
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleSelect = this.handleSelect.bind(this);
   }
 
   componentDidMount() {
@@ -23,8 +24,8 @@ class WelcomeModal extends React.Component {
     this.setState({ inputName: e.target.value });
   }
 
-  handleSelect(eventKey) {
-    this.setState({ country: eventKey });
+  handleSelect(e) {
+    this.setState({ country: e.target.value });
   }
 
   render() {
@@ -40,26 +41,24 @@ class WelcomeModal extends React.Component {
               <p align="left"> Navigate your rocketship around space using your keyboard arrow keys. Bump space junk and other players into the black holes to earn points! But make sure to watch out for the black holes yourself or youll get sucked in!</p>
 
               <form>
-        <FormGroup
-          controlId="formBasicText"
-        >
-        <ControlLabel> Name</ControlLabel>
-          <FormControl
-            type="text"
-            value={this.state.inputName}
-            onChange={this.handleChange}
-          />
-        </FormGroup>
-        <FormGroup controlId="formControlsSelect">
-        <ControlLabel> Country</ControlLabel>
+                <FormGroup controlId="formBasicText">
+                  <ControlLabel> Name</ControlLabel>
+                  <FormControl
+                    type="text"
+                    value={this.state.inputName}
+                    onChange={this.handleChange}
+                  />
+                </FormGroup>
+                <FormGroup controlId="formControlsSelect">
+                  <ControlLabel> Country</ControlLabel>
 
-      <FormControl componentClass="select" placeholder="select">
-        <option value="select">None</option>
-        <option value="other">Argentina</option>
-        <option value="other">Australia</option>
-      </FormControl>
-    </FormGroup>
-      </form>
+                  <FormControl componentClass="select" value={this.state.country} onChange={this.handleSelect}>
+                    <option value="none">None</option>
+                    <option value="ARG">Argentina</option>
+                    <option value="AUS">Australia</option>
+                  </FormControl>
+                </FormGroup>
+              </form>
             </Modal.Body>
             <Modal.Footer>
               <Button

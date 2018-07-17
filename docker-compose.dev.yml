@@ -18,6 +18,7 @@ services:
       context: .
       target: server
     environment:
+      - SERVER_URL=${SERVER_URL}
       - DATABASE_URL=${DATABASE_URL}
     volumes:
       - ${PWD}/server:/go/src/github.com/ubclaunchpad/bumper/server

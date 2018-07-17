@@ -26,6 +26,8 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.Handle("/connect", game)
 	game.StartGame()
+
+	log.Println("Server URL: " + os.Getenv("SERVER_URL"))
 	log.Println("Starting server on localhost:" + os.Getenv("PORT"))
 	log.Println(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }

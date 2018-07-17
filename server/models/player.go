@@ -38,6 +38,7 @@ type KeysPressed struct {
 type Player struct {
 	Name     string      `json:"name"`
 	ID       string      `json:"id"`
+	Country  string      `json:"country"`
 	Position Position    `json:"position"`
 	Velocity Velocity    `json:"-"`
 	Color    string      `json:"color"`

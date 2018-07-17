@@ -22,7 +22,8 @@ type UpdateMessage struct {
 
 // SpawnHandlerMessage defines a spawn message
 type SpawnHandlerMessage struct {
-	Name string `json:"name"`
+	Name    string `json:"name"`
+	Country string `json:"country"`
 }
 
 // KeyHandlerMessage defines a player key press message

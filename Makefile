@@ -8,7 +8,7 @@ deps:
 # Starts both the server and the client via docker-compose
 .PHONY: docker-start
 docker-start:
-	docker-compose up client server
+	docker-compose -f docker-compose.dev.yml up
 
 # Starts the client
 .PHONY: client

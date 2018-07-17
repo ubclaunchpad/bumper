@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/ubclaunchpad/bumper/server/arena"
 	"github.com/ubclaunchpad/bumper/server/database"
 	"github.com/ubclaunchpad/bumper/server/game"
@@ -14,6 +15,17 @@ import (
 )
 
 func main() {
+	if err := godotenv.Load("../.env"); err != nil {
+		log.Println("Error loading environment variables from parent directory")
+		log.Print("Try current directory... ")
+
+		if err := godotenv.Load(); err != nil {
+			log.Println("Cannot load environment variables")
+		} else {
+			log.Println("Sucess")
+		}
+	}
+
 	rand.Seed(time.Now().UTC().UnixNano())
 	arena.MessageChannel = make(chan models.Message)
 	game := game.CreateGame()

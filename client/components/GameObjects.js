@@ -7,72 +7,92 @@ export function drawGame(data, canvas) {
   // If you don't do this and another frame is draw before the next update message is
   // recieved than the translated position is used to calcluate the next translations and
   // it causes a glitchy effect.
-  const player = { ...rawPlayer };
-  player.position = { ...data.players[0].position };
+  const playerPosition = { ...rawPlayer.position };
+  // player.position = { ...data.players[0].position };
 
-  if (player.name !== '') {
+  if (rawPlayer.name !== '') {
     // Save a copy of the player's original position.
-    const rawPlayerPosition = { x: player.position.x, y: player.position.y };
+    const rawPlayerPosition = { x: playerPosition.x, y: playerPosition.y };
     // Offset defaults to position.
-    const playerOffset = { x: player.position.x, y: player.position.y };
+    const playerOffset = { x: playerPosition.x, y: playerPosition.y };
 
     // If the player's x coord is < half the canvas width we don't need to translate it
     // becuase then the x coord of the screen we're drawing is 0.
-    if (player.position.x > canvas.width / 2) {
+    if (playerPosition.x > canvas.width / 2) {
       // If the player is past half the screen lock them at half till they're close to the rightmost arena edge.
-      if ((player.position.x < data.arena.width - (canvas.width / 2))) {
-        player.position.x = canvas.width / 2;
+      if ((playerPosition.x < data.arena.width - (canvas.width / 2))) {
+        playerPosition.x = canvas.width / 2;
         playerOffset.x = canvas.width / 2;
       } else {
         // The player is less than half a canvas width from the rightmost edge. Now let them approach the edge.
-        playerOffset.x = player.position.x - (data.arena.width - canvas.width);
-        player.position.x -= (data.arena.width - canvas.width);
+        playerOffset.x = playerPosition.x - (data.arena.width - canvas.width);
+        playerPosition.x -= (data.arena.width - canvas.width);
       }
     }
     // The same logic applies in the Y direction locking the edges of the arena to the edges of the visible canvas.
-    if (player.position.y > canvas.height / 2) {
-      if ((player.position.y < data.arena.height - (canvas.height / 2))) {
-        player.position.y = canvas.height / 2;
+    if (playerPosition.y > canvas.height / 2) {
+      if ((playerPosition.y < data.arena.height - (canvas.height / 2))) {
+        playerPosition.y = canvas.height / 2;
         playerOffset.y = canvas.height / 2;
       } else {
-        playerOffset.y = player.position.y - (data.arena.height - canvas.height);
-        player.position.y -= (data.arena.height - canvas.height);
+        playerOffset.y = playerPosition.y - (data.arena.height - canvas.height);
+        playerPosition.y -= (data.arena.height - canvas.height);
       }
     }
 
     const objectXTranslation = playerOffset.x - rawPlayerPosition.x;
     const objectYTranslation = playerOffset.y - rawPlayerPosition.y;
 
-    data.junk.map((j) => {
-      // An alternative to make a deep copy of the parts we need to draw.
-      const drawableJunk = { color: j.color, position: { x: j.position.x, y: j.position.y } };
-      drawableJunk.position.x += objectXTranslation;
-      drawableJunk.position.y += objectYTranslation;
-      drawJunk(drawableJunk, canvas, 1);
-      return true;
+    // Create a new object arrays with the positions translated.
+    const junk = data.junk.map((j) => {
+      const newPosition = {
+        x: j.position.x + objectXTranslation,
+        y: j.position.y + objectYTranslation,
+      };
+      return {
+        position: newPosition,
+        color: j.color,
+      };
     });
 
-    data.holes.map((h) => {
-      const drawableHole = { ...h };
-      // The spread operate doesn't do a deep copy so copy the position aswell
-      drawableHole.position = { ...h.position };
-      drawableHole.position.x += objectXTranslation;
-      drawableHole.position.y += objectYTranslation;
-      drawHole(drawableHole, canvas);
-      return true;
+    const holes = data.holes.map((h) => {
+      const newPosition = {
+        x: h.position.x + objectXTranslation,
+        y: h.position.y + objectYTranslation,
+      };
+      return {
+        position: newPosition,
+        radius: h.radius,
+        isAlive: h.isAlive,
+      };
     });
 
-    data.players.map((p) => {
-      const drawablePlayer = { ...p };
-      if (drawablePlayer.name !== '' && drawablePlayer.id !== data.player.id) {
-        drawablePlayer.position = { ...p.position };
-        drawablePlayer.position.x += objectXTranslation;
-        drawablePlayer.position.y += objectYTranslation;
-        drawPlayer(drawablePlayer, canvas, 1);
+    const players = data.players.map((p) => {
+      if (p.name !== '' && p.id !== data.player.id) {
+        const newPosition = {
+          x: p.position.x + objectXTranslation,
+          y: p.position.y + objectYTranslation,
+        };
+
+        return {
+          position: newPosition,
+          color: p.color,
+          angle: p.angle,
+          name: p.name,
+        };
       }
-      return true;
+      return {
+        position: playerPosition,
+        color: p.color,
+        angle: p.angle,
+        name: p.name,
+      };
     });
-    drawPlayer(player, canvas, 1);
+
+    // Draw all the new & translated game objects
+    junk.forEach((j) => { drawJunk(j, canvas, 1); });
+    holes.forEach((h) => { drawHole(h, canvas); });
+    players.forEach((p) => { drawPlayer(p, canvas, 1); });
   }
 }
 

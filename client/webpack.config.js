@@ -26,9 +26,10 @@ const config = {
   },
   plugins: [
     new Dotenv({
-      systemvars: true,
+      path: '../.env',
+      systemvars: true
     }),
-  ]
+  ],
 };
 
 module.exports = config;

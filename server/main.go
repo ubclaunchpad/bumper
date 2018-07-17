@@ -22,7 +22,7 @@ func main() {
 		if err := godotenv.Load(); err != nil {
 			log.Println("Cannot load environment variables")
 		} else {
-			log.Println("Sucess")
+			log.Println("Success")
 		}
 	}
 

@@ -1,11 +1,12 @@
 # Build and minify React client
 FROM node:carbon AS client
+WORKDIR /
+## ENV DEPENDENCY
+ADD .env .
 WORKDIR /client
 ADD client/package.json .
 RUN npm install
 ADD client .
-## ENV DEPENDENCY
-ADD .env .
 RUN npm run build
 
 # Build server

@@ -51,11 +51,43 @@ export default class Minimap extends React.Component {
     const ctx = this.canvas.getContext('2d');
 
     // Deep copy and then translate all game objects
-    const junk = JSON.parse(JSON.stringify(this.junk));
-    const holes = JSON.parse(JSON.stringify(this.holes));
-    const players = JSON.parse(JSON.stringify(this.players));
+    const holes = this.holes.map((h) => {
+      const newPosition = {
+        x: (h.position.x / MAP_SCALE) + this.mapX,
+        y: (h.position.y / MAP_SCALE) + this.mapY,
+      };
+      return {
+        position: newPosition,
+        radius: h.radius,
+        isAlive: h.isAlive,
+      };
+    });
 
-    // draw map bg
+    const players = this.players.map((p) => {
+      const newPosition = {
+        x: (p.position.x / MAP_SCALE) + this.mapX,
+        y: (p.position.y / MAP_SCALE) + this.mapY,
+      };
+      return {
+        position: newPosition,
+        color: p.color,
+        angle: p.angle,
+        name: p.name,
+      };
+    });
+
+    const junk = this.junk.map((j) => {
+      const newPosition = {
+        x: (j.position.x / MAP_SCALE) + this.mapX,
+        y: (j.position.y / MAP_SCALE) + this.mapY,
+      };
+      return {
+        position: newPosition,
+        color: j.color,
+      };
+    });
+
+    // Draw map bg
     ctx.beginPath();
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawMapBorder();
@@ -64,27 +96,10 @@ export default class Minimap extends React.Component {
     ctx.fill();
     ctx.closePath();
 
-    players.forEach((p) => {
-      if (p) {
-        p.position.x = (p.position.x / MAP_SCALE) + this.mapX;
-        p.position.y = (p.position.y / MAP_SCALE) + this.mapY;
-        drawPlayer(p, this.canvas, OBJECT_SCALE);
-      }
-    });
-    holes.forEach((h) => {
-      if (h) {
-        h.position.x = (h.position.x / MAP_SCALE) + this.mapX;
-        h.position.y = (h.position.y / MAP_SCALE) + this.mapY;
-        drawMapHole(h, this.canvas, HOLE_SCALE);
-      }
-    });
-    junk.forEach((j) => {
-      if (j) {
-        j.position.x = (j.position.x / MAP_SCALE) + this.mapX;
-        j.position.y = (j.position.y / MAP_SCALE) + this.mapY;
-        drawJunk(j, this.canvas, OBJECT_SCALE);
-      }
-    });
+    // Draw all game objects on map
+    junk.forEach((j) => { drawJunk(j, this.canvas, OBJECT_SCALE); });
+    players.forEach((p) => { drawPlayer(p, this.canvas, OBJECT_SCALE); });
+    holes.forEach((h) => { drawMapHole(h, this.canvas, HOLE_SCALE); });
   }
 
   render() {

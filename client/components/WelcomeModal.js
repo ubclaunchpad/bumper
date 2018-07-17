@@ -1,5 +1,8 @@
 import React from 'react';
 import { Modal, Button, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
+import countries from '../data/countries';
+
+const listOfCountries = [];
 
 class WelcomeModal extends React.Component {
   constructor(props) {
@@ -11,6 +14,12 @@ class WelcomeModal extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
+  }
+
+  componentWillMount() {
+    Object.keys(countries).forEach((key) => {
+      listOfCountries.push(<option value={countries[key]}>{countries[key]}</option>);
+    });
   }
 
   componentDidMount() {
@@ -53,9 +62,8 @@ class WelcomeModal extends React.Component {
                   <ControlLabel> Country</ControlLabel>
 
                   <FormControl componentClass="select" value={this.state.country} onChange={this.handleSelect}>
-                    <option value="none">None</option>
-                    <option value="ARG">Argentina</option>
-                    <option value="AUS">Australia</option>
+                    <option value="None">None</option>
+                    {listOfCountries}
                   </FormControl>
                 </FormGroup>
               </form>

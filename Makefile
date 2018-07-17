@@ -5,11 +5,6 @@ deps:
 	(cd server ; go get -u github.com/golang/dep/cmd/dep ; dep ensure)
 	(cd client ; npm install )
 
-# Starts both the server and the client via docker-compose
-.PHONY: docker-start
-docker-start:
-	docker-compose -f docker-compose.dev.yml up
-
 # Starts the client
 .PHONY: client
 client:

@@ -2,13 +2,10 @@ import React from 'react';
 
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
-import {
-  registerNewTesterEvent,
-  registerTesterUpdateEvent,
-} from './database/database';
+import { drawGame, drawWalls } from './components/GameObjects';
+import Minimap from './components/Minimap';
+import { registerNewTesterEvent, registerTesterUpdateEvent } from './database/database';
 
-const PLAYER_RADIUS = 25;
-const JUNK_SIZE = 15;
 
 const address = process.env.SERVER_URL;
 
@@ -17,6 +14,7 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
+      showMiniMap: false,
       showWelcomeModal: true,
       showGameOverModal: false,
       isInitialized: false,
@@ -79,6 +77,7 @@ export default class App extends React.Component {
     this.state.player.name = inputName;
     this.setState({
       showWelcomeModal: false,
+      showMiniMap: true,
       player: this.state.player,
     });
   }
@@ -166,59 +165,6 @@ export default class App extends React.Component {
       return;
     }
 
-    let playerPosition = null;
-    let playerOffset = null;
-    data.players.forEach((player) => {
-      if (player.name !== '' && player.id === this.state.player.id) {
-        playerPosition = player.position;
-        this.setState({ playerAbsolutePosition: playerPosition });
-
-        player.position = { x: playerPosition.x, y: playerPosition.y };
-        playerOffset = { x: playerPosition.x, y: playerPosition.y };
-        if (player.position.x > this.canvas.width / 2) {
-          if ((player.position.x < this.state.arena.width - (this.canvas.width / 2))) {
-            player.position.x = this.canvas.width / 2;
-            playerOffset.x = this.canvas.width / 2;
-          } else {
-            playerOffset.x = player.position.x - (this.state.arena.width - this.canvas.width);
-            player.position.x -= (this.state.arena.width - this.canvas.width);
-          }
-        }
-        if (player.position.y > this.canvas.height / 2) {
-          if ((player.position.y < this.state.arena.height - (this.canvas.height / 2))) {
-            player.position.y = this.canvas.height / 2;
-            playerOffset.y = this.canvas.height / 2;
-          } else {
-            playerOffset.y = player.position.y - (this.state.arena.height - this.canvas.height);
-            player.position.y -= (this.state.arena.height - this.canvas.height);
-          }
-        }
-      }
-    });
-
-    if (playerPosition != null) {
-      data.junk.forEach((junk) => {
-        junk.position.x -= playerPosition.x;
-        junk.position.y -= playerPosition.y;
-        junk.position.x += playerOffset.x;
-        junk.position.y += playerOffset.y;
-      });
-      data.holes.forEach((hole) => {
-        hole.position.x -= playerPosition.x;
-        hole.position.y -= playerPosition.y;
-        hole.position.x += playerOffset.x;
-        hole.position.y += playerOffset.y;
-      });
-      data.players.forEach((player) => {
-        if (player.name !== '' && player.id !== this.state.player.id) {
-          player.position.x -= playerPosition.x;
-          player.position.y -= playerPosition.y;
-          player.position.x += playerOffset.x;
-          player.position.y += playerOffset.y;
-        }
-      });
-    }
-
     this.setState({
       junk: data.junk,
       holes: data.holes,
@@ -302,197 +248,19 @@ export default class App extends React.Component {
     ctx.closePath();
   }
 
-  drawHoles() {
-    this.state.holes.forEach((h) => {
-      const ctx = this.canvas.getContext('2d');
-      ctx.beginPath();
-      for (let i = 0; i < 720; i += 1) {
-        const angle = 0.1 * i;
-        const x = h.position.x + (1 + 1 * angle) * Math.cos(angle);
-        const y = h.position.y + (1 + 1 * angle) * Math.sin(angle);
-
-        // Find distance between the point (x, y) and the point (h.position.x, h.position.y)
-        const x1 = Math.abs(h.position.x - x);
-        const y1 = Math.abs(h.position.y - y);
-        const distance = Math.hypot(x1, y1);
-
-        // Only draw the line segment if it will correspond to a spiral with the correct radius
-        if (distance <= h.radius) {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.strokeStyle = h.isAlive ? 'white' : 'rgba(255, 255, 255, 0.5)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.closePath();
-    });
-  }
-
-  drawJunk() {
-    this.state.junk.forEach((j) => {
-      const ctx = this.canvas.getContext('2d');
-      ctx.beginPath();
-      ctx.rect(j.position.x - (JUNK_SIZE / 2), j.position.y - (JUNK_SIZE / 2), JUNK_SIZE, JUNK_SIZE);
-      ctx.fillStyle = j.color;
-      ctx.fill();
-      ctx.closePath();
-    });
-  }
-
-  drawPlayers() {
-    this.state.players.forEach((p) => {
-      const ctx = this.canvas.getContext('2d');
-      const { x, y } = p.position;
-      if (p.name !== '') {
-        // Proportions
-        const proportionBackCenter = 3 / 4;
-        const proportionWingOuterTop = 4 / 7;
-        const proportionWingOuterBottom = 5 / 6;
-        const proportionWingOuterDistance = 4 / 5;
-        const proportionWingTopInnerDistance = 7 / 10;
-        // Constants
-        const sinAngle = Math.sin(p.angle);
-        const cosAngle = Math.cos(p.angle);
-        const playerRadiusSinAngle = PLAYER_RADIUS * sinAngle;
-        const playerRadiusCosAngle = PLAYER_RADIUS * cosAngle;
-        const backCenterX = x - (playerRadiusSinAngle * proportionBackCenter); // determines location of the base of the rocket
-        const backCenterY = y - (playerRadiusCosAngle * proportionBackCenter);
-        const backLength = (PLAYER_RADIUS / 2);
-        const backLengthSinAngle = backLength * sinAngle;
-        const backLengthCosAngle = backLength * cosAngle;
-        const wingTopX = x - (playerRadiusSinAngle / 3); // determines location of the top of the wing
-        const wingTopY = y - (playerRadiusCosAngle / 3);
-        /*
-        Start drawing Rocket Chassis, starts from bottom right to the bottom left,
-        draw toward the rocket tip then back to the bottom right to complete the shape and fill
-        */
-        // Coordinates of the Rocket Tip
-        const rocketTipX = x + (playerRadiusSinAngle * 1.2);
-        const rocketTipY = y + (playerRadiusCosAngle * 1.2);
-        // Control Points for Bezier Curve from/toward the Rocket Tip
-        const rocketTipModifierRightX = x + (PLAYER_RADIUS * Math.sin(p.angle - Math.PI / 4));
-        const rocketTipModifierRightY = y + (PLAYER_RADIUS * Math.cos(p.angle - Math.PI / 4));
-        const rocketTipModifierLeftX = x + (PLAYER_RADIUS * Math.sin(p.angle + Math.PI / 4));
-        const rocketTipModifierLeftY = y + (PLAYER_RADIUS * Math.cos(p.angle + Math.PI / 4));
-        // Center-Right Coordinates of Rocket
-        const rightCenterX = x + (PLAYER_RADIUS * Math.sin(p.angle - Math.PI / 2));
-        const rightCenterY = y + (PLAYER_RADIUS * Math.cos(p.angle - Math.PI / 2));
-        // Center-Left Coordinates of Rocket
-        const leftCenterX = x + (PLAYER_RADIUS * Math.sin(p.angle + Math.PI / 2));
-        const leftCenterY = y + (PLAYER_RADIUS * Math.cos(p.angle + Math.PI / 2));
-        // Base Coordinates
-        const rocketBottomRightX = backCenterX - backLengthCosAngle;
-        const rocketBottomRightY = backCenterY + backLengthSinAngle;
-        const rocketBottomLeftX = backCenterX + backLengthCosAngle;
-        const rocketBottomLeftY = backCenterY - backLengthSinAngle;
-        // Draw Rocket Bottom
-        ctx.beginPath();
-        ctx.moveTo(rocketBottomRightX, rocketBottomRightY); // bottom right side
-        ctx.lineTo(rocketBottomLeftX, rocketBottomLeftY); // bottom left side
-        // Draw Left Side
-        ctx.bezierCurveTo(leftCenterX, leftCenterY, rocketTipModifierLeftX, rocketTipModifierLeftY, rocketTipX, rocketTipY); // chassis left side
-        // Draw Right Side
-        ctx.bezierCurveTo(rocketTipModifierRightX, rocketTipModifierRightY, rightCenterX, rightCenterY, rocketBottomRightX, rocketBottomRightY); // chassis right side
-        ctx.fillStyle = p.color;
-        ctx.fill();
-        ctx.closePath();
-        /*
-        Start drawing Rocket Wings, the top of the wing is drawn first, moving toward the base of the rocket and then
-        toward the outer part of the wing before going back toward the front side and closing at the top of the wing again.
-        */
-        // Helper points along the vertical axis of the player model.
-        const wingOuterTopX = x - (playerRadiusSinAngle * proportionWingOuterTop); // Point that sets the height level of the top outer part of the wings
-        const wingOuterTopY = y - (playerRadiusCosAngle * proportionWingOuterTop);
-        const wingOuterBottomX = x - (playerRadiusSinAngle * proportionWingOuterBottom);// Point that sets the height level of the bottom outer part of the wings
-        const wingOuterBottomY = y - (playerRadiusCosAngle * proportionWingOuterBottom);
-        // Exact points for the right side of the wing
-        const wingTopRightX = wingTopX - (playerRadiusCosAngle * proportionWingTopInnerDistance); // inner top right corner
-        const wingTopRightY = wingTopY + (playerRadiusSinAngle * proportionWingTopInnerDistance);
-        const wingBotRightX = rocketBottomRightX; // inner bottom right corner
-        const wingBotRightY = rocketBottomRightY;
-        const wingOuterTopRightX = wingOuterTopX - (playerRadiusCosAngle * proportionWingOuterDistance); // outer top right corner
-        const wingOuterTopRightY = wingOuterTopY + (playerRadiusSinAngle * proportionWingOuterDistance);
-        const wingOuterBottomRightX = wingOuterBottomX - (playerRadiusCosAngle * proportionWingOuterDistance); // outer bottom right corner
-        const wingOuterBottomRightY = wingOuterBottomY + (playerRadiusSinAngle * proportionWingOuterDistance);
-        // Exact points for the left side of the wing
-        const wingTopLeftX = wingTopX + (playerRadiusCosAngle * proportionWingTopInnerDistance); // inner top left corner
-        const wingTopLeftY = wingTopY - (playerRadiusSinAngle * proportionWingTopInnerDistance);
-        const wingBotLeftX = rocketBottomLeftX; // inner bottom left corner
-        const wingBotLeftY = rocketBottomLeftY;
-        const wingOuterTopLeftX = wingOuterTopX + (playerRadiusCosAngle * proportionWingOuterDistance); // outer top left corner
-        const wingOuterTopLeftY = wingOuterTopY - (playerRadiusSinAngle * proportionWingOuterDistance);
-        const wingOuterBottomLeftX = wingOuterBottomX + (playerRadiusCosAngle * proportionWingOuterDistance); // outer bottom left corner
-        const wingOuterBottomLeftY = wingOuterBottomY - (playerRadiusSinAngle * proportionWingOuterDistance);
-        // Draw Rocket Right Wing
-        ctx.beginPath();
-        ctx.moveTo(wingTopRightX, wingTopRightY);
-        ctx.lineTo(wingBotRightX, wingBotRightY);
-        ctx.lineTo(wingOuterBottomRightX, wingOuterBottomRightY);
-        ctx.lineTo(wingOuterTopRightX, wingOuterTopRightY);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-        ctx.closePath();
-        // Draw Rocket Left Wing
-        ctx.beginPath();
-        ctx.moveTo(wingTopLeftX, wingTopLeftY);
-        ctx.lineTo(wingBotLeftX, wingBotLeftY);
-        ctx.lineTo(wingOuterBottomLeftX, wingOuterBottomLeftY);
-        ctx.lineTo(wingOuterTopLeftX, wingOuterTopLeftY);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-        ctx.closePath();
-
-        // TODO: Rocket Bottom piece
-        // TODO: Rocket Window
-      }
-    });
-  }
-
-  drawWalls() {
-    if (this.state.playerAbsolutePosition) {
-      if (this.state.playerAbsolutePosition.x < (this.canvas.width / 2)) {
-        const ctx = this.canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.rect(0, 0, 10, this.state.arena.height);
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-        ctx.closePath();
-      }
-      if (this.state.playerAbsolutePosition.x > this.state.arena.width - (this.canvas.width / 2)) {
-        const ctx = this.canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.rect(this.canvas.width - 10, 0, 10, this.state.arena.height);
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-        ctx.closePath();
-      }
-      if (this.state.playerAbsolutePosition.y < (this.canvas.height / 2)) {
-        const ctx = this.canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.rect(0, 0, this.state.arena.width, 10);
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-        ctx.closePath();
-      }
-      if (this.state.playerAbsolutePosition.y > this.state.arena.height - (this.canvas.height / 2)) {
-        const ctx = this.canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.rect(0, this.canvas.height - 10, this.state.arena.width, 10);
-        ctx.fillStyle = 'yellow';
-        ctx.fill();
-        ctx.closePath();
-      }
-    }
-  }
-
   draw() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawHoles();
-    this.drawJunk();
-    this.drawPlayers();
+
+    drawGame(this.state, this.canvas);
+
     this.drawLeaderboard();
-    this.drawWalls();
+
+    // Drawing the walls requires the players position
+    const player = this.state.players.find(p => p.id === this.state.player.id);
+    if (player.name !== '') {
+      drawWalls(player, this.state.arena, this.canvas);
+    }
   }
 
   keyDownHandler(e) {
@@ -508,6 +276,15 @@ export default class App extends React.Component {
       <div style={styles.canvasContainer}>
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
+          this.state.showMiniMap &&
+          <Minimap
+            arena={this.state.arena}
+            junk={this.state.junk}
+            players={this.state.players}
+            holes={this.state.holes}
+          />
+        }
+        {
           this.state.showWelcomeModal &&
           <WelcomeModal
             name={this.state.player.name}
@@ -519,7 +296,7 @@ export default class App extends React.Component {
           <GameOverModal
             {...this.state.gameOverData}
             onRestart={() => {
-              this.setState({ showWelcomeModal: true, showGameOverModal: false });
+              this.setState({ showMiniMap: false, showWelcomeModal: true, showGameOverModal: false });
               }
             }
           />

@@ -5,6 +5,8 @@ import {
   ListGroupItem,
 } from 'react-bootstrap';
 
+import Flag from 'react-world-flags';
+
 export default class Leaderboard extends React.Component {
   render() {
     if (!this.props.players) {
@@ -23,7 +25,7 @@ export default class Leaderboard extends React.Component {
           </Panel.Heading>
           <ListGroup>
             {
-              this.props.players.map(p => <ListGroupItem key={p.name}>{p.name} {p.name ? p.points : ''}</ListGroupItem>)
+              this.props.players.map(p => <ListGroupItem key={p.name}><Flag code="can" height="16" />{p.name} {p.name ? p.points : ''}</ListGroupItem>)
             }
           </ListGroup>
         </Panel>

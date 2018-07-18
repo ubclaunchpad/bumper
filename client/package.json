@@ -18,6 +18,7 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
+    "dotenv-webpack": "^1.5.7",
     "firebase": "^5.1.0",
     "react": "^16.2.0",
     "react-bootstrap": "^0.32.1",

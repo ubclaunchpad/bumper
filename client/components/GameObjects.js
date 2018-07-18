@@ -90,9 +90,9 @@ export function drawGame(data, canvas) {
     });
 
     // Draw all the new & translated game objects
-    junk.forEach((j) => { drawJunk(j, canvas, 1); });
-    holes.forEach((h) => { drawHole(h, canvas); });
-    players.forEach((p) => { drawPlayer(p, canvas, 1); });
+    junk.forEach(j => drawJunk(j, canvas, 1));
+    holes.forEach(h => drawHole(h, canvas));
+    players.forEach(p => drawPlayer(p, canvas, 1));
   }
 }
 

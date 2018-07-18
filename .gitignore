@@ -1,7 +1,11 @@
 **.DS_Store
+**.vs
 **npm-debug.log
 
+**.env*
+
 /client/node_modules/
+/client/public/bundle.js
 
 /server/bin
 /server/build/
@@ -9,6 +13,6 @@
 /server/server
 /server/server.exe
 /server/gin-bin
-/server/service-account.json
+/server/service-account*.json
 
 .inertia.toml

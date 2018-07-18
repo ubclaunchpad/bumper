@@ -6,19 +6,20 @@ bump other players and objects off to stay alive
 ## Getting Started
 Play the latest version [here](http://bumper.ubclaunchpad.com)!  
 
-## Docker Quickstart
-Install Docker and the Docker Compose toolset. Then run:
-
-```bash
-make docker-start
-```
-
-## Manual Quickstart
+## Quickstart
 
 Go and Node are required. To install the required dependencies:
 
 ```bash
 $ make deps
+```
+
+Create a .env file with the following variables and place it in the project root:
+```
+NODE_ENV=$YOUR_VAR
+SERVER_URL=$YOUR_VAR
+DATABASE_URL=$YOUR_VAR
+PORT=$YOUR_VAR
 ```
 
 ### Run the Server

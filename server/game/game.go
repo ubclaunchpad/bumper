@@ -73,15 +73,13 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		switch msg.Type {
 		case "spawn":
-
 			var spawn models.SpawnHandlerMessage
 			err = json.Unmarshal([]byte(msg.Data.(string)), &spawn)
 			if err != nil {
 				log.Printf("%v\n", err)
 				continue
 			}
-
-			err := g.Arena.SpawnPlayer(id, spawn.Name)
+			err := g.Arena.SpawnPlayer(id, spawn.Name, spawn.Country)
 			if err != nil {
 				log.Printf("Error spawning player:\n%v", err)
 				continue

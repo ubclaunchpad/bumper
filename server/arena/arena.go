@@ -107,10 +107,11 @@ func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
 
 // SpawnPlayer spawns the player with a position on the map
 // TODO choose color here as well
-func (a *Arena) SpawnPlayer(id string, name string) error {
+func (a *Arena) SpawnPlayer(id string, name string, country string) error {
 	position := a.generateCoordinate(models.PlayerRadius)
 	a.Players[id].Position = position
 	a.Players[id].Name = name
+	a.Players[id].Country = country
 	return nil
 }
 

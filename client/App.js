@@ -72,9 +72,10 @@ export default class App extends React.Component {
   }
 
   // spawn player on submit
-  spawnPlayer(inputName) {
-    this.sendSpawnMessage(inputName);
-    this.state.player.name = inputName;
+  spawnPlayer(name, country) {
+    this.sendSpawnMessage(name, country);
+    this.state.player.name = name;
+    this.state.player.country = country;
     this.setState({
       showWelcomeModal: false,
       showMiniMap: true,
@@ -82,9 +83,10 @@ export default class App extends React.Component {
     });
   }
 
-  sendSpawnMessage(inputName) {
+  sendSpawnMessage(name, country) {
     const spawnMessage = {
-      name: inputName,
+      name,
+      country,
     };
     const message = {
       type: 'spawn',
@@ -288,7 +290,8 @@ export default class App extends React.Component {
           this.state.showWelcomeModal &&
           <WelcomeModal
             name={this.state.player.name}
-            onSubmit={e => this.spawnPlayer(e)}
+            country={this.state.player.country}
+            onSubmit={(inputName, country) => this.spawnPlayer(inputName, country)}
           />
         }
         {

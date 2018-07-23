@@ -2,7 +2,6 @@ package game
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -80,7 +79,6 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				log.Printf("%v\n", err)
 				continue
 			}
-			fmt.Println(spawn.Country)
 			err := g.Arena.SpawnPlayer(id, spawn.Name, spawn.Country)
 			if err != nil {
 				log.Printf("Error spawning player:\n%v", err)

@@ -24,6 +24,7 @@ func CreateArenaWithPlayer(p models.Position) *Arena {
 	a := CreateArena(testHeight, testWidth, 0, 0)
 	a.AddPlayer("test", nil)
 	testPlayer := a.Players["test"]
+	testPlayer.Name = "testName"
 	testPlayer.Position = p
 	testPlayer.Velocity = testVelocity
 	return a
@@ -102,8 +103,8 @@ func TestPlayerToPlayerCollisions(t *testing.T) {
 		testPosition     models.Position
 		expectedPosition models.Position
 	}{
-		{"colliding", quarterPosition, models.Position{X: 700.375, Y: 600.375}},
-		{"non-colliding", centerPosition, quarterPosition},
+		{"colliding", quarterPosition, models.Position{X: 699.2725, Y: 599.2725}},
+		{"non-colliding", centerPosition, models.Position{X: 700.97, Y: 600.97}},
 	}
 
 	for _, tc := range testCases {
@@ -114,6 +115,8 @@ func TestPlayerToPlayerCollisions(t *testing.T) {
 			a.Players[tc.otherPlayer].Position = tc.testPosition
 
 			a.playerCollisions()
+			a.UpdatePositions()
+
 			if a.Players["test"].Position != tc.expectedPosition {
 				t.Errorf("%s detection failed. Got player at %v. Expected player at %v", tc.otherPlayer, a.Players["test"].Position, tc.expectedPosition)
 			}

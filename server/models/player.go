@@ -23,7 +23,10 @@ const (
 	PlayerFriction         = 0.97
 	MaxVelocity            = 15
 	PointsPerJunk          = 100
+	PointsPerPlayer        = 500
 	gravityDamping         = 0.075
+	PlayerDebounceTicks    = 15
+	PointsDebounceTicks    = 100
 )
 
 // KeysPressed contains a boolean about each key, true if it's down
@@ -36,35 +39,41 @@ type KeysPressed struct {
 
 // Player contains data and state about a player's object
 type Player struct {
-	Name     string      `json:"name"`
-	ID       string      `json:"id"`
-	Country  string      `json:"country"`
-	Position Position    `json:"position"`
-	Velocity Velocity    `json:"-"`
-	Color    string      `json:"color"`
-	Angle    float64     `json:"angle"`
-	Controls KeysPressed `json:"-"`
-	Points   int         `json:"points"`
-	mutex    sync.Mutex
-	ws       *websocket.Conn
+	Name           string      `json:"name"`
+	ID             string      `json:"id"`
+	Country        string      `json:"country"`
+	Position       Position    `json:"position"`
+	Velocity       Velocity    `json:"-"`
+	Color          string      `json:"color"`
+	Angle          float64     `json:"angle"`
+	Controls       KeysPressed `json:"-"`
+	Points         int         `json:"points"`
+	PlayerHitMe    *Player     `json:"-"`
+	pointsDebounce int
+	pDebounce      int
+	mutex          sync.Mutex
+	ws             *websocket.Conn
 }
 
 // CreatePlayer constructs an instance of player with
 // given position, color, and WebSocket connection
-func CreatePlayer(id string, n string, p Position, c string, ws *websocket.Conn) *Player {
+func CreatePlayer(id string, name string, pos Position, color string, ws *websocket.Conn) *Player {
 	return &Player{
-		Name:     n,
-		ID:       id,
-		Position: p,
-		Velocity: Velocity{},
-		Color:    c,
-		Angle:    math.Pi,
-		Controls: KeysPressed{},
-		mutex:    sync.Mutex{},
-		ws:       ws,
+		Name:           name,
+		ID:             id,
+		Position:       pos,
+		Velocity:       Velocity{},
+		Color:          color,
+		Angle:          math.Pi,
+		Controls:       KeysPressed{},
+		pDebounce:      0,
+		pointsDebounce: 0,
+		mutex:          sync.Mutex{},
+		ws:             ws,
 	}
 }
 
+// GenUniqueID generates unique id...
 func GenUniqueID() string {
 	id := xid.New()
 	return id.String()
@@ -131,6 +140,19 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	p.Position.Y += p.Velocity.Dy
 
 	p.checkWalls(height, width)
+
+	if p.pDebounce > 0 {
+		p.pDebounce--
+	} else {
+		p.pDebounce = 0
+	}
+
+	if p.pointsDebounce > 0 {
+		p.pointsDebounce--
+	} else {
+		p.PlayerHitMe = nil
+		p.pointsDebounce = 0
+	}
 }
 
 func (p *Player) hitJunk() {
@@ -138,24 +160,25 @@ func (p *Player) hitJunk() {
 	p.Velocity.Dy *= JunkBounceFactor
 }
 
-// HitPlayer calculates collision, update Player's position based on calculation of hitting another player
-func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
-	initalVelocity := p.Velocity
+// HitPlayer calculates collision, update Player's velocity based on calculation of hitting another player
+func (p *Player) HitPlayer(ph *Player) {
+	if p.pDebounce == 0 {
+		initalVelocity := p.Velocity
 
-	//Calculate player's new velocity
-	p.Velocity.Dx = (p.Velocity.Dx * -VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
-	p.Velocity.Dy = (p.Velocity.Dy * -VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
-	//We add one position update so that multiple collision events don't occur for a single bump
-	p.Position.X += p.Velocity.Dx
-	p.Position.Y += p.Velocity.Dy
+		//Calculate player's new velocity
+		p.Velocity.Dx = (p.Velocity.Dx * -VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
+		p.Velocity.Dy = (p.Velocity.Dy * -VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
 
-	//Calculate the player you hits new velocity (and again one position update)
-	ph.Velocity.Dx = (ph.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
-	ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
-	ph.Position.X += ph.Velocity.Dx
-	ph.Position.Y += ph.Velocity.Dy
+		//Calculate the player you hits new velocity
+		ph.Velocity.Dx = (ph.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
+		ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
 
-	p.checkWalls(height, width)
+		ph.PlayerHitMe = p
+		p.PlayerHitMe = ph
+		p.pointsDebounce = PointsDebounceTicks
+		ph.pointsDebounce = PointsDebounceTicks
+		p.pDebounce = PlayerDebounceTicks
+	}
 }
 
 // ApplyGravity applys a vector towards given position

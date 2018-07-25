@@ -168,12 +168,12 @@ func (a *Arena) playerCollisions() {
 	memo := make(map[*models.Player]*models.Player)
 	for _, player := range a.Players {
 		for _, playerHit := range a.Players {
-			if player == playerHit || memo[playerHit] == player {
+			if player == playerHit || memo[player] == playerHit {
 				continue
 			}
 			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
 				memo[playerHit] = player
-				player.HitPlayer(playerHit, a.Height, a.Width)
+				player.HitPlayer(playerHit)
 			}
 		}
 		for _, junk := range a.Junk {
@@ -192,8 +192,12 @@ func (a *Arena) holeCollisions() {
 
 		for name, player := range a.Players {
 			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
-				// TODO: Should award some points to the bumper... Not as straight forward as the junk
-				go database.UpdatePlayerScore(player)
+				playerScored := player.PlayerHitMe
+				if playerScored != nil {
+					playerScored.AddPoints(models.PointsPerPlayer)
+					go database.UpdatePlayerScore(playerScored)
+				}
+
 				deathMsg := models.Message{
 					Type: "death",
 					Data: name,

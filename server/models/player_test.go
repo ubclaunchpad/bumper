@@ -205,3 +205,83 @@ func TestKeyHandler(t *testing.T) {
 		})
 	}
 }
+
+func TestPlayerBumpPlayer(t *testing.T) {
+	testCases := []struct {
+		description    string
+		playerVelocity Velocity
+	}{
+		{"Moving NW", Velocity{5, -5}},
+		{"Moving NE", Velocity{5, 5}},
+		{"Moving SW", Velocity{-5, -5}},
+		{"Moving SE", Velocity{-5, 5}},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			p1 := CreatePlayer("id1", "player1", Position{}, testColorPlayerTest, nil)
+			p2 := CreatePlayer("id2", "player2", Position{}, testColorPlayerTest, nil)
+
+			p1.Velocity = tc.playerVelocity
+
+			p1.HitPlayer(p2)
+
+			if !checkDirection(p2.Velocity, tc.playerVelocity) {
+				t.Error("Player wasn't bumped in the correct direction")
+			}
+		})
+	}
+}
+
+func TestPlayerKillPlayer(t *testing.T) {
+	testCases := []struct {
+		description       string
+		bumperPosition    Position
+		bumpeePosition    Position
+		bumperVelocity    Velocity
+		holePosition      Position
+		shouldAwardPoints bool
+	}{
+		{"Award Points", Position{40, 50}, Position{45, 50}, Velocity{5, 0}, Position{50, 50}, true},
+		{"No Points", Position{5, 50}, Position{10, 50}, Velocity{5, 0}, Position{350, 50}, false},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			p1 := CreatePlayer("id1", "player1", tc.bumperPosition, testColorPlayerTest, nil)
+			p2 := CreatePlayer("id2", "player2", tc.bumpeePosition, testColorPlayerTest, nil)
+			p1.Velocity = tc.bumperVelocity
+			h := CreateHole(tc.holePosition)
+
+			p1.HitPlayer(p2)
+
+			// Advance the game 200 time ticks
+			for i := 0; i < 200; i++ {
+				p1.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
+				p2.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
+
+				if areCirclesColliding(p2.Position, PlayerRadius, h.Position, h.Radius) {
+					playerScored := p2.PlayerHitMe
+					if playerScored != nil {
+						playerScored.AddPoints(PointsPerPlayer)
+					}
+				}
+			}
+
+			// If this flag is set the hole was close enough to eat the bumpee within the debounce time
+			// if not set the hole was too far away
+			if tc.shouldAwardPoints {
+				if p1.Points == 0 {
+					t.Error("Bumpee was not killed correctly")
+				}
+			} else {
+				if p1.Points != 0 {
+					t.Error("Bumpee was killed incorrectly")
+				}
+			}
+		})
+	}
+}
+
+// Helper function, detect collision between objects
+func areCirclesColliding(p Position, r1 float64, q Position, r2 float64) bool {
+	return math.Pow(p.X-q.X, 2)+math.Pow(p.Y-q.Y, 2) <= math.Pow(r1+r2, 2)
+}

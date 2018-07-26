@@ -19,7 +19,13 @@ class WelcomeModal extends React.Component {
   componentWillMount() {
     if (listOfCountries.length === 0) {
       Object.keys(countries).forEach((key) => {
-        listOfCountries.push(<option value={countries[key]} key={key}>{countries[key]} {key.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397))} </option>);
+        const option = (
+          <option value={key} key={key}>
+            {countries[key]} {key.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397))}
+          </option>
+        );
+
+        listOfCountries.push(option);
       });
     }
   }

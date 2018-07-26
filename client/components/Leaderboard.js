@@ -1,10 +1,4 @@
 import React from 'react';
-import {
-  Panel,
-  ListGroup,
-  ListGroupItem,
-} from 'react-bootstrap';
-
 import Flag from 'react-world-flags';
 
 export default class Leaderboard extends React.Component {
@@ -14,21 +8,28 @@ export default class Leaderboard extends React.Component {
     }
 
     return (
-      <div style={styles.container}>
-        <Panel>
-          <Panel.Heading componentClass="h4">
-            <Panel.Title>
-              <div style={styles.header}>
-                Leaderboard
-              </div>
-            </Panel.Title>
-          </Panel.Heading>
-          <ListGroup>
+      <div className="bg-light" style={styles.container}>
+        <h2 className="bg-primary text-white p-2">Leaderboard</h2>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Name</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
             {
-              this.props.players.map(p => <ListGroupItem key={p.name}><Flag code="can" height="16" />{p.name} {p.name ? p.points : ''}</ListGroupItem>)
+              this.props.players.map(p => (
+                <tr>
+                  <td><Flag code={p.country} height={20} /></td>
+                  <td>{p.name}</td>
+                  <td>{p.points}</td>
+                </tr>
+              ))
             }
-          </ListGroup>
-        </Panel>
+          </tbody>
+        </table>
       </div>
     );
   }
@@ -39,11 +40,5 @@ const styles = {
     position: 'absolute',
     top: 0,
     right: 0,
-    backgroundColor: 'white',
-  },
-  header: {
-    paddingTop: 5,
-    paddingRight: 10,
-    paddingLeft: 10,
   },
 };

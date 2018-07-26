@@ -81,6 +81,7 @@ export default class App extends React.Component {
     this.sendSpawnMessage(name, country);
     this.state.player.name = name;
     this.state.player.country = country;
+
     this.setState({
       showWelcomeModal: false,
       showMiniMap: true,

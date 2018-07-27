@@ -7,7 +7,7 @@ import (
 // Junk related constants
 const (
 	JunkFriction        = 0.99
-	MinimumBump         = 0.5
+	MinimumBump         = 0.6
 	BumpFactor          = 1.05
 	JunkRadius          = 11
 	JunkDebounceTicks   = 15

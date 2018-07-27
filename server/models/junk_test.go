@@ -130,26 +130,16 @@ func TestPlayerBumpJunk(t *testing.T) {
 				t.Error("Error: Junk Collsion didn't transfer ownership")
 			}
 
-			// Junks velocity should have been affected:
-			//   either the minimum bump factor or the damped players Velocity
-			if tc.initialPlayerVelocity.Dx < 0 {
-				if j.Velocity.Dx != -MinimumBump && j.Velocity.Dx != tc.initialPlayerVelocity.Dx*BumpFactor {
-					t.Error("Error: Junk velocity incorrectly affected")
-				}
-			} else {
-				if j.Velocity.Dx != MinimumBump && j.Velocity.Dx != tc.initialPlayerVelocity.Dx*BumpFactor {
-					t.Error("Error: Junk velocity incorrectly affected")
-				}
-			}
+			direction := Velocity{0, 0}
+			direction.Dx = j.Position.X - p.Position.X
+			direction.Dy = j.Position.Y - p.Position.Y
+			direction.normalize()
 
-			if tc.initialPlayerVelocity.Dy < 0 {
-				if j.Velocity.Dy != -MinimumBump && j.Velocity.Dy != tc.initialPlayerVelocity.Dy*BumpFactor {
-					t.Error("Error: Junk velocity incorrectly affected")
-				}
-			} else {
-				if j.Velocity.Dy != MinimumBump && j.Velocity.Dy != tc.initialPlayerVelocity.Dy*BumpFactor {
-					t.Error("Error: Junk velocity incorrectly affected")
-				}
+			minimumVelocity := Velocity{MinimumBump, MinimumBump}
+
+			// Junks velocity should have been affected in the correct direction and at least minimum amount
+			if !checkDirection(direction, j.Velocity) || j.Velocity.magnitude() < minimumVelocity.magnitude() {
+				t.Error("Error: Junk not bumped in correct direction or hard enough")
 			}
 
 			// Collision also affects Players velocity

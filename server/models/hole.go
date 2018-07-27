@@ -58,3 +58,32 @@ func (h *Hole) Update() {
 func (h *Hole) IsDead() bool {
 	return h.Life < 0
 }
+
+// ApplyGravity applys a vector towards this hole
+func (h *Hole) ApplyGravity(o interface{}) {
+	gravityVector := Velocity{0, 0}
+	j, okay := o.(*Junk)
+	if okay {
+		gravityVector.Dx = h.Position.X - j.Position.X
+		gravityVector.Dy = h.Position.Y - j.Position.Y
+
+		inverseMagnitude := 1.0 / gravityVector.magnitude()
+		gravityVector.normalize()
+
+		//Velocity is affected by how close you are, the size of the hole, and a damping factor.
+		j.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * JunkGravityDamping
+		j.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * JunkGravityDamping
+	}
+	p, okay := o.(*Player)
+	if okay {
+		gravityVector.Dx = h.Position.X - p.Position.X
+		gravityVector.Dy = h.Position.Y - p.Position.Y
+
+		inverseMagnitude := 1.0 / gravityVector.magnitude()
+		gravityVector.normalize()
+
+		//Velocity is affected by how close you are, the size of the hole, and a damping factor.
+		p.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * PlayerGravityDamping
+		p.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * PlayerGravityDamping
+	}
+}

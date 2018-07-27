@@ -24,7 +24,7 @@ const (
 	MaxVelocity            = 15
 	PointsPerJunk          = 100
 	PointsPerPlayer        = 500
-	gravityDamping         = 0.075
+	PlayerGravityDamping   = 0.075
 	PlayerDebounceTicks    = 15
 	PointsDebounceTicks    = 100
 )
@@ -181,20 +181,6 @@ func (p *Player) HitPlayer(ph *Player) {
 	p.pointsDebounce = PointsDebounceTicks
 	ph.pointsDebounce = PointsDebounceTicks
 	p.pDebounce = PlayerDebounceTicks
-}
-
-// ApplyGravity applys a vector towards given position
-func (p *Player) ApplyGravity(h *Hole) {
-	gravityVector := Velocity{0, 0}
-	gravityVector.Dx = h.Position.X - p.Position.X
-	gravityVector.Dy = h.Position.Y - p.Position.Y
-
-	inverseMagnitude := 1.0 / gravityVector.magnitude()
-	gravityVector.normalize()
-
-	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	p.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * gravityDamping
-	p.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * gravityDamping
 }
 
 // checkWalls check if the player is attempting to exit the walls, reverse they're direction

@@ -110,17 +110,3 @@ func (j *Junk) HitJunk(jh *Junk) {
 	j.jDebounce = JunkDebounceTicks
 	jh.jDebounce = JunkDebounceTicks
 }
-
-// ApplyGravity applys a vector towards given position
-func (j *Junk) ApplyGravity(h *Hole) {
-	gravityVector := Velocity{0, 0}
-	gravityVector.Dx = h.Position.X - j.Position.X
-	gravityVector.Dy = h.Position.Y - j.Position.Y
-
-	inverseMagnitude := 1.0 / gravityVector.magnitude()
-	gravityVector.normalize()
-
-	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	j.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * JunkGravityDamping
-	j.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * JunkGravityDamping
-}

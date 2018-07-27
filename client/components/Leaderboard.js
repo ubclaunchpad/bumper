@@ -21,6 +21,7 @@ export default class Leaderboard extends React.Component {
           <tbody>
             {
               this.props.players.map(p => (
+                p.name &&
                 <tr>
                   <td><Flag code={p.country} height={20} /></td>
                   <td>{p.name}</td>

@@ -2,6 +2,9 @@
 const Dotenv = require('dotenv-webpack');
 
 const config = {
+  node: {
+    fs: 'empty',
+  },
   entry: './index.js',
   output: {
     path: `${__dirname}/public/`,

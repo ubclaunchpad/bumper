@@ -1,7 +1,10 @@
 /* eslint-disable */
-const Dotenv = require('dotenv-webpack');
+const webpack = require('webpack');
 
 const config = {
+  node: {
+    fs: 'empty',
+  },
   entry: './index.js',
   output: {
     path: `${__dirname}/public/`,
@@ -25,10 +28,7 @@ const config = {
     ],
   },
   plugins: [
-    new Dotenv({
-      path: '../.env',
-      systemvars: true
-    }),
+    new webpack.EnvironmentPlugin(['NODE_ENV'])
   ],
 };
 

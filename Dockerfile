@@ -1,8 +1,6 @@
 # Build and minify React client
 FROM node:carbon AS client
 WORKDIR /
-## ENV DEPENDENCY
-ADD .env .
 WORKDIR /client
 ADD client/package.json .
 RUN npm install
@@ -15,8 +13,6 @@ WORKDIR /app
 ENV SRC_DIR=/go/src/github.com/ubclaunchpad/bumper/server
 RUN apk add --update --no-cache git
 ADD server $SRC_DIR
-## ENV DEPENDENCY
-ADD server/service-account.json .
 WORKDIR $SRC_DIR
 RUN go get -u github.com/golang/dep/cmd/dep
 RUN dep ensure --vendor-only
@@ -28,7 +24,9 @@ RUN apk add --update --no-cache ca-certificates
 WORKDIR /app/build
 COPY --from=client /client/public/ .
 WORKDIR /app
-COPY --from=server /app/service-account.json .
+# ENV dependencies
+ADD .env .
+COPY server/service-account.json .
 COPY --from=server /app/server .
 
 EXPOSE 9090

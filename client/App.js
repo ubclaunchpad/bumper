@@ -4,7 +4,12 @@ import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
 import { drawGame, drawWalls } from './components/GameObjects';
 import Minimap from './components/Minimap';
-import { registerNewTesterEvent, registerTesterUpdateEvent } from './database/database';
+import Leaderboard from './components/Leaderboard';
+
+import {
+  registerNewTesterEvent,
+  registerTesterUpdateEvent,
+} from './database/database';
 
 
 const address = process.env.SERVER_URL;
@@ -76,6 +81,7 @@ export default class App extends React.Component {
     this.sendSpawnMessage(name, country);
     this.state.player.name = name;
     this.state.player.country = country;
+
     this.setState({
       showWelcomeModal: false,
       showMiniMap: true,
@@ -276,6 +282,7 @@ export default class App extends React.Component {
   render() {
     return (
       <div style={styles.canvasContainer}>
+        <Leaderboard players={this.state.players} />
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
         {
           this.state.showMiniMap &&

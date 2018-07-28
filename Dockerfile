@@ -1,7 +1,6 @@
 # Build and minify React client
 FROM node:carbon AS client
 WORKDIR /
-ADD .env .
 WORKDIR /client
 ADD client/package.json .
 RUN npm install
@@ -25,8 +24,9 @@ RUN apk add --update --no-cache ca-certificates
 WORKDIR /app/build
 COPY --from=client /client/public/ .
 WORKDIR /app
+# ENV dependencies
+ADD .env .
 COPY server/service-account.json .
-COPY --from=client .env .
 COPY --from=server /app/server .
 
 EXPOSE 9090

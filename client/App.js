@@ -12,7 +12,9 @@ import {
 } from './database/database';
 
 
-const address = process.env.SERVER_URL;
+const address = process.env.NODE_ENV === 'production'
+  ? 'bumper.ubclaunchpad.com'
+  : 'localhost:9090';
 
 export default class App extends React.Component {
   constructor(props) {

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --hot --host 0.0.0.0",
-    "build": "webpack",
+    "build": "NODE_ENV=production webpack --config webpack.prod.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "./node_modules/.bin/eslint . --ignore-pattern public/"
   },
@@ -18,8 +18,6 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
-    "dotenv": "^6.0.0",
-    "dotenv-webpack": "^1.5.7",
     "firebase": "^5.1.0",
     "react": "^16.2.0",
     "react-bootstrap": "^0.32.1",

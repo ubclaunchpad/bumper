@@ -3,11 +3,5 @@ version: '3.4'
 services:
   bumper:
     build: .
-    env_file: .env
-    environment:
-      - PORT=${PORT}
-      - NODE_ENV=${NODE_ENV}
-      - SERVER_URL=${SERVER_URL}
-      - DATABASE_URL=${DATABASE_URL}
     ports:
-      - "80:${PORT}"
+      - "80:9090"

@@ -51,7 +51,7 @@ func ConnectDB(credentialsPath string) {
 // UpdatePlayerScore updates the score for the given player in the database
 // Use as a goroutine to make it non-blocking. (Not fully thread safe yet)
 func UpdatePlayerScore(p *models.Player) {
-	if DBC == nil {
+	if DBC == nil || p.Points < 200 {
 		return
 	}
 

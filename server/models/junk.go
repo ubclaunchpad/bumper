@@ -1,18 +1,22 @@
 package models
 
 import (
+	"fmt"
 	"math"
 )
 
 // Junk related constants
 const (
-	JunkFriction        = 0.99
-	MinimumBump         = 0.6
-	BumpFactor          = 1.05
-	JunkRadius          = 11
-	JunkDebounceTicks   = 15
-	JunkVTransferFactor = 0.5
-	JunkGravityDamping  = 0.025
+	JunkFriction          = 0.98
+	MinimumBump           = 0.6
+	BumpFactor            = 1.05
+	JunkRadius            = 18 // 11
+	JunkDebounceTicks     = 15
+	JunkVTransferFactor   = 0.5
+	JunkJunkBounceFactor  = 0.01
+	JunkGravityDamping    = 0.025
+	JunkMass              = 1
+	JunkRestitutionFactor = 1
 )
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points
@@ -71,6 +75,7 @@ func (j *Junk) HitBy(p *Player) {
 		return
 	}
 
+<<<<<<< 3a64d064a08621df9ad56ee64523a4e7c3a4da84
 	j.Color = p.Color //Assign junk to last recently hit player color
 	j.LastPlayerHit = p
 
@@ -84,6 +89,59 @@ func (j *Junk) HitBy(p *Player) {
 		j.Velocity.Dy = math.Min(p.Velocity.Dy*BumpFactor, -MinimumBump)
 	} else {
 		j.Velocity.Dy = math.Max(p.Velocity.Dy*BumpFactor, MinimumBump)
+=======
+		// J is 2 P is 1
+
+		d := math.Sqrt(math.Pow((j.Position.X-p.Position.X), 2) + math.Pow((j.Position.Y-p.Position.Y), 2))
+		fmt.Println("d", d)
+		SinYx := (j.Position.Y - p.Position.Y) / (j.Position.X - p.Position.X)
+		if SinYx < -1 {
+			SinYx = -1
+		}
+		if SinYx > 1 {
+			SinYx = 1
+		}
+		Yx := math.Asin(SinYx)
+		// Yx := math.Asin((j.Position.Y - p.Position.Y) / (j.Position.X - p.Position.X))
+		if SinYx > 1 || SinYx < -1 {
+			fmt.Println("x1", p.Position.X, "y1", p.Position.Y)
+			fmt.Println("x2", j.Position.X, "y2", j.Position.Y)
+			InvSinYx := (p.Position.Y - j.Position.Y) / (p.Position.X - j.Position.X)
+			fmt.Println("InvSinYx", InvSinYx)
+		}
+		r1plusr2 := JunkRadius + PlayerRadius
+		fmt.Println("Yx", Yx)
+		fmt.Println("SinYx", SinYx)
+		fmt.Println("r1 + r2", r1plusr2)
+
+		Yv := math.Atan((p.Velocity.Dy - j.Velocity.Dy) / (p.Velocity.Dx - j.Velocity.Dx))
+		fmt.Println("Yv", Yv)
+		alpha := math.Asin((d * math.Sin(Yx-Yv)) / (PlayerRadius + JunkRadius))
+		fmt.Println("Alpha", alpha)
+		a := math.Tan(Yv + alpha)
+		fmt.Println("a", a)
+		massRatio := float64(JunkMass / PlayerMass)
+		fmt.Println("massRatio", massRatio)
+
+		DeltaJVx := 2 * (p.Velocity.Dx - j.Velocity.Dx + a*(p.Velocity.Dy-j.Velocity.Dy)) / ((math.Pow(a, 2) + 1) * (massRatio + 1))
+		fmt.Println("Delta", DeltaJVx)
+
+		j.Velocity.Dx += DeltaJVx * JunkRestitutionFactor
+		j.Velocity.Dy += a * DeltaJVx * JunkRestitutionFactor
+		p.Velocity.Dx -= massRatio * DeltaJVx * PlayerRestitutionFactor
+		p.Velocity.Dy -= a * massRatio * DeltaJVx * PlayerRestitutionFactor
+
+		// direction := Velocity{0, 0}
+		// direction.Dx = j.Position.X - p.Position.X
+		// direction.Dy = j.Position.Y - p.Position.Y
+		// direction.normalize()
+
+		// j.Velocity.Dx += direction.Dx * math.Max(math.Abs(p.Velocity.Dx)*BumpFactor, MinimumBump)
+		// j.Velocity.Dy += direction.Dy * math.Max(math.Abs(p.Velocity.Dy)*BumpFactor, MinimumBump)
+
+		// p.hitJunk()
+		j.Debounce = JunkDebounceTicks
+>>>>>>> switches collision math to real world physics
 	}
 
 	p.hitJunk()
@@ -97,11 +155,52 @@ func (j *Junk) HitJunk(jh *Junk) {
 		return
 	}
 
+<<<<<<< 3a64d064a08621df9ad56ee64523a4e7c3a4da84
 	initalVelocity := j.Velocity
 
 	//Calculate this junks's new velocity
 	j.Velocity.Dx = (j.Velocity.Dx * -JunkVTransferFactor) + (jh.Velocity.Dx * JunkVTransferFactor)
 	j.Velocity.Dy = (j.Velocity.Dy * -JunkVTransferFactor) + (jh.Velocity.Dy * JunkVTransferFactor)
+=======
+		j.Velocity.Dx *= JunkJunkBounceFactor
+		j.Velocity.Dy *= JunkJunkBounceFactor
+		jh.Velocity.Dy *= JunkJunkBounceFactor
+		jh.Velocity.Dy *= JunkJunkBounceFactor
+
+		direction := Velocity{0, 0}
+		if j.Position.X > jh.Position.X {
+			direction.Dx = j.Position.X - jh.Position.X
+			direction.Dy = j.Position.Y - jh.Position.Y
+			direction.normalize()
+			// fmt.Println("1")
+			j.Velocity.Dx -= direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
+			j.Velocity.Dy -= direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
+			jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
+			jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
+		} else {
+			direction.Dx = jh.Position.X - j.Position.X
+			direction.Dy = jh.Position.Y - j.Position.Y
+			direction.normalize()
+			// fmt.Println("2")
+			j.Velocity.Dx -= direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
+			j.Velocity.Dy -= direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
+			jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
+			jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
+		}
+
+		// //Calculate this junks's new velocity
+		// j.Velocity.Dx += direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
+		// // fmt.Println(direction.Dx * jh.Velocity.Dx * JunkVTransferFactor)
+		// j.Velocity.Dy += direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
+		// jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
+		// jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
+
+		// j.Velocity.Dx = (j.Velocity.Dx * -JunkVTransferFactor) + (jh.Velocity.Dx * JunkVTransferFactor)
+		// j.Velocity.Dy = (j.Velocity.Dy * -JunkVTransferFactor) + (jh.Velocity.Dy * JunkVTransferFactor)
+		// //Calculate other junk's new velocity
+		// jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)
+		// jh.Velocity.Dy = (jh.Velocity.Dy * -JunkVTransferFactor) + (initalVelocity.Dy * JunkVTransferFactor)
+>>>>>>> switches collision math to real world physics
 
 	//Calculate other junk's new velocity
 	jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)

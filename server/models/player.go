@@ -11,22 +11,24 @@ import (
 
 // Player related constants
 const (
-	LeftKey                = 37
-	RightKey               = 39
-	UpKey                  = 38
-	DownKey                = 40
-	JunkBounceFactor       = -0.25
-	VelocityTransferFactor = 0.75
-	WallBounceFactor       = -1.5
-	PlayerRadius           = 25
-	PlayerAcceleration     = 0.5
-	PlayerFriction         = 0.97
-	MaxVelocity            = 15
-	PointsPerJunk          = 100
-	PointsPerPlayer        = 500
-	PlayerGravityDamping   = 0.075
-	PlayerDebounceTicks    = 15
-	PointsDebounceTicks    = 100
+	LeftKey                 = 37
+	RightKey                = 39
+	UpKey                   = 38
+	DownKey                 = 40
+	JunkBounceFactor        = -0.25
+	VelocityTransferFactor  = 0.75
+	WallBounceFactor        = -1.5
+	PlayerRadius            = 25
+	PlayerAcceleration      = 0.5
+	PlayerFriction          = 0.97
+	MaxVelocity             = 15
+	PointsPerJunk           = 100
+	PointsPerPlayer         = 500
+	PlayerGravityDamping    = 0.075
+	PlayerDebounceTicks     = 15
+	PointsDebounceTicks     = 100
+	PlayerMass              = 1
+	PlayerRestitutionFactor = 0.95
 )
 
 // KeysPressed contains a boolean about each key, true if it's down

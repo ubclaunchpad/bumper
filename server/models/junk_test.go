@@ -174,7 +174,7 @@ func TestJunkGravity(t *testing.T) {
 			j := CreateJunk(centerPos)
 
 			vector := Velocity{h.Position.X - j.Position.X, h.Position.Y - j.Position.Y}
-			h.ApplyGravity(j)
+			h.ApplyGravity(&j.Position, &j.Velocity, JunkGravityDamping)
 
 			if !checkDirection(vector, j.Velocity) {
 				t.Error("Error: Gravity wasn't applied in the correct direction")

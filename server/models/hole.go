@@ -59,31 +59,17 @@ func (h *Hole) IsDead() bool {
 	return h.Life < 0
 }
 
-// ApplyGravity applys a vector towards this hole
-func (h *Hole) ApplyGravity(o interface{}) {
+// ApplyGravity modifies given velocity based on given position and damping factor relative to this hole.
+func (h *Hole) ApplyGravity(p *Position, v *Velocity, DampingFactor float64) {
 	gravityVector := Velocity{0, 0}
-	j, okay := o.(*Junk)
-	if okay {
-		gravityVector.Dx = h.Position.X - j.Position.X
-		gravityVector.Dy = h.Position.Y - j.Position.Y
 
-		inverseMagnitude := 1.0 / gravityVector.magnitude()
-		gravityVector.normalize()
+	gravityVector.Dx = h.Position.X - p.X
+	gravityVector.Dy = h.Position.Y - p.Y
 
-		//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-		j.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * JunkGravityDamping
-		j.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * JunkGravityDamping
-	}
-	p, okay := o.(*Player)
-	if okay {
-		gravityVector.Dx = h.Position.X - p.Position.X
-		gravityVector.Dy = h.Position.Y - p.Position.Y
+	inverseMagnitude := 1.0 / gravityVector.magnitude()
+	gravityVector.normalize()
 
-		inverseMagnitude := 1.0 / gravityVector.magnitude()
-		gravityVector.normalize()
-
-		//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-		p.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * PlayerGravityDamping
-		p.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * PlayerGravityDamping
-	}
+	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
+	v.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * DampingFactor
+	v.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * DampingFactor
 }

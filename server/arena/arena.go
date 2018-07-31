@@ -204,7 +204,7 @@ func (a *Arena) holeCollisions() {
 				}
 				MessageChannel <- deathMsg
 			} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
-				hole.ApplyGravity(player)
+				hole.ApplyGravity(&player.Position, &player.Velocity, models.PlayerGravityDamping)
 			}
 		}
 
@@ -218,7 +218,7 @@ func (a *Arena) holeCollisions() {
 				a.removeJunk(i)
 				a.addJunk()
 			} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
-				hole.ApplyGravity(junk)
+				hole.ApplyGravity(&junk.Position, &junk.Velocity, models.JunkGravityDamping)
 			}
 		}
 	}

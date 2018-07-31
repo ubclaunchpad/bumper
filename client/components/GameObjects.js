@@ -1,5 +1,5 @@
 const PLAYER_RADIUS = 25;
-const JUNK_SIZE = 15;
+const JUNK_SIZE = 22; // 15
 
 export function drawGame(data, canvas) {
   const rawPlayer = data.players.find(p => p.id === data.player.id);

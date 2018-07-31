@@ -28,7 +28,7 @@ type Game struct {
 // CreateGame constructor initializes arena and refresh rate
 func CreateGame() *Game {
 	g := Game{
-		Arena:       arena.CreateArena(2400, 2800, 20, 30),
+		Arena:       arena.CreateArena(2400, 2800, 20, 60),
 		RefreshRate: time.Millisecond * 17, // 60 Hz
 	}
 	return &g

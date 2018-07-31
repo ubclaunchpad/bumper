@@ -67,44 +67,48 @@ func (j *Junk) UpdatePosition(height float64, width float64) {
 // HitBy Update Junks's velocity based on calculations of being hit by a player
 func (j *Junk) HitBy(p *Player) {
 	// We don't want this collision till the debounce is down.
-	if j.Debounce == 0 {
-		j.Color = p.Color //Assign junk to last recently hit player color
-		j.LastPlayerHit = p
-
-		if p.Velocity.Dx < 0 {
-			j.Velocity.Dx = math.Min(p.Velocity.Dx*BumpFactor, -MinimumBump)
-		} else {
-			j.Velocity.Dx = math.Max(p.Velocity.Dx*BumpFactor, MinimumBump)
-		}
-
-		if p.Velocity.Dy < 0 {
-			j.Velocity.Dy = math.Min(p.Velocity.Dy*BumpFactor, -MinimumBump)
-		} else {
-			j.Velocity.Dy = math.Max(p.Velocity.Dy*BumpFactor, MinimumBump)
-		}
-
-		p.hitJunk()
-		j.Debounce = JunkDebounceTicks
+	if j.Debounce != 0 {
+		return
 	}
+
+	j.Color = p.Color //Assign junk to last recently hit player color
+	j.LastPlayerHit = p
+
+	if p.Velocity.Dx < 0 {
+		j.Velocity.Dx = math.Min(p.Velocity.Dx*BumpFactor, -MinimumBump)
+	} else {
+		j.Velocity.Dx = math.Max(p.Velocity.Dx*BumpFactor, MinimumBump)
+	}
+
+	if p.Velocity.Dy < 0 {
+		j.Velocity.Dy = math.Min(p.Velocity.Dy*BumpFactor, -MinimumBump)
+	} else {
+		j.Velocity.Dy = math.Max(p.Velocity.Dy*BumpFactor, MinimumBump)
+	}
+
+	p.hitJunk()
+	j.Debounce = JunkDebounceTicks
 }
 
 // HitJunk Update Junks's velocity based on calculations of being hit by another Junk
 func (j *Junk) HitJunk(jh *Junk) {
 	// We don't want this collision till the debounce is down.
-	if j.jDebounce == 0 {
-		initalVelocity := j.Velocity
-
-		//Calculate this junks's new velocity
-		j.Velocity.Dx = (j.Velocity.Dx * -JunkVTransferFactor) + (jh.Velocity.Dx * JunkVTransferFactor)
-		j.Velocity.Dy = (j.Velocity.Dy * -JunkVTransferFactor) + (jh.Velocity.Dy * JunkVTransferFactor)
-
-		//Calculate other junk's new velocity
-		jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)
-		jh.Velocity.Dy = (jh.Velocity.Dy * -JunkVTransferFactor) + (initalVelocity.Dy * JunkVTransferFactor)
-
-		j.jDebounce = JunkDebounceTicks
-		jh.jDebounce = JunkDebounceTicks
+	if j.jDebounce != 0 {
+		return
 	}
+
+	initalVelocity := j.Velocity
+
+	//Calculate this junks's new velocity
+	j.Velocity.Dx = (j.Velocity.Dx * -JunkVTransferFactor) + (jh.Velocity.Dx * JunkVTransferFactor)
+	j.Velocity.Dy = (j.Velocity.Dy * -JunkVTransferFactor) + (jh.Velocity.Dy * JunkVTransferFactor)
+
+	//Calculate other junk's new velocity
+	jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)
+	jh.Velocity.Dy = (jh.Velocity.Dy * -JunkVTransferFactor) + (initalVelocity.Dy * JunkVTransferFactor)
+
+	j.jDebounce = JunkDebounceTicks
+	jh.jDebounce = JunkDebounceTicks
 }
 
 // ApplyGravity applys a vector towards given position

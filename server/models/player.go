@@ -48,7 +48,7 @@ type Player struct {
 	Angle          float64     `json:"angle"`
 	Controls       KeysPressed `json:"-"`
 	Points         int         `json:"points"`
-	PlayerHitMe    *Player     `json:"-"`
+	LastPlayerHit  *Player     `json:"-"`
 	pointsDebounce int
 	pDebounce      int
 	mutex          sync.Mutex
@@ -150,7 +150,7 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	if p.pointsDebounce > 0 {
 		p.pointsDebounce--
 	} else {
-		p.PlayerHitMe = nil
+		p.LastPlayerHit = nil
 		p.pointsDebounce = 0
 	}
 }
@@ -162,23 +162,25 @@ func (p *Player) hitJunk() {
 
 // HitPlayer calculates collision, update Player's velocity based on calculation of hitting another player
 func (p *Player) HitPlayer(ph *Player) {
-	if p.pDebounce == 0 {
-		initalVelocity := p.Velocity
-
-		//Calculate player's new velocity
-		p.Velocity.Dx = (p.Velocity.Dx * -VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
-		p.Velocity.Dy = (p.Velocity.Dy * -VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
-
-		//Calculate the player you hits new velocity
-		ph.Velocity.Dx = (ph.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
-		ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
-
-		ph.PlayerHitMe = p
-		p.PlayerHitMe = ph
-		p.pointsDebounce = PointsDebounceTicks
-		ph.pointsDebounce = PointsDebounceTicks
-		p.pDebounce = PlayerDebounceTicks
+	if p.pDebounce != 0 {
+		return
 	}
+
+	initalVelocity := p.Velocity
+
+	//Calculate player's new velocity
+	p.Velocity.Dx = (p.Velocity.Dx * -VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
+	p.Velocity.Dy = (p.Velocity.Dy * -VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
+
+	//Calculate the player you hits new velocity
+	ph.Velocity.Dx = (ph.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
+	ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
+
+	ph.LastPlayerHit = p
+	p.LastPlayerHit = ph
+	p.pointsDebounce = PointsDebounceTicks
+	ph.pointsDebounce = PointsDebounceTicks
+	p.pDebounce = PlayerDebounceTicks
 }
 
 // ApplyGravity applys a vector towards given position

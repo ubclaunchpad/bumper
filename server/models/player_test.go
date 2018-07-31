@@ -259,7 +259,7 @@ func TestPlayerKillPlayer(t *testing.T) {
 				p2.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 
 				if areCirclesColliding(p2.Position, PlayerRadius, h.Position, h.Radius) {
-					playerScored := p2.PlayerHitMe
+					playerScored := p2.LastPlayerHit
 					if playerScored != nil {
 						playerScored.AddPoints(PointsPerPlayer)
 					}

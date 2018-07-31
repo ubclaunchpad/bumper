@@ -188,83 +188,11 @@ export default class App extends React.Component {
     requestAnimationFrame(this.tick);
   }
 
-  /*
-   * Performs on operation on the leaderboard
-   * DRAW draws an updated leaderboard on the canvas
-   * Requires: this.state.players an array with the players
-   * // TODO identify current player
-   */
-
-  drawLeaderboard() {
-    const rankedPlayers = this.state.players.sort((a, b) => {
-      if (b.points < a.points) return -1;
-      if (b.points > a.points) return 1;
-      if (a.color < b.color) return -1; // sort by color on ties
-      if (a.color > b.color) return 1;
-      return 0;
-    });
-
-    const thisPlayer = rankedPlayers.find((p, idx) => {
-      if (p.id === this.state.player.id) {
-        this.state.player.rank = idx + 1;
-        return true;
-      }
-
-      return false;
-    });
-
-    if (thisPlayer) {
-      this.setState({
-        player: this.state.player,
-      });
-    }
-
-    const ctx = this.canvas.getContext('2d');
-    ctx.beginPath();
-    const rectHeight = 130;
-    const rectWidth = 170;
-    const rectX = window.innerWidth - rectWidth;
-    const rectY = 0;
-    let xPos;
-    let yPos;
-    ctx.rect(rectX, rectY, rectWidth, rectHeight);
-    ctx.fillStyle = 'rgba(255,0,0,0.3)';
-    ctx.fill();
-
-    // Print leaderboard data:
-    // Draw the leaderboard title:
-    ctx.font = '16px Lucida Sans Unicode';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText('Leaderboard', rectX + (rectWidth / 2) - 10, rectY + (rectHeight / 2) - 45);
-
-    // Draw the ranks with corresponding player names and points:
-    ctx.font = '10px Lucida Sans Unicode';
-    rankedPlayers.forEach((player, i) => {
-      if (player.name !== '') {
-        ctx.fillStyle = player.color;
-        ctx.textAlign = 'left';
-        xPos = rectX + (rectWidth / 2) - 80;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * i;
-        ctx.fillText(`${i + 1}. ${player.name}`, xPos, yPos);
-        ctx.textAlign = 'right';
-        xPos = rectX + (rectWidth / 2) + 60;
-        yPos = rectY + (rectHeight / 2) - 25 + 15 * i;
-        ctx.fillText(player.points, xPos, yPos);
-        ctx.fillStyle = '#FFFFFF';
-      }
-    });
-    ctx.closePath();
-  }
-
   draw() {
     const ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     drawGame(this.state, this.canvas);
-
-    this.drawLeaderboard();
 
     // Drawing the walls requires the players position
     const player = this.state.players.find(p => p.id === this.state.player.id);

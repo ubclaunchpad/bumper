@@ -191,7 +191,7 @@ func (a *Arena) holeCollisions() {
 		}
 
 		for name, player := range a.Players {
-			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
+			if areCirclesColliding(player.Body.Position, player.Body.Radius, hole.Body.Position, hole.Body.Radius) {
 				playerScored := player.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerPlayer)

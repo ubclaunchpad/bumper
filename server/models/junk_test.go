@@ -3,6 +3,8 @@ package models
 import (
 	"math"
 	"testing"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -11,8 +13,10 @@ const (
 )
 
 var (
-	testVelocity = Velocity{1, 1}
-	centerPos    = Position{testWidth / 2, testHeight / 2}
+	testVelocity        = Velocity{1, 1}
+	testMinimumBump     = Velocity{0.9, 0.9}
+	centerPos           = Position{testWidth / 2, testHeight / 2}
+	centerPosBelowRight = Position{testWidth/2 + 1, testHeight/2 + 1}
 )
 
 func TestUpdateJunkPosition(t *testing.T) {
@@ -114,12 +118,13 @@ func TestPlayerBumpJunk(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			// Create junk
 			j := CreateJunk(centerPos)
-			initialJunkVelocity := testVelocity
+			initialJunkVelocity := Velocity{0, 0}
 			j.Body.Velocity = initialJunkVelocity
 
 			// Create a Player
-			p := new(Player)
-			p.Color = "red"
+			p := CreatePlayer(testID, testNamePlayerTest, centerPos, testColorPlayerTest, *new(*websocket.Conn))
+			p.Body.Position.X = centerPos.X - tc.initialPlayerVelocity.Dx/2
+			p.Body.Position.Y = centerPos.Y - tc.initialPlayerVelocity.Dy/2
 			p.Body.Velocity = tc.initialPlayerVelocity
 
 			// Hit Junk with Player
@@ -130,20 +135,16 @@ func TestPlayerBumpJunk(t *testing.T) {
 				t.Error("Error: Junk Collsion didn't transfer ownership")
 			}
 
-			direction := Velocity{0, 0}
-			direction.Dx = j.Body.Position.X - p.Body.Position.X
-			direction.Dy = j.Body.Position.Y - p.Body.Position.Y
-			direction.normalize()
-
-			minimumVelocity := Velocity{MinimumBump, MinimumBump}
-
 			// Junks velocity should have been affected in the correct direction and at least minimum amount
-			if !checkDirection(direction, j.Body.Velocity) || j.Body.Velocity.magnitude() < minimumVelocity.magnitude() {
-				t.Error("Error: Junk not bumped in correct direction or hard enough")
+			if checkDirection(initialJunkVelocity, j.Body.Velocity) {
+				t.Error("Error: Junk's direction was unchanged")
+			}
+			if j.Body.Velocity.magnitude() < testMinimumBump.magnitude() {
+				t.Error("Error: Junk not bumped hard enough")
 			}
 
 			// Collision also affects Players velocity
-			if p.Body.Velocity.Dx != tc.initialPlayerVelocity.Dx*1 || p.Body.Velocity.Dy != tc.initialPlayerVelocity.Dy*1 {
+			if p.Body.Velocity.Dx == tc.initialPlayerVelocity.Dx || p.Body.Velocity.Dy == tc.initialPlayerVelocity.Dy {
 				t.Error("Error: Player velocity not affected")
 			}
 
@@ -191,7 +192,7 @@ func TestJunkBumpJunk(t *testing.T) {
 	initialJunkVelocity := Velocity{testVelocity.Dx, testVelocity.Dy}
 	j1.Body.Velocity = initialJunkVelocity
 
-	j2 := CreateJunk(centerPos)
+	j2 := CreateJunk(centerPosBelowRight)
 	otherJunkVelocity := Velocity{-testVelocity.Dx, testVelocity.Dy}
 	j2.Body.Velocity = otherJunkVelocity
 
@@ -199,14 +200,12 @@ func TestJunkBumpJunk(t *testing.T) {
 	j1.HitJunk(j2)
 
 	// Both Junk's velocities should have been affected, not black boxed :(
-	if j1.Body.Velocity.Dx != (initialJunkVelocity.Dx*-JunkVTransferFactor)+(otherJunkVelocity.Dx*JunkVTransferFactor) ||
-		j1.Body.Velocity.Dy != (initialJunkVelocity.Dy*-JunkVTransferFactor)+(otherJunkVelocity.Dy*JunkVTransferFactor) {
-		t.Error("Error: Junk 1's velocity incorrectly affected")
+	if j1.Body.Velocity.Dx == initialJunkVelocity.Dx || j1.Body.Velocity.Dy == initialJunkVelocity.Dy {
+		t.Error("Error: Junk 1's velocity was unaffected")
 	}
 
-	if j2.Body.Velocity.Dx != (otherJunkVelocity.Dx*-JunkVTransferFactor)+(initialJunkVelocity.Dx*JunkVTransferFactor) ||
-		j2.Body.Velocity.Dy != (otherJunkVelocity.Dy*-JunkVTransferFactor)+(initialJunkVelocity.Dy*JunkVTransferFactor) {
-		t.Error("Error: Junk 2's velocity incorrectly affected")
+	if j2.Body.Velocity.Dx == otherJunkVelocity.Dx || j2.Body.Velocity.Dy == otherJunkVelocity.Dy {
+		t.Error("Error: Junk 2's velocity was unaffected")
 	}
 
 	// Second collision right away should have no effect because of the debounce period.

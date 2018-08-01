@@ -77,17 +77,25 @@ func (b *PhysicsBody) ApplyVelocity() {
 // InelasticCollision update
 func InelasticCollision(b1 *PhysicsBody, b2 *PhysicsBody) {
 
-	// J is 2 P is 1
+	print := true
 	d := math.Sqrt(math.Pow((b1.Position.X-b2.Position.X), 2) + math.Pow((b1.Position.Y-b2.Position.Y), 2))
-	fmt.Println("d", d)
+	if d == 0 {
+		return
+	}
+	if print {
+		fmt.Println("d", d)
+	}
 	SinYx := (b1.Position.Y - b2.Position.Y) / (b1.Position.X - b2.Position.X)
 	// Yx := math.Asin((b1.Position.Y - b2.Position.Y) / (b1.Position.X - b2.Position.X))
 	if SinYx > 1 || SinYx < -1 {
-		fmt.Println("x1", b2.Position.X, "y1", b2.Position.Y)
-		fmt.Println("x2", b1.Position.X, "y2", b1.Position.Y)
 		InvSinYx := (b2.Position.Y - b1.Position.Y) / (b2.Position.X - b1.Position.X)
-		fmt.Println("SinYx", SinYx)
-		fmt.Println("InvSinYx", InvSinYx)
+		if print {
+			fmt.Println("x1", b2.Position.X, "y1", b2.Position.Y)
+			fmt.Println("x2", b1.Position.X, "y2", b1.Position.Y)
+			fmt.Println("SinYx", SinYx)
+			fmt.Println("InvSinYx", InvSinYx)
+		}
+
 		SinYx = 1 / SinYx
 		// if SinYx < -1 {
 		// 	SinYx = -1
@@ -98,21 +106,24 @@ func InelasticCollision(b1 *PhysicsBody, b2 *PhysicsBody) {
 	}
 	Yx := math.Asin(SinYx)
 	r1plusr2 := b1.Radius + b2.Radius
-	fmt.Println("Yx", Yx)
-	fmt.Println("SinYx", SinYx)
-	fmt.Println("r1 + r2", r1plusr2)
 
 	Yv := math.Atan((b2.Velocity.Dy - b1.Velocity.Dy) / (b2.Velocity.Dx - b1.Velocity.Dx))
-	fmt.Println("Yv", Yv)
 	alpha := math.Asin((d * math.Sin(Yx-Yv)) / (b2.Radius + b1.Radius))
-	fmt.Println("Alpha", alpha)
 	a := math.Tan(Yv + alpha)
-	fmt.Println("a", a)
 	massRatio := float64(b1.Mass / b2.Mass)
-	fmt.Println("massRatio", massRatio)
 
 	Deltab1Vx := 2 * (b2.Velocity.Dx - b1.Velocity.Dx + a*(b2.Velocity.Dy-b1.Velocity.Dy)) / ((math.Pow(a, 2) + 1) * (massRatio + 1))
-	fmt.Println("Delta", Deltab1Vx)
+
+	if print {
+		fmt.Println("Yx", Yx)
+		fmt.Println("SinYx", SinYx)
+		fmt.Println("r1 + r2", r1plusr2)
+		fmt.Println("Yv", Yv)
+		fmt.Println("Alpha", alpha)
+		fmt.Println("a", a)
+		fmt.Println("massRatio", massRatio)
+		fmt.Println("Delta", Deltab1Vx)
+	}
 
 	b1.Velocity.Dx += Deltab1Vx * b1.Restitution
 	b1.Velocity.Dy += a * Deltab1Vx * b1.Restitution

@@ -15,9 +15,10 @@ const (
 )
 
 var (
-	testVelocity    = models.Velocity{Dx: 1, Dy: 1}
-	centerPosition  = models.Position{X: testWidth / 2, Y: testHeight / 2}
-	quarterPosition = models.Position{X: testWidth / 4, Y: testHeight / 4}
+	testVelocity          = models.Velocity{Dx: 1, Dy: 1}
+	centerPosition        = models.Position{X: testWidth / 2, Y: testHeight / 2}
+	quarterPosition       = models.Position{X: testWidth / 4, Y: testHeight / 4}
+	quarterPositionOffset = models.Position{X: testWidth/4 + 1, Y: testHeight/4 + 1}
 )
 
 func CreateArenaWithPlayer(p models.Position) *Arena {
@@ -25,8 +26,8 @@ func CreateArenaWithPlayer(p models.Position) *Arena {
 	a.AddPlayer("test", nil)
 	testPlayer := a.Players["test"]
 	testPlayer.Name = "testName"
-	testPlayer.Position = p
-	testPlayer.Velocity = testVelocity
+	testPlayer.Body.Position = p
+	testPlayer.Body.Velocity = testVelocity
 	return a
 }
 
@@ -103,7 +104,7 @@ func TestPlayerToPlayerCollisions(t *testing.T) {
 		testPosition     models.Position
 		expectedPosition models.Position
 	}{
-		{"colliding", quarterPosition, models.Position{X: 699.2725, Y: 599.2725}},
+		{"colliding", quarterPositionOffset, models.Position{X: 700.0672949136314, Y: 600.0304422863687}},
 		{"non-colliding", centerPosition, models.Position{X: 700.97, Y: 600.97}},
 	}
 
@@ -112,13 +113,13 @@ func TestPlayerToPlayerCollisions(t *testing.T) {
 			a := CreateArenaWithPlayer(quarterPosition)
 
 			a.AddPlayer(tc.otherPlayer, nil)
-			a.Players[tc.otherPlayer].Position = tc.testPosition
+			a.Players[tc.otherPlayer].Body.Position = tc.testPosition
 
 			a.playerCollisions()
 			a.UpdatePositions()
 
-			if a.Players["test"].Position != tc.expectedPosition {
-				t.Errorf("%s detection failed. Got player at %v. Expected player at %v", tc.otherPlayer, a.Players["test"].Position, tc.expectedPosition)
+			if a.Players["test"].Body.Position != tc.expectedPosition {
+				t.Errorf("%s detection failed. Got player at %v. Expected player at %v", tc.otherPlayer, a.Players["test"].Body.Position, tc.expectedPosition)
 			}
 		})
 	}
@@ -138,11 +139,11 @@ func TestPlayerToJunkCollisions(t *testing.T) {
 	for i, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			a.addJunk()
-			a.Junk[i].Position = tc.testPosition
+			a.Junk[i].Body.Position = tc.testPosition
 
 			a.playerCollisions()
 			if a.Junk[i].LastPlayerHit != tc.expectedPlayer {
-				t.Errorf("%s detection failed. Test Player at %v. Junk at %v. Junk Last Player Hit %v", tc.description, a.Players["test"].Position, a.Junk[i].Position, a.Junk[i].LastPlayerHit)
+				t.Errorf("%s detection failed. Test Player at %v. Junk at %v. Junk Last Player Hit %v", tc.description, a.Players["test"].Body.Position, a.Junk[i].Body.Position, a.Junk[i].LastPlayerHit)
 			}
 		})
 	}
@@ -155,21 +156,21 @@ func TestJunkToJunkCollisions(t *testing.T) {
 		expectedVelocity models.Velocity
 	}{
 		{"non-colliding", centerPosition, testVelocity},
-		{"colliding", quarterPosition, models.Velocity{Dx: -0.5, Dy: -0.5}},
+		{"colliding", quarterPositionOffset, models.Velocity{Dx: 0.028538663912726192, Dy: -0.026995454036182975}},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			a := CreateArena(testHeight, testWidth, 0, 0)
 			a.addJunk()
-			a.Junk[0].Position = quarterPosition
-			a.Junk[0].Velocity = testVelocity
+			a.Junk[0].Body.Position = quarterPosition
+			a.Junk[0].Body.Velocity = testVelocity
 
 			a.addJunk()
-			a.Junk[1].Position = tc.testPosition
+			a.Junk[1].Body.Position = tc.testPosition
 
 			a.junkCollisions()
-			if a.Junk[0].Velocity != tc.expectedVelocity {
-				t.Errorf("%s detection failed. Expected %v. Got %v", tc.description, tc.expectedVelocity, a.Junk[0].Velocity)
+			if a.Junk[0].Body.Velocity != tc.expectedVelocity {
+				t.Errorf("%s detection failed. Expected %v. Got %v", tc.description, tc.expectedVelocity, a.Junk[0].Body.Velocity)
 			}
 		})
 	}

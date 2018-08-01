@@ -161,16 +161,18 @@ func TestHitJunk(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			p := new(Player)
+			p := CreatePlayer(testID, testNamePlayerTest, centerPos, testColorPlayerTest, *new(*websocket.Conn))
 			p.Body.Velocity = tc.playerVelocity
-			//TODO Replace collision -> player.hitJunk()
-			playerDx := tc.playerVelocity.Dx * 1.5
-			playerDy := tc.playerVelocity.Dy * 1
+			j := CreateJunk(centerPos)
+			initialJunkVelocity := Velocity{0, 0}
+			j.Body.Velocity = initialJunkVelocity
 
-			if p.Body.Velocity.Dx != playerDx {
+			j.HitBy(p)
+
+			if p.Body.Velocity.Dx == tc.playerVelocity.Dx {
 				t.Error("Error calculating player Dx hitting junk")
 			}
-			if p.Body.Velocity.Dy != playerDy {
+			if p.Body.Velocity.Dy == tc.playerVelocity.Dy {
 				t.Error("Error calculating player Dy hitting junk")
 			}
 		})
@@ -218,15 +220,20 @@ func TestPlayerBumpPlayer(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			p1 := CreatePlayer("id1", "player1", Position{}, testColorPlayerTest, nil)
-			p2 := CreatePlayer("id2", "player2", Position{}, testColorPlayerTest, nil)
+			p1 := CreatePlayer("id1", "player1", centerPos, testColorPlayerTest, nil)
+			p2 := CreatePlayer("id2", "player2", centerPosBelowRight, testColorPlayerTest, nil)
 
-			p1.Velocity = tc.playerVelocity
+			p1.Body.Velocity = tc.playerVelocity
 
 			p1.HitPlayer(p2)
 
-			if !checkDirection(p2.Velocity, tc.playerVelocity) {
-				t.Error("Player wasn't bumped in the correct direction")
+			if checkDirection(p1.Body.Velocity, tc.playerVelocity) || p1.Body.Velocity.Dx == tc.playerVelocity.Dx ||
+				p1.Body.Velocity.Dy == tc.playerVelocity.Dy {
+				t.Error("Player 1's velocity was unaffected")
+			}
+
+			if p2.Body.Velocity.Dx == 0 || p2.Body.Velocity.Dy == 0 {
+				t.Error("Player 2's velocity was unaffected")
 			}
 		})
 	}
@@ -242,13 +249,13 @@ func TestPlayerKillPlayer(t *testing.T) {
 		shouldAwardPoints bool
 	}{
 		{"Award Points", Position{40, 50}, Position{45, 50}, Velocity{5, 0}, Position{50, 50}, true},
-		{"No Points", Position{5, 50}, Position{10, 50}, Velocity{5, 0}, Position{350, 50}, false},
+		{"No Points", Position{5, 50}, Position{10, 50}, Velocity{5, 0}, Position{400, 50}, false},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			p1 := CreatePlayer("id1", "player1", tc.bumperPosition, testColorPlayerTest, nil)
 			p2 := CreatePlayer("id2", "player2", tc.bumpeePosition, testColorPlayerTest, nil)
-			p1.Velocity = tc.bumperVelocity
+			p1.Body.Velocity = tc.bumperVelocity
 			h := CreateHole(tc.holePosition)
 
 			p1.HitPlayer(p2)
@@ -258,7 +265,7 @@ func TestPlayerKillPlayer(t *testing.T) {
 				p1.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 				p2.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 
-				if areCirclesColliding(p2.Position, PlayerRadius, h.Position, h.Radius) {
+				if areCirclesColliding(p2.Body.Position, p2.Body.Radius, h.Body.Position, h.Body.Radius) {
 					playerScored := p2.LastPlayerHit
 					if playerScored != nil {
 						playerScored.AddPoints(PointsPerPlayer)

@@ -57,12 +57,12 @@ export function drawGame(data, canvas) {
 
     const holes = data.holes.map((h) => {
       const newPosition = {
-        x: h.position.x + objectXTranslation,
-        y: h.position.y + objectYTranslation,
+        x: h.body.position.x + objectXTranslation,
+        y: h.body.position.y + objectYTranslation,
       };
       return {
         position: newPosition,
-        radius: h.radius,
+        radius: h.body.radius,
         isAlive: h.isAlive,
       };
     });

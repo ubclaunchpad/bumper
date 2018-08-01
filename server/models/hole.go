@@ -18,12 +18,11 @@ const (
 
 // Hole contains the data for a hole's position and size
 type Hole struct {
-	Position      Position `json:"position"`
-	Radius        float64  `json:"radius"`
-	GravityRadius float64  `json:"-"`
-	IsAlive       bool     `json:"isAlive"`
-	Life          float64  `json:"-"`
-	StartingLife  float64  `json:"-"`
+	Body          PhysicsBody `json:"body"`
+	GravityRadius float64     `json:"-"`
+	IsAlive       bool        `json:"isAlive"`
+	Life          float64     `json:"-"`
+	StartingLife  float64     `json:"-"`
 }
 
 // CreateHole initializes and returns an instance of a Hole
@@ -31,8 +30,7 @@ func CreateHole(position Position) *Hole {
 	life := math.Floor(rand.Float64()*((MaxHoleLife-MinHoleLife)+1)) + MinHoleLife
 	radius := math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius
 	h := Hole{
-		Position:      position,
-		Radius:        radius,
+		Body:          CreateBody(position, radius, 0, 0),
 		GravityRadius: radius * gravityRadiusFactor,
 		Life:          life,
 		IsAlive:       false,
@@ -48,8 +46,8 @@ func (h *Hole) Update() {
 	if h.Life < h.StartingLife-HoleInfancy {
 		h.IsAlive = true
 	}
-	if h.Radius < MaxHoleRadius*1.2 {
-		h.Radius += 0.02
+	if h.Body.Radius < MaxHoleRadius*1.2 {
+		h.Body.Radius += 0.02
 		h.GravityRadius += 0.03
 	}
 }
@@ -60,16 +58,16 @@ func (h *Hole) IsDead() bool {
 }
 
 // ApplyGravity modifies given velocity based on given position and damping factor relative to this hole.
-func (h *Hole) ApplyGravity(p *Position, v *Velocity, DampingFactor float64) {
+func (h *Hole) ApplyGravity(b1 *PhysicsBody, DampingFactor float64) {
 	gravityVector := Velocity{0, 0}
 
-	gravityVector.Dx = h.Position.X - p.X
-	gravityVector.Dy = h.Position.Y - p.Y
+	gravityVector.Dx = h.Body.Position.X - b1.Position.X
+	gravityVector.Dy = h.Body.Position.Y - b1.Position.Y
 
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()
 
 	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	v.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * DampingFactor
-	v.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * DampingFactor
+	gravityVector.ApplyFactor(inverseMagnitude * h.Body.Radius * DampingFactor)
+	b1.Velocity.ApplyVector(gravityVector)
 }

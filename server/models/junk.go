@@ -58,7 +58,7 @@ func (j *Junk) UpdatePosition(height float64, width float64) {
 	}
 }
 
-// HitBy Update Junks's velocity based on calculations of being hit by a player
+// HitBy causes a collision event between this junk and given player.
 func (j *Junk) HitBy(p *Player) {
 	// We don't want this collision till the debounce is down.
 	if j.Debounce != 0 {
@@ -72,53 +72,13 @@ func (j *Junk) HitBy(p *Player) {
 	j.Debounce = JunkDebounceTicks
 }
 
-// HitJunk Update Junks's velocity based on calculations of being hit by another Junk
+// HitJunk causes a collision event between this junk and given junk.
 func (j *Junk) HitJunk(jh *Junk) {
 	// We don't want this collision till the debounce is down.
 	if j.jDebounce != 0 {
 		return
 	}
-
-	j.Body.Velocity.ApplyFactor(JunkJunkBounceFactor)
-	jh.Body.Velocity.ApplyFactor(JunkJunkBounceFactor)
-
-	// direction := Velocity{0, 0}
-	// if j.Body.Position.X > jh.Body.Position.X {
-	// 	direction.Dx = j.Body.Position.X - jh.Body.Position.X
-	// 	direction.Dy = j.Body.Position.Y - jh.Body.Position.Y
-	// 	direction.normalize()
-	// 	// fmt.Println("1")
-	// 	j.Velocity.Dx -= direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
-	// 	j.Velocity.Dy -= direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
-	// 	jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
-	// 	jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
-	// } else {
-	// 	direction.Dx = jh.Position.X - j.Position.X
-	// 	direction.Dy = jh.Position.Y - j.Position.Y
-	// 	direction.normalize()
-	// 	// fmt.Println("2")
-	// 	j.Velocity.Dx -= direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
-	// 	j.Velocity.Dy -= direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
-	// 	jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
-	// 	jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
-	// }
-
-	// //Calculate this junks's new velocity
-	// j.Velocity.Dx += direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
-	// // fmt.Println(direction.Dx * jh.Velocity.Dx * JunkVTransferFactor)
-	// j.Velocity.Dy += direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
-	// jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
-	// jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
-
-	// j.Velocity.Dx = (j.Velocity.Dx * -JunkVTransferFactor) + (jh.Velocity.Dx * JunkVTransferFactor)
-	// j.Velocity.Dy = (j.Velocity.Dy * -JunkVTransferFactor) + (jh.Velocity.Dy * JunkVTransferFactor)
-	// //Calculate other junk's new velocity
-	// jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)
-	// jh.Velocity.Dy = (jh.Velocity.Dy * -JunkVTransferFactor) + (initalVelocity.Dy * JunkVTransferFactor)
-
-	//Calculate other junk's new velocity
-	jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)
-	jh.Velocity.Dy = (jh.Velocity.Dy * -JunkVTransferFactor) + (initalVelocity.Dy * JunkVTransferFactor)
+	InelasticCollision(&j.Body, &jh.Body)
 
 	j.jDebounce = JunkDebounceTicks
 	jh.jDebounce = JunkDebounceTicks

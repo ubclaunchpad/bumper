@@ -18,13 +18,13 @@ func TestCreateHole(t *testing.T) {
 	if h.IsAlive {
 		t.Error("isAlive is incorrectly set")
 	}
-	if h.Position.X != 5 {
+	if h.Body.Position.X != 5 {
 		t.Error("X position is not set correctly")
 	}
-	if h.Position.Y != 10 {
+	if h.Body.Position.Y != 10 {
 		t.Error("Y position is not set correctly")
 	}
-	if h.GravityRadius != h.Radius*gravityRadiusFactor {
+	if h.GravityRadius != h.Body.Radius*gravityRadiusFactor {
 		t.Error("Gravity radius is calculated incorrectly")
 	}
 }
@@ -45,19 +45,18 @@ func TestUpdateHole(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Test updateHole with radius %v", tc.radius), func(t *testing.T) {
-			h := Hole{
-				Position:      Position{X: 5, Y: 10},
-				Radius:        tc.radius,
-				Life:          200,
-				GravityRadius: 5,
-				IsAlive:       false,
-				StartingLife:  200,
-			}
+			h := CreateHole(Position{X: 5, Y: 10})
+			h.Body.Radius = tc.radius
+			h.Life = 200
+			h.GravityRadius = 5
+			h.IsAlive = false
+			h.StartingLife = 200
+
 			for i := 0; i < tc.numUpdates; i++ {
 				h.Update()
 			}
-			if h.Radius != tc.radiusWant {
-				t.Errorf("got %g; want %g", h.Radius, tc.radiusWant)
+			if h.Body.Radius != tc.radiusWant {
+				t.Errorf("got %g; want %g", h.Body.Radius, tc.radiusWant)
 			}
 			if diff := h.GravityRadius - tc.gravityRadiusWant; math.Abs(diff) > 1e-9 {
 				t.Errorf("got %g; want %g", h.GravityRadius, tc.gravityRadiusWant)
@@ -88,14 +87,12 @@ func TestHoleLifeCycle(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Test hole lifecycle with number of lives %v and number of updates %v", tc.life, tc.numUpdates), func(t *testing.T) {
 			p := Position{X: 5, Y: 10}
-			h := Hole{
-				Position:      p,
-				Radius:        20,
-				Life:          tc.life,
-				GravityRadius: 5,
-				IsAlive:       true,
-				StartingLife:  tc.life,
-			}
+			h := CreateHole(p)
+			h.Body.Radius = 20
+			h.Life = tc.life
+			h.GravityRadius = 5
+			h.IsAlive = true
+			h.StartingLife = tc.life
 
 			for i := 0; i < tc.numUpdates; i++ {
 				h.Update()

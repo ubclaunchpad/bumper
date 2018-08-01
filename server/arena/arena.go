@@ -135,7 +135,7 @@ func (a *Arena) generateCoordinate(objectRadius float64) models.Position {
 
 func (a *Arena) isPositionValid(position models.Position) bool {
 	for _, hole := range a.Holes {
-		if areCirclesColliding(hole.Position, hole.GravityRadius, position, MinDistanceBetween) {
+		if areCirclesColliding(hole.Body.Position, hole.GravityRadius, position, MinDistanceBetween) {
 			return false
 		}
 	}
@@ -203,13 +203,13 @@ func (a *Arena) holeCollisions() {
 					Data: name,
 				}
 				MessageChannel <- deathMsg
-			} else if areCirclesColliding(player.Body.Position, player.Body.Radius, hole.Position, hole.GravityRadius) {
-				hole.ApplyGravity(&player.Body.Position, &player.Body.Velocity, models.PlayerGravityDamping)
+			} else if areCirclesColliding(player.Body.Position, player.Body.Radius, hole.Body.Position, hole.GravityRadius) {
+				hole.ApplyGravity(&player.Body, models.PlayerGravityDamping)
 			}
 		}
 
 		for i, junk := range a.Junk {
-			if areCirclesColliding(junk.Body.Position, junk.Body.Radius, hole.Position, hole.Radius) {
+			if areCirclesColliding(junk.Body.Position, junk.Body.Radius, hole.Body.Position, hole.Body.Radius) {
 				playerScored := junk.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerJunk)
@@ -217,8 +217,8 @@ func (a *Arena) holeCollisions() {
 
 				a.removeJunk(i)
 				a.addJunk()
-			} else if areCirclesColliding(junk.Body.Position, junk.Body.Radius, hole.Position, hole.GravityRadius) {
-				hole.ApplyGravity(&junk.Body.Position, &junk.Body.Velocity, models.JunkGravityDamping)
+			} else if areCirclesColliding(junk.Body.Position, junk.Body.Radius, hole.Body.Position, hole.GravityRadius) {
+				hole.ApplyGravity(&junk.Body, models.JunkGravityDamping)
 			}
 		}
 	}

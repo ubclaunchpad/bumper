@@ -9,7 +9,7 @@ import (
 type PhysicsBody struct {
 	Position    Position `json:"position"`
 	Velocity    Velocity
-	Radius      float64
+	Radius      float64 `json:"radius"`
 	Mass        float64
 	Restitution float64
 }

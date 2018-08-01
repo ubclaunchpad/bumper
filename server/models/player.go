@@ -72,7 +72,7 @@ func CreatePlayer(id string, name string, pos Position, color string, ws *websoc
 	}
 }
 
-// GenUniqueID generates unique id...
+// GenUniqueID generates a unique id string
 func GenUniqueID() string {
 	id := xid.New()
 	return id.String()

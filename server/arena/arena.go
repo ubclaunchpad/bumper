@@ -109,7 +109,7 @@ func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
 // TODO choose color here as well
 func (a *Arena) SpawnPlayer(id string, name string, country string) error {
 	position := a.generateCoordinate(models.PlayerRadius)
-	a.Players[id].Position = position
+	a.Players[id].Body.Position = position
 	a.Players[id].Name = name
 	a.Players[id].Country = country
 	return nil
@@ -145,7 +145,7 @@ func (a *Arena) isPositionValid(position models.Position) bool {
 		}
 	}
 	for _, player := range a.Players {
-		if areCirclesColliding(player.Position, models.PlayerRadius, position, MinDistanceBetween) {
+		if areCirclesColliding(player.Body.Position, models.PlayerRadius, position, MinDistanceBetween) {
 			return false
 		}
 	}
@@ -171,13 +171,13 @@ func (a *Arena) playerCollisions() {
 			if player == playerHit || memo[player] == playerHit {
 				continue
 			}
-			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
+			if areCirclesColliding(player.Body.Position, models.PlayerRadius, playerHit.Body.Position, models.PlayerRadius) {
 				memo[playerHit] = player
 				player.HitPlayer(playerHit)
 			}
 		}
 		for _, junk := range a.Junk {
-			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
+			if areCirclesColliding(player.Body.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
 				junk.HitBy(player)
 			}
 		}
@@ -203,8 +203,8 @@ func (a *Arena) holeCollisions() {
 					Data: name,
 				}
 				MessageChannel <- deathMsg
-			} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
-				hole.ApplyGravity(&player.Position, &player.Velocity, models.PlayerGravityDamping)
+			} else if areCirclesColliding(player.Body.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
+				hole.ApplyGravity(&player.Body.Position, &player.Body.Velocity, models.PlayerGravityDamping)
 			}
 		}
 

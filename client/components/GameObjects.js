@@ -7,7 +7,7 @@ export function drawGame(data, canvas) {
   // If you don't do this and another frame is draw before the next update message is
   // recieved than the translated position is used to calcluate the next translations and
   // it causes a glitchy effect.
-  const playerPosition = { ...rawPlayer.position };
+  const playerPosition = { ...rawPlayer.body.position };
   // player.position = { ...data.players[0].position };
 
   if (rawPlayer.name !== '') {
@@ -70,8 +70,8 @@ export function drawGame(data, canvas) {
     const players = data.players.map((p) => {
       if (p.name !== '' && p.id !== data.player.id) {
         const newPosition = {
-          x: p.position.x + objectXTranslation,
-          y: p.position.y + objectYTranslation,
+          x: p.body.position.x + objectXTranslation,
+          y: p.body.position.y + objectYTranslation,
         };
 
         return {

@@ -65,8 +65,8 @@ export default class Minimap extends React.Component {
 
     const players = this.players.map((p) => {
       const newPosition = {
-        x: (p.position.x / MAP_SCALE) + this.mapX,
-        y: (p.position.y / MAP_SCALE) + this.mapY,
+        x: (p.body.position.x / MAP_SCALE) + this.mapX,
+        y: (p.body.position.y / MAP_SCALE) + this.mapY,
       };
       return {
         position: newPosition,

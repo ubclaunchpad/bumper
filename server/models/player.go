@@ -44,8 +44,7 @@ type Player struct {
 	Name           string      `json:"name"`
 	ID             string      `json:"id"`
 	Country        string      `json:"country"`
-	Position       Position    `json:"position"`
-	Velocity       Velocity    `json:"-"`
+	Body           PhysicsBody `json:"body"`
 	Color          string      `json:"color"`
 	Angle          float64     `json:"angle"`
 	Controls       KeysPressed `json:"-"`
@@ -63,8 +62,7 @@ func CreatePlayer(id string, name string, pos Position, color string, ws *websoc
 	return &Player{
 		Name:           name,
 		ID:             id,
-		Position:       pos,
-		Velocity:       Velocity{},
+		Body:           CreateBody(pos, PlayerMass, PlayerRestitutionFactor),
 		Color:          color,
 		Angle:          math.Pi,
 		Controls:       KeysPressed{},
@@ -104,42 +102,33 @@ func (p *Player) Close() {
 
 // UpdatePosition based on calculations of position/velocity
 func (p *Player) UpdatePosition(height float64, width float64) {
-
 	controlsVector := Velocity{0, 0}
 
 	if p.Controls.Left {
 		p.Angle = math.Mod(p.Angle+0.1, 360)
 	}
-
 	if p.Controls.Right {
 		p.Angle = math.Mod(p.Angle-0.1, 360)
 	}
-
 	if p.Controls.Up {
 		controlsVector.Dy = (0.5 * PlayerRadius * math.Cos(p.Angle))
 		controlsVector.Dx = (0.5 * PlayerRadius * math.Sin(p.Angle))
 	}
 
 	controlsVector.normalize()
-	controlsVector.Dx *= PlayerAcceleration
-	controlsVector.Dy *= PlayerAcceleration
+	controlsVector.ApplyFactor(PlayerAcceleration)
 
-	p.Velocity.Dx *= PlayerFriction
-	p.Velocity.Dy *= PlayerFriction
-
-	p.Velocity.Dx += controlsVector.Dx
-	p.Velocity.Dy += controlsVector.Dy
+	p.Body.Velocity.ApplyFactor(PlayerFriction)
+	p.Body.Velocity.ApplyVector(controlsVector)
 
 	// Ensure it never gets going too fast
-	if p.Velocity.magnitude() > MaxVelocity {
-		p.Velocity.normalize()
-		p.Velocity.Dx *= MaxVelocity
-		p.Velocity.Dy *= MaxVelocity
+	if p.Body.Velocity.magnitude() > MaxVelocity {
+		p.Body.Velocity.normalize()
+		p.Body.Velocity.ApplyFactor(MaxVelocity)
 	}
 
 	// Apply player's velocity vector
-	p.Position.X += p.Velocity.Dx
-	p.Position.Y += p.Velocity.Dy
+	p.Body.ApplyVelocity()
 
 	p.checkWalls(height, width)
 
@@ -157,26 +146,27 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	}
 }
 
-func (p *Player) hitJunk() {
-	p.Velocity.Dx *= JunkBounceFactor
-	p.Velocity.Dy *= JunkBounceFactor
-}
+// func (p *Player) hitJunk() {
+// 	p.Velocity.Dx *= JunkBounceFactor
+// 	p.Velocity.Dy *= JunkBounceFactor
+// }
 
-// HitPlayer calculates collision, update Player's velocity based on calculation of hitting another player
-func (p *Player) HitPlayer(ph *Player) {
-	if p.pDebounce != 0 {
-		return
-	}
-
-	initalVelocity := p.Velocity
+// HitPlayer calculates collision, update Player's position based on calculation of hitting another player
+func (p *Player) HitPlayer(ph *Player, height float64, width float64) {
+	initalVelocity := p.Body.Velocity
 
 	//Calculate player's new velocity
-	p.Velocity.Dx = (p.Velocity.Dx * -VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
-	p.Velocity.Dy = (p.Velocity.Dy * -VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
+	p.Body.Velocity.Dx = (p.Body.Velocity.Dx * -VelocityTransferFactor) + (ph.Body.Velocity.Dx * VelocityTransferFactor)
+	p.Body.Velocity.Dy = (p.Body.Velocity.Dy * -VelocityTransferFactor) + (ph.Body.Velocity.Dy * VelocityTransferFactor)
+	//We add one position update so that multiple collision events don't occur for a single bump
+	p.Body.Position.X += p.Body.Velocity.Dx
+	p.Body.Position.Y += p.Body.Velocity.Dy
 
-	//Calculate the player you hits new velocity
-	ph.Velocity.Dx = (ph.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
-	ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
+	//Calculate the player you hits new velocity (and again one position update)
+	ph.Body.Velocity.Dx = (ph.Body.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
+	ph.Body.Velocity.Dy = (ph.Body.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
+	ph.Body.Position.X += ph.Body.Velocity.Dx
+	ph.Body.Position.Y += ph.Body.Velocity.Dy
 
 	ph.LastPlayerHit = p
 	p.LastPlayerHit = ph
@@ -187,20 +177,20 @@ func (p *Player) HitPlayer(ph *Player) {
 
 // checkWalls check if the player is attempting to exit the walls, reverse they're direction
 func (p *Player) checkWalls(height float64, width float64) {
-	if p.Position.X+PlayerRadius > width {
-		p.Position.X = width - PlayerRadius - 1
-		p.Velocity.Dx *= WallBounceFactor
-	} else if p.Position.X-PlayerRadius < 0 {
-		p.Velocity.Dx *= WallBounceFactor
-		p.Position.X = PlayerRadius + 1
+	if p.Body.Position.X+PlayerRadius > width {
+		p.Body.Position.X = width - PlayerRadius - 1
+		p.Body.Velocity.Dx *= WallBounceFactor
+	} else if p.Body.Position.X-PlayerRadius < 0 {
+		p.Body.Velocity.Dx *= WallBounceFactor
+		p.Body.Position.X = PlayerRadius + 1
 	}
 
-	if p.Position.Y+PlayerRadius > height {
-		p.Velocity.Dy *= WallBounceFactor
-		p.Position.Y = height - PlayerRadius - 1
-	} else if p.Position.Y-PlayerRadius < 0 {
-		p.Velocity.Dy *= WallBounceFactor
-		p.Position.Y = PlayerRadius + 1
+	if p.Body.Position.Y+PlayerRadius > height {
+		p.Body.Velocity.Dy *= WallBounceFactor
+		p.Body.Position.Y = height - PlayerRadius - 1
+	} else if p.Body.Position.Y-PlayerRadius < 0 {
+		p.Body.Velocity.Dy *= WallBounceFactor
+		p.Body.Position.Y = PlayerRadius + 1
 	}
 }
 

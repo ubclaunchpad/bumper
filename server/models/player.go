@@ -15,7 +15,6 @@ const (
 	RightKey                = 39
 	UpKey                   = 38
 	DownKey                 = 40
-	JunkBounceFactor        = -0.25
 	VelocityTransferFactor  = 0.75
 	WallBounceFactor        = -1.5
 	PlayerRadius            = 25
@@ -145,11 +144,6 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 		p.pointsDebounce = 0
 	}
 }
-
-// func (p *Player) hitJunk() {
-// 	p.Velocity.Dx *= JunkBounceFactor
-// 	p.Velocity.Dy *= JunkBounceFactor
-// }
 
 // HitPlayer calculates collision, update Player's position based on calculation of hitting another player
 func (p *Player) HitPlayer(ph *Player, height float64, width float64) {

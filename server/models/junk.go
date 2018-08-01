@@ -1,10 +1,5 @@
 package models
 
-import (
-	"fmt"
-	"math"
-)
-
 // Junk related constants
 const (
 	JunkFriction          = 0.98
@@ -21,19 +16,17 @@ const (
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points
 type Junk struct {
-	Position      Position `json:"position"`
-	Velocity      Velocity `json:"-"`
-	Color         string   `json:"color"`
-	LastPlayerHit *Player  `json:"-"`
-	Debounce      int      `json:"-"`
+	Body          PhysicsBody `json:"body"`
+	Color         string      `json:"color"`
+	LastPlayerHit *Player     `json:"-"`
+	Debounce      int         `json:"-"`
 	jDebounce     int
 }
 
 // CreateJunk initializes and returns an instance of a Junk
 func CreateJunk(position Position) *Junk {
 	return &Junk{
-		Position:  position,
-		Velocity:  Velocity{0, 0},
+		Body:      CreateBody(position, JunkRadius, JunkMass, JunkRestitutionFactor),
 		Color:     "white",
 		Debounce:  0,
 		jDebounce: 0,
@@ -42,18 +35,15 @@ func CreateJunk(position Position) *Junk {
 
 // UpdatePosition Update Junk's position based on calculations of position/velocity
 func (j *Junk) UpdatePosition(height float64, width float64) {
-	if j.Position.X+j.Velocity.Dx > width-JunkRadius || j.Position.X+j.Velocity.Dx < JunkRadius {
-		j.Velocity.Dx = -j.Velocity.Dx
+	if j.Body.Position.X+j.Body.Velocity.Dx > width-j.Body.Radius || j.Body.Position.X+j.Body.Velocity.Dx < j.Body.Radius {
+		j.Body.Velocity.Dx = -j.Body.Velocity.Dx
 	}
-	if j.Position.Y+j.Velocity.Dy > height-JunkRadius || j.Position.Y+j.Velocity.Dy < JunkRadius {
-		j.Velocity.Dy = -j.Velocity.Dy
+	if j.Body.Position.Y+j.Body.Velocity.Dy > height-j.Body.Radius || j.Body.Position.Y+j.Body.Velocity.Dy < j.Body.Radius {
+		j.Body.Velocity.Dy = -j.Body.Velocity.Dy
 	}
 
-	j.Velocity.Dx *= JunkFriction
-	j.Velocity.Dy *= JunkFriction
-
-	j.Position.X += j.Velocity.Dx
-	j.Position.Y += j.Velocity.Dy
+	j.Body.Velocity.ApplyFactor(JunkFriction)
+	j.Body.ApplyVelocity()
 
 	if j.Debounce > 0 {
 		j.Debounce--
@@ -75,62 +65,10 @@ func (j *Junk) HitBy(p *Player) {
 		return
 	}
 
-		// J is 2 P is 1
+	j.Color = p.Color //Assign junk to last recently hit player color
+	j.LastPlayerHit = p
+	InelasticCollision(&j.Body, &p.Body)
 
-		d := math.Sqrt(math.Pow((j.Position.X-p.Body.Position.X), 2) + math.Pow((j.Position.Y-p.Body.Position.Y), 2))
-		fmt.Println("d", d)
-		SinYx := (j.Position.Y - p.Body.Position.Y) / (j.Position.X - p.Body.Position.X)
-		// Yx := math.Asin((j.Position.Y - p.Position.Y) / (j.Position.X - p.Position.X))
-		if SinYx > 1 || SinYx < -1 {
-			fmt.Println("x1", p.Body.Position.X, "y1", p.Body.Position.Y)
-			fmt.Println("x2", j.Position.X, "y2", j.Position.Y)
-			InvSinYx := (p.Body.Position.Y - j.Position.Y) / (p.Body.Position.X - j.Position.X)
-			fmt.Println("SinYx", SinYx)
-			fmt.Println("InvSinYx", InvSinYx)
-			SinYx = 1 / SinYx
-			// if SinYx < -1 {
-			// 	SinYx = -1
-			// }
-			// if SinYx > 1 {
-			// 	SinYx = 1
-			// }
-		}
-		Yx := math.Asin(SinYx)
-		r1plusr2 := JunkRadius + PlayerRadius
-		fmt.Println("Yx", Yx)
-		fmt.Println("SinYx", SinYx)
-		fmt.Println("r1 + r2", r1plusr2)
-
-		Yv := math.Atan((p.Body.Velocity.Dy - j.Velocity.Dy) / (p.Body.Velocity.Dx - j.Velocity.Dx))
-		fmt.Println("Yv", Yv)
-		alpha := math.Asin((d * math.Sin(Yx-Yv)) / (PlayerRadius + JunkRadius))
-		fmt.Println("Alpha", alpha)
-		a := math.Tan(Yv + alpha)
-		fmt.Println("a", a)
-		massRatio := float64(JunkMass / PlayerMass)
-		fmt.Println("massRatio", massRatio)
-
-		DeltaJVx := 2 * (p.Body.Velocity.Dx - j.Velocity.Dx + a*(p.Body.Velocity.Dy-j.Velocity.Dy)) / ((math.Pow(a, 2) + 1) * (massRatio + 1))
-		fmt.Println("Delta", DeltaJVx)
-
-		j.Velocity.Dx += DeltaJVx * JunkRestitutionFactor
-		j.Velocity.Dy += a * DeltaJVx * JunkRestitutionFactor
-		p.Body.Velocity.Dx -= massRatio * DeltaJVx * PlayerRestitutionFactor
-		p.Body.Velocity.Dy -= a * massRatio * DeltaJVx * PlayerRestitutionFactor
-
-		// direction := Velocity{0, 0}
-		// direction.Dx = j.Position.X - p.Position.X
-		// direction.Dy = j.Position.Y - p.Position.Y
-		// direction.normalize()
-
-		// j.Velocity.Dx += direction.Dx * math.Max(math.Abs(p.Velocity.Dx)*BumpFactor, MinimumBump)
-		// j.Velocity.Dy += direction.Dy * math.Max(math.Abs(p.Velocity.Dy)*BumpFactor, MinimumBump)
-
-		// p.hitJunk()
-		j.Debounce = JunkDebounceTicks
-	}
-
-	p.hitJunk()
 	j.Debounce = JunkDebounceTicks
 }
 
@@ -141,44 +79,42 @@ func (j *Junk) HitJunk(jh *Junk) {
 		return
 	}
 
-		j.Velocity.Dx *= JunkJunkBounceFactor
-		j.Velocity.Dy *= JunkJunkBounceFactor
-		jh.Velocity.Dy *= JunkJunkBounceFactor
-		jh.Velocity.Dy *= JunkJunkBounceFactor
+	j.Body.Velocity.ApplyFactor(JunkJunkBounceFactor)
+	jh.Body.Velocity.ApplyFactor(JunkJunkBounceFactor)
 
-		direction := Velocity{0, 0}
-		if j.Position.X > jh.Position.X {
-			direction.Dx = j.Position.X - jh.Position.X
-			direction.Dy = j.Position.Y - jh.Position.Y
-			direction.normalize()
-			// fmt.Println("1")
-			j.Velocity.Dx -= direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
-			j.Velocity.Dy -= direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
-			jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
-			jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
-		} else {
-			direction.Dx = jh.Position.X - j.Position.X
-			direction.Dy = jh.Position.Y - j.Position.Y
-			direction.normalize()
-			// fmt.Println("2")
-			j.Velocity.Dx -= direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
-			j.Velocity.Dy -= direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
-			jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
-			jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
-		}
+	// direction := Velocity{0, 0}
+	// if j.Body.Position.X > jh.Body.Position.X {
+	// 	direction.Dx = j.Body.Position.X - jh.Body.Position.X
+	// 	direction.Dy = j.Body.Position.Y - jh.Body.Position.Y
+	// 	direction.normalize()
+	// 	// fmt.Println("1")
+	// 	j.Velocity.Dx -= direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
+	// 	j.Velocity.Dy -= direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
+	// 	jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
+	// 	jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
+	// } else {
+	// 	direction.Dx = jh.Position.X - j.Position.X
+	// 	direction.Dy = jh.Position.Y - j.Position.Y
+	// 	direction.normalize()
+	// 	// fmt.Println("2")
+	// 	j.Velocity.Dx -= direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
+	// 	j.Velocity.Dy -= direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
+	// 	jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
+	// 	jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
+	// }
 
-		// //Calculate this junks's new velocity
-		// j.Velocity.Dx += direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
-		// // fmt.Println(direction.Dx * jh.Velocity.Dx * JunkVTransferFactor)
-		// j.Velocity.Dy += direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
-		// jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
-		// jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
+	// //Calculate this junks's new velocity
+	// j.Velocity.Dx += direction.Dx * jh.Velocity.Dx * JunkVTransferFactor
+	// // fmt.Println(direction.Dx * jh.Velocity.Dx * JunkVTransferFactor)
+	// j.Velocity.Dy += direction.Dy * jh.Velocity.Dy * JunkVTransferFactor
+	// jh.Velocity.Dx += direction.Dx * initalVelocity.Dx * JunkVTransferFactor
+	// jh.Velocity.Dy += direction.Dy * initalVelocity.Dy * JunkVTransferFactor
 
-		// j.Velocity.Dx = (j.Velocity.Dx * -JunkVTransferFactor) + (jh.Velocity.Dx * JunkVTransferFactor)
-		// j.Velocity.Dy = (j.Velocity.Dy * -JunkVTransferFactor) + (jh.Velocity.Dy * JunkVTransferFactor)
-		// //Calculate other junk's new velocity
-		// jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)
-		// jh.Velocity.Dy = (jh.Velocity.Dy * -JunkVTransferFactor) + (initalVelocity.Dy * JunkVTransferFactor)
+	// j.Velocity.Dx = (j.Velocity.Dx * -JunkVTransferFactor) + (jh.Velocity.Dx * JunkVTransferFactor)
+	// j.Velocity.Dy = (j.Velocity.Dy * -JunkVTransferFactor) + (jh.Velocity.Dy * JunkVTransferFactor)
+	// //Calculate other junk's new velocity
+	// jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)
+	// jh.Velocity.Dy = (jh.Velocity.Dy * -JunkVTransferFactor) + (initalVelocity.Dy * JunkVTransferFactor)
 
 	//Calculate other junk's new velocity
 	jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)

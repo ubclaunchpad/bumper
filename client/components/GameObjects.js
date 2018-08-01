@@ -46,8 +46,8 @@ export function drawGame(data, canvas) {
     // Create a new object arrays with the positions translated.
     const junk = data.junk.map((j) => {
       const newPosition = {
-        x: j.position.x + objectXTranslation,
-        y: j.position.y + objectYTranslation,
+        x: j.body.position.x + objectXTranslation,
+        y: j.body.position.y + objectYTranslation,
       };
       return {
         position: newPosition,

@@ -78,8 +78,8 @@ export default class Minimap extends React.Component {
 
     const junk = this.junk.map((j) => {
       const newPosition = {
-        x: (j.position.x / MAP_SCALE) + this.mapX,
-        y: (j.position.y / MAP_SCALE) + this.mapY,
+        x: (j.body.position.x / MAP_SCALE) + this.mapX,
+        y: (j.body.position.y / MAP_SCALE) + this.mapY,
       };
       return {
         position: newPosition,

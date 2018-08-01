@@ -61,7 +61,7 @@ func CreatePlayer(id string, name string, pos Position, color string, ws *websoc
 	return &Player{
 		Name:           name,
 		ID:             id,
-		Body:           CreateBody(pos, PlayerMass, PlayerRestitutionFactor),
+		Body:           CreateBody(pos, PlayerRadius, PlayerMass, PlayerRestitutionFactor),
 		Color:          color,
 		Angle:          math.Pi,
 		Controls:       KeysPressed{},

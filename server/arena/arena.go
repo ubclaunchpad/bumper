@@ -52,8 +52,39 @@ func CreateArena(height float64, width float64, holeCount int, junkCount int) *A
 	return &a
 }
 
+// GetHoles returns a list of holes
+func (a *Arena) GetHoles() []*models.Hole {
+	a.rwMutex.RLock()
+	defer a.rwMutex.RUnlock()
+
+	return a.Holes
+}
+
+// GetJunk returns a list of junk
+func (a *Arena) GetJunk() []*models.Junk {
+	a.rwMutex.RLock()
+	defer a.rwMutex.RUnlock()
+
+	return a.Junk
+}
+
+// GetPlayers returns a list of players
+func (a *Arena) GetPlayers() []*models.Player {
+	a.rwMutex.RLock()
+	defer a.rwMutex.RUnlock()
+
+	players := make([]*models.Player, 0, len(a.Players))
+	for _, player := range a.Players {
+		players = append(players, player)
+	}
+	return players
+}
+
 // UpdatePositions calculates the next state of each object
 func (a *Arena) UpdatePositions() {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
 	for i, hole := range a.Holes {
 		hole.Update()
 		if hole.IsDead() {
@@ -74,6 +105,9 @@ func (a *Arena) UpdatePositions() {
 
 // CollisionDetection loops through players and holes and determines if a collision has occurred
 func (a *Arena) CollisionDetection() {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
 	a.playerCollisions()
 	a.holeCollisions()
 	a.junkCollisions()
@@ -81,15 +115,10 @@ func (a *Arena) CollisionDetection() {
 
 // GetState assembles an UpdateMessage from the current state of the arena
 func (a *Arena) GetState() *models.UpdateMessage {
-	players := make([]*models.Player, 0, len(a.Players))
-	for _, player := range a.Players {
-		players = append(players, player)
-	}
-
 	return &models.UpdateMessage{
-		Holes:   a.Holes,
-		Junk:    a.Junk,
-		Players: players,
+		Holes:   a.GetHoles(),
+		Junk:    a.GetJunk(),
+		Players: a.GetPlayers(),
 	}
 }
 
@@ -97,6 +126,9 @@ func (a *Arena) GetState() *models.UpdateMessage {
 // player has no position or name until spawned
 // TODO player has no color until spawned
 func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
 	color, err := a.generateRandomColor()
 	if err != nil {
 		return err
@@ -105,9 +137,27 @@ func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
 	return nil
 }
 
+// GetPlayer gets the specified player
+func (a *Arena) GetPlayer(id string) *models.Player {
+	a.rwMutex.RLock()
+	defer a.rwMutex.RUnlock()
+	return a.Players[id]
+}
+
+// RemovePlayer removes the specified player from the arena
+func (a *Arena) RemovePlayer(id string) {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
+	delete(a.Players, id)
+}
+
 // SpawnPlayer spawns the player with a position on the map
 // TODO choose color here as well
 func (a *Arena) SpawnPlayer(id string, name string, country string) error {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
 	position := a.generateCoordinate(models.PlayerRadius)
 	a.Players[id].Position = position
 	a.Players[id].Name = name

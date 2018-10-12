@@ -51,7 +51,7 @@ type Player struct {
 	LastPlayerHit  *Player     `json:"-"`
 	pointsDebounce int
 	pDebounce      int
-	mutex          sync.Mutex
+	rwMutex        sync.RWMutex
 	ws             *websocket.Conn
 }
 
@@ -68,9 +68,108 @@ func CreatePlayer(id string, name string, pos Position, color string, ws *websoc
 		Controls:       KeysPressed{},
 		pDebounce:      0,
 		pointsDebounce: 0,
-		mutex:          sync.Mutex{},
+		rwMutex:        sync.RWMutex{},
 		ws:             ws,
 	}
+}
+
+// GetName returns name of player
+func (p *Player) GetName() string {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Name
+}
+
+func (p *Player) getVelocity() Velocity {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Velocity
+}
+
+func (p *Player) getControls() KeysPressed {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Controls
+}
+
+func (p *Player) getPosition() Position {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Position
+}
+
+func (p *Player) getPDebounce() int {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.pDebounce
+}
+
+func (p *Player) getPointsDebounce() int {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.pointsDebounce
+}
+
+func (p *Player) getLastPlayerHit() *Player {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.LastPlayerHit
+}
+
+func (p *Player) setVelocity(v Velocity) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.Velocity = v
+}
+
+func (p *Player) setControls(k KeysPressed) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.Controls = k
+}
+
+func (p *Player) setAngle(a float64) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.Angle = a
+}
+
+func (p *Player) setPosition(pos Position) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.Position = pos
+}
+
+func (p *Player) setPDebounce(pDebounce int) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.pDebounce = pDebounce
+}
+
+func (p *Player) setPointsDebounce(pointsDebounce int) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.pointsDebounce = pointsDebounce
+}
+
+func (p *Player) setLastPlayerHit(playerHit *Player) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.LastPlayerHit = playerHit
 }
 
 // GenUniqueID generates unique id...
@@ -86,8 +185,8 @@ func (p *Player) AddPoints(numPoints int) {
 
 // SendJSON sends JSON data through the player's websocket connection
 func (p *Player) SendJSON(m *Message) error {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
 
 	return p.ws.WriteJSON(m)
 }
@@ -105,15 +204,15 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 
 	controlsVector := Velocity{0, 0}
 
-	if p.Controls.Left {
-		p.Angle = math.Mod(p.Angle+0.1, 360)
+	if p.getControls().Left {
+		p.setAngle(math.Mod(p.Angle+0.1, 360))
 	}
 
-	if p.Controls.Right {
-		p.Angle = math.Mod(p.Angle-0.1, 360)
+	if p.getControls().Right {
+		p.setAngle(math.Mod(p.Angle-0.1, 360))
 	}
 
-	if p.Controls.Up {
+	if p.getControls().Up {
 		controlsVector.Dy = (0.5 * PlayerRadius * math.Cos(p.Angle))
 		controlsVector.Dx = (0.5 * PlayerRadius * math.Sin(p.Angle))
 	}
@@ -122,36 +221,41 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	controlsVector.Dx *= PlayerAcceleration
 	controlsVector.Dy *= PlayerAcceleration
 
-	p.Velocity.Dx *= PlayerFriction
-	p.Velocity.Dy *= PlayerFriction
-
-	p.Velocity.Dx += controlsVector.Dx
-	p.Velocity.Dy += controlsVector.Dy
+	positionVector := p.getPosition()
+	velocityVector := p.getVelocity()
+	velocityVector.Dx = (velocityVector.Dx * PlayerFriction) + controlsVector.Dx
+	velocityVector.Dy = (velocityVector.Dy * PlayerFriction) + controlsVector.Dy
 
 	// Ensure it never gets going too fast
-	if p.Velocity.magnitude() > MaxVelocity {
-		p.Velocity.normalize()
-		p.Velocity.Dx *= MaxVelocity
-		p.Velocity.Dy *= MaxVelocity
+	if velocityVector.magnitude() > MaxVelocity {
+		velocityVector.normalize()
+		velocityVector.Dx *= MaxVelocity
+		velocityVector.Dy *= MaxVelocity
 	}
 
 	// Apply player's velocity vector
-	p.Position.X += p.Velocity.Dx
-	p.Position.Y += p.Velocity.Dy
+	p.setVelocity(velocityVector)
+
+	// Calculate next position
+	positionVector.X = positionVector.X + velocityVector.Dx
+	positionVector.Y = positionVector.Y + velocityVector.Dy
+
+	// Set position
+	p.setPosition(positionVector)
 
 	p.checkWalls(height, width)
 
-	if p.pDebounce > 0 {
-		p.pDebounce--
+	if pDebounce := p.getPDebounce(); pDebounce > 0 {
+		p.setPDebounce(pDebounce - 1)
 	} else {
-		p.pDebounce = 0
+		p.setPDebounce(0)
 	}
 
-	if p.pointsDebounce > 0 {
-		p.pointsDebounce--
+	if pointsDebounce := p.getPointsDebounce(); pointsDebounce > 0 {
+		p.setPointsDebounce(pointsDebounce - 1)
 	} else {
-		p.LastPlayerHit = nil
-		p.pointsDebounce = 0
+		p.setLastPlayerHit(nil)
+		p.setPointsDebounce(0)
 	}
 }
 

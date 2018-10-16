@@ -15,7 +15,6 @@ const (
 	RightKey                = 39
 	UpKey                   = 38
 	DownKey                 = 40
-	VelocityTransferFactor  = 0.75
 	WallBounceFactor        = -1.5
 	PlayerRadius            = 25
 	PlayerAcceleration      = 0.5
@@ -26,7 +25,7 @@ const (
 	PlayerGravityDamping    = 0.075
 	PlayerDebounceTicks     = 15
 	PointsDebounceTicks     = 100
-	PlayerMass              = 1
+	PlayerMass              = 1.5
 	PlayerRestitutionFactor = 0.95
 )
 
@@ -152,20 +151,6 @@ func (p *Player) HitPlayer(ph *Player) {
 	}
 
 	InelasticCollision(&p.Body, &ph.Body)
-	// initalVelocity := p.Body.Velocity
-
-	// //Calculate player's new velocity
-	// p.Body.Velocity.Dx = (p.Body.Velocity.Dx * -VelocityTransferFactor) + (ph.Body.Velocity.Dx * VelocityTransferFactor)
-	// p.Body.Velocity.Dy = (p.Body.Velocity.Dy * -VelocityTransferFactor) + (ph.Body.Velocity.Dy * VelocityTransferFactor)
-	// //We add one position update so that multiple collision events don't occur for a single bump
-	// p.Body.Position.X += p.Body.Velocity.Dx
-	// p.Body.Position.Y += p.Body.Velocity.Dy
-
-	// //Calculate the player you hits new velocity (and again one position update)
-	// ph.Body.Velocity.Dx = (ph.Body.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
-	// ph.Body.Velocity.Dy = (ph.Body.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
-	// ph.Body.Position.X += ph.Body.Velocity.Dx
-	// ph.Body.Position.Y += ph.Body.Velocity.Dy
 
 	ph.LastPlayerHit = p
 	p.LastPlayerHit = ph

@@ -163,7 +163,7 @@ func TestHitJunk(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			p := CreatePlayer(testID, testNamePlayerTest, centerPos, testColorPlayerTest, *new(*websocket.Conn))
 			p.Body.Velocity = tc.playerVelocity
-			j := CreateJunk(centerPos)
+			j := CreateJunk(centerPosBelowRight)
 			initialJunkVelocity := Velocity{0, 0}
 			j.Body.Velocity = initialJunkVelocity
 

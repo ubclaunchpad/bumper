@@ -3,14 +3,10 @@ package models
 // Junk related constants
 const (
 	JunkFriction          = 0.98
-	MinimumBump           = 0.6
-	BumpFactor            = 1.05
 	JunkRadius            = 18 // 11
 	JunkDebounceTicks     = 15
-	JunkVTransferFactor   = 0.5
-	JunkJunkBounceFactor  = 0.01
 	JunkGravityDamping    = 0.025
-	JunkMass              = 1
+	JunkMass              = 2
 	JunkRestitutionFactor = 1
 )
 
@@ -35,6 +31,7 @@ func CreateJunk(position Position) *Junk {
 
 // UpdatePosition Update Junk's position based on calculations of position/velocity
 func (j *Junk) UpdatePosition(height float64, width float64) {
+	// Check if the junk should reflect off the walls first
 	if j.Body.Position.X+j.Body.Velocity.Dx > width-j.Body.Radius || j.Body.Position.X+j.Body.Velocity.Dx < j.Body.Radius {
 		j.Body.Velocity.Dx = -j.Body.Velocity.Dx
 	}

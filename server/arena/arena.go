@@ -97,7 +97,7 @@ func (a *Arena) UpdatePositions() {
 	}
 	for _, player := range a.Players {
 		// check whether player has been spawned
-		if player.Name != "" {
+		if player.GetName() != "" {
 			player.UpdatePosition(a.Height, a.Width)
 		}
 	}

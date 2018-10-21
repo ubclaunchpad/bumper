@@ -13,7 +13,7 @@ const config = {
   devServer: {
     port: 8080,
     inline: true,
-    contentBase: './public'
+    contentBase: './public',
   },
   module: {
     loaders: [

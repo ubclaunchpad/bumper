@@ -45,6 +45,13 @@ export function drawGame(data, canvas) {
 
     // Create a new object arrays with the positions translated.
     const junk = data.junk.map((j) => {
+      if (!j.position) {
+        return {
+          position: { x: 0, y: 0 },
+          color: 'black',
+        };
+      }
+
       const newPosition = {
         x: j.position.x + objectXTranslation,
         y: j.position.y + objectYTranslation,
@@ -56,6 +63,14 @@ export function drawGame(data, canvas) {
     });
 
     const holes = data.holes.map((h) => {
+      if (!h.position) {
+        return {
+          position: { x: 0, y: 0 },
+          radius: 0,
+          isAlive: false,
+        };
+      }
+
       const newPosition = {
         x: h.position.x + objectXTranslation,
         y: h.position.y + objectYTranslation,
@@ -68,6 +83,14 @@ export function drawGame(data, canvas) {
     });
 
     const players = data.players.map((p) => {
+      if (!p.position) {
+        return {
+          position: { x: 0, y: 0 },
+          color: 'black',
+          angle: 0,
+        };
+      }
+
       if (p.name !== '' && p.id !== data.player.id) {
         const newPosition = {
           x: p.position.x + objectXTranslation,
@@ -255,28 +278,28 @@ export function drawWalls(player, arena, canvas) {
     if (player.position.x < (canvas.width / 2)) {
       ctx.beginPath();
       ctx.rect(0, 0, 10, arena.height);
-      ctx.fillStyle = 'yellow';
+      ctx.fillStyle = 'grey';
       ctx.fill();
       ctx.closePath();
     }
     if (player.position.x > arena.width - (canvas.width / 2)) {
       ctx.beginPath();
       ctx.rect(canvas.width - 10, 0, 10, arena.height);
-      ctx.fillStyle = 'yellow';
+      ctx.fillStyle = 'grey';
       ctx.fill();
       ctx.closePath();
     }
     if (player.position.y < (canvas.height / 2)) {
       ctx.beginPath();
       ctx.rect(0, 0, arena.width, 10);
-      ctx.fillStyle = 'yellow';
+      ctx.fillStyle = 'grey';
       ctx.fill();
       ctx.closePath();
     }
     if (player.position.y > arena.height - (canvas.height / 2)) {
       ctx.beginPath();
       ctx.rect(0, canvas.height - 10, arena.width, 10);
-      ctx.fillStyle = 'yellow';
+      ctx.fillStyle = 'grey';
       ctx.fill();
       ctx.closePath();
     }

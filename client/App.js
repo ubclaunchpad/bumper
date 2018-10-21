@@ -11,7 +11,6 @@ import {
   registerTesterUpdateEvent,
 } from './database/database';
 
-
 const address = process.env.NODE_ENV === 'production'
   ? 'bumper.ubclaunchpad.com'
   : 'localhost:9090';

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"math/rand"
 	"net/http"
@@ -13,6 +14,19 @@ import (
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
+func getLobby(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+
+	response := struct {
+		Location string `json:"location"`
+	}{
+		"localhost:9090",
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
+
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
@@ -24,6 +38,7 @@ func main() {
 		log.Println("DBClient not initialized correctly")
 	}
 
+	http.HandleFunc("/start", getLobby)
 	http.Handle("/connect", game)
 	game.StartGame()
 

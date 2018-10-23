@@ -81,6 +81,13 @@ func (p *Player) GetName() string {
 	return p.Name
 }
 
+func (p *Player) getColor() string {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Color
+}
+
 func (p *Player) getVelocity() Velocity {
 	p.rwMutex.RLock()
 	defer p.rwMutex.RUnlock()
@@ -93,6 +100,13 @@ func (p *Player) getControls() KeysPressed {
 	defer p.rwMutex.RUnlock()
 
 	return p.Controls
+}
+
+func (p *Player) getAngle() float64 {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Angle
 }
 
 func (p *Player) getPosition() Position {
@@ -165,6 +179,13 @@ func (p *Player) setPointsDebounce(pointsDebounce int) {
 	p.pointsDebounce = pointsDebounce
 }
 
+func (p *Player) setPoints(points int) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.Points = points
+}
+
 func (p *Player) setLastPlayerHit(playerHit *Player) {
 	p.rwMutex.Lock()
 	defer p.rwMutex.Unlock()
@@ -180,7 +201,7 @@ func GenUniqueID() string {
 
 // AddPoints adds numPoints to player p
 func (p *Player) AddPoints(numPoints int) {
-	p.Points = p.Points + numPoints
+	p.setPoints(p.Points + numPoints)
 }
 
 // SendJSON sends JSON data through the player's websocket connection
@@ -205,16 +226,16 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	controlsVector := Velocity{0, 0}
 
 	if p.getControls().Left {
-		p.setAngle(math.Mod(p.Angle+0.1, 360))
+		p.setAngle(math.Mod(p.getAngle()+0.1, 360))
 	}
 
 	if p.getControls().Right {
-		p.setAngle(math.Mod(p.Angle-0.1, 360))
+		p.setAngle(math.Mod(p.getAngle()-0.1, 360))
 	}
 
 	if p.getControls().Up {
-		controlsVector.Dy = (0.5 * PlayerRadius * math.Cos(p.Angle))
-		controlsVector.Dx = (0.5 * PlayerRadius * math.Sin(p.Angle))
+		controlsVector.Dy = (0.5 * PlayerRadius * math.Cos(p.getAngle()))
+		controlsVector.Dx = (0.5 * PlayerRadius * math.Sin(p.getAngle()))
 	}
 
 	controlsVector.normalize()
@@ -260,88 +281,112 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 }
 
 func (p *Player) hitJunk() {
-	p.Velocity.Dx *= JunkBounceFactor
-	p.Velocity.Dy *= JunkBounceFactor
+	velocityVector := p.getVelocity()
+	velocityVector.Dx *= JunkBounceFactor
+	velocityVector.Dy *= JunkBounceFactor
+	p.setVelocity(velocityVector)
 }
 
 // HitPlayer calculates collision, update Player's velocity based on calculation of hitting another player
 func (p *Player) HitPlayer(ph *Player) {
-	if p.pDebounce != 0 {
+	if p.getPDebounce() != 0 {
 		return
 	}
 
-	initalVelocity := p.Velocity
+	pInitialVelocity := p.getVelocity()
+	pVelocity := pInitialVelocity
+	phVelocity := ph.getVelocity()
 
 	//Calculate player's new velocity
-	p.Velocity.Dx = (p.Velocity.Dx * -VelocityTransferFactor) + (ph.Velocity.Dx * VelocityTransferFactor)
-	p.Velocity.Dy = (p.Velocity.Dy * -VelocityTransferFactor) + (ph.Velocity.Dy * VelocityTransferFactor)
+	pVelocity.Dx = (pVelocity.Dx * -VelocityTransferFactor) + (phVelocity.Dx * VelocityTransferFactor)
+	pVelocity.Dy = (pVelocity.Dy * -VelocityTransferFactor) + (phVelocity.Dy * VelocityTransferFactor)
 
-	//Calculate the player you hits new velocity
-	ph.Velocity.Dx = (ph.Velocity.Dx * -VelocityTransferFactor) + (initalVelocity.Dx * VelocityTransferFactor)
-	ph.Velocity.Dy = (ph.Velocity.Dy * -VelocityTransferFactor) + (initalVelocity.Dy * VelocityTransferFactor)
+	//Calculate hit player's new velocity
+	phVelocity.Dx = (phVelocity.Dx * -VelocityTransferFactor) + (pInitialVelocity.Dx * VelocityTransferFactor)
+	phVelocity.Dy = (phVelocity.Dy * -VelocityTransferFactor) + (pInitialVelocity.Dy * VelocityTransferFactor)
 
-	ph.LastPlayerHit = p
-	p.LastPlayerHit = ph
-	p.pointsDebounce = PointsDebounceTicks
-	ph.pointsDebounce = PointsDebounceTicks
-	p.pDebounce = PlayerDebounceTicks
+	p.setVelocity(pVelocity)
+	ph.setVelocity(phVelocity)
+	ph.setLastPlayerHit(p)
+	p.setLastPlayerHit(ph)
+	p.setPointsDebounce(PointsDebounceTicks)
+	ph.setPointsDebounce(PointsDebounceTicks)
+	p.setPDebounce(PlayerDebounceTicks)
 }
 
 // ApplyGravity applys a vector towards given position
 func (p *Player) ApplyGravity(h *Hole) {
 	gravityVector := Velocity{0, 0}
-	gravityVector.Dx = h.Position.X - p.Position.X
-	gravityVector.Dy = h.Position.Y - p.Position.Y
+	pVelocity := p.getVelocity()
+	pPosition := p.getPosition()
+
+	gravityVector.Dx = h.Position.X - pPosition.X
+	gravityVector.Dy = h.Position.Y - pPosition.Y
 
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()
 
 	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	p.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * gravityDamping
-	p.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * gravityDamping
+	pVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * gravityDamping
+	pVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * gravityDamping
+
+	p.setVelocity(pVelocity)
 }
 
-// checkWalls check if the player is attempting to exit the walls, reverse they're direction
+// checkWalls if the player is attempting to exit the walls, reverse their direction
 func (p *Player) checkWalls(height float64, width float64) {
-	if p.Position.X+PlayerRadius > width {
-		p.Position.X = width - PlayerRadius - 1
-		p.Velocity.Dx *= WallBounceFactor
-	} else if p.Position.X-PlayerRadius < 0 {
-		p.Velocity.Dx *= WallBounceFactor
-		p.Position.X = PlayerRadius + 1
+	positionVector := p.getPosition()
+	velocityVector := p.getVelocity()
+	if positionVector.X+PlayerRadius > width {
+		positionVector.X = width - PlayerRadius - 1
+		velocityVector.Dx *= WallBounceFactor
+	} else if positionVector.X-PlayerRadius < 0 {
+		positionVector.X = PlayerRadius + 1
+		velocityVector.Dx *= WallBounceFactor
 	}
 
-	if p.Position.Y+PlayerRadius > height {
-		p.Velocity.Dy *= WallBounceFactor
-		p.Position.Y = height - PlayerRadius - 1
-	} else if p.Position.Y-PlayerRadius < 0 {
-		p.Velocity.Dy *= WallBounceFactor
-		p.Position.Y = PlayerRadius + 1
+	if positionVector.Y+PlayerRadius > height {
+		positionVector.Y = height - PlayerRadius - 1
+		velocityVector.Dy *= WallBounceFactor
+	} else if positionVector.Y-PlayerRadius < 0 {
+		positionVector.Y = PlayerRadius + 1
+		velocityVector.Dy *= WallBounceFactor
 	}
+
+	p.setPosition(positionVector)
+	p.setVelocity(velocityVector)
 }
 
 // KeyDownHandler sets this players given key as pressed down
 func (p *Player) KeyDownHandler(key int) {
+	pControls := p.getControls()
+
 	if key == RightKey {
-		p.Controls.Right = true
+		pControls.Right = true
 	} else if key == LeftKey {
-		p.Controls.Left = true
+		pControls.Left = true
 	} else if key == UpKey {
-		p.Controls.Up = true
+		pControls.Up = true
 	} else if key == DownKey {
-		p.Controls.Down = true
+		pControls.Down = true
 	}
+
+	p.setControls(pControls)
 }
 
 // KeyUpHandler sets this players given key as released
 func (p *Player) KeyUpHandler(key int) {
+	pControls := p.getControls()
+
 	if key == RightKey {
-		p.Controls.Right = false
+		pControls.Right = false
 	} else if key == LeftKey {
-		p.Controls.Left = false
+		pControls.Left = false
 	} else if key == UpKey {
-		p.Controls.Up = false
+		pControls.Up = false
 	} else if key == DownKey {
-		p.Controls.Down = false
+		pControls.Down = false
 	}
+
+	p.setControls(pControls)
 }

@@ -66,24 +66,25 @@ func (j *Junk) UpdatePosition(height float64, width float64) {
 
 // HitBy Update Junks's velocity based on calculations of being hit by a player
 func (j *Junk) HitBy(p *Player) {
+	pVelocity := p.getVelocity()
 	// We don't want this collision till the debounce is down.
 	if j.Debounce != 0 {
 		return
 	}
 
-	j.Color = p.Color //Assign junk to last recently hit player color
+	j.Color = p.getColor() //Assign junk to last recently hit player color
 	j.LastPlayerHit = p
 
-	if p.Velocity.Dx < 0 {
-		j.Velocity.Dx = math.Min(p.Velocity.Dx*BumpFactor, -MinimumBump)
+	if pVelocity.Dx < 0 {
+		j.Velocity.Dx = math.Min(pVelocity.Dx*BumpFactor, -MinimumBump)
 	} else {
-		j.Velocity.Dx = math.Max(p.Velocity.Dx*BumpFactor, MinimumBump)
+		j.Velocity.Dx = math.Max(pVelocity.Dx*BumpFactor, MinimumBump)
 	}
 
-	if p.Velocity.Dy < 0 {
-		j.Velocity.Dy = math.Min(p.Velocity.Dy*BumpFactor, -MinimumBump)
+	if pVelocity.Dy < 0 {
+		j.Velocity.Dy = math.Min(pVelocity.Dy*BumpFactor, -MinimumBump)
 	} else {
-		j.Velocity.Dy = math.Max(p.Velocity.Dy*BumpFactor, MinimumBump)
+		j.Velocity.Dy = math.Max(pVelocity.Dy*BumpFactor, MinimumBump)
 	}
 
 	p.hitJunk()

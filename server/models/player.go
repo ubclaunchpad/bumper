@@ -25,8 +25,8 @@ const (
 	PlayerGravityDamping    = 0.075
 	PlayerDebounceTicks     = 15
 	PointsDebounceTicks     = 100
-	PlayerMass              = 1.5
-	PlayerRestitutionFactor = 0.95
+	PlayerMass              = 3
+	PlayerRestitutionFactor = 0.8
 )
 
 // KeysPressed contains a boolean about each key, true if it's down
@@ -39,10 +39,10 @@ type KeysPressed struct {
 
 // Player contains data and state about a player's object
 type Player struct {
-	Name           string      `json:"name"`
-	ID             string      `json:"id"`
-	Country        string      `json:"country"`
-	Body           PhysicsBody `json:"body"`
+	Name           string `json:"name"`
+	ID             string `json:"id"`
+	Country        string `json:"country"`
+	PhysicsBody    `json:"body"`
 	Color          string      `json:"color"`
 	Angle          float64     `json:"angle"`
 	Controls       KeysPressed `json:"-"`
@@ -116,17 +116,17 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	controlsVector.normalize()
 	controlsVector.ApplyFactor(PlayerAcceleration)
 
-	p.Body.Velocity.ApplyFactor(PlayerFriction)
-	p.Body.Velocity.ApplyVector(controlsVector)
+	p.ApplyFactor(PlayerFriction)
+	p.ApplyVector(controlsVector)
 
 	// Ensure it never gets going too fast
-	if p.Body.Velocity.magnitude() > MaxVelocity {
-		p.Body.Velocity.normalize()
-		p.Body.Velocity.ApplyFactor(MaxVelocity)
+	if p.VelocityMagnitude() > MaxVelocity {
+		p.NormalizeVelocity()
+		p.ApplyFactor(MaxVelocity)
 	}
 
 	// Apply player's velocity vector
-	p.Body.ApplyVelocity()
+	p.ApplyVelocity()
 
 	p.checkWalls(height, width)
 
@@ -150,7 +150,7 @@ func (p *Player) HitPlayer(ph *Player) {
 		return
 	}
 
-	InelasticCollision(&p.Body, &ph.Body)
+	InelasticCollision(p, ph)
 
 	ph.LastPlayerHit = p
 	p.LastPlayerHit = ph
@@ -161,20 +161,20 @@ func (p *Player) HitPlayer(ph *Player) {
 
 // checkWalls check if the player is attempting to exit the walls, reverse they're direction
 func (p *Player) checkWalls(height float64, width float64) {
-	if p.Body.Position.X+PlayerRadius > width {
-		p.Body.Position.X = width - PlayerRadius - 1
-		p.Body.Velocity.Dx *= WallBounceFactor
-	} else if p.Body.Position.X-PlayerRadius < 0 {
-		p.Body.Velocity.Dx *= WallBounceFactor
-		p.Body.Position.X = PlayerRadius + 1
+	if p.GetX()+p.GetRadius() > width {
+		p.SetX(width - p.GetRadius() - 1)
+		p.ApplyXFactor(WallBounceFactor)
+	} else if p.GetX()-p.GetRadius() < 0 {
+		p.ApplyXFactor(WallBounceFactor)
+		p.SetX(p.GetRadius() + 1)
 	}
 
-	if p.Body.Position.Y+PlayerRadius > height {
-		p.Body.Velocity.Dy *= WallBounceFactor
-		p.Body.Position.Y = height - PlayerRadius - 1
-	} else if p.Body.Position.Y-PlayerRadius < 0 {
-		p.Body.Velocity.Dy *= WallBounceFactor
-		p.Body.Position.Y = PlayerRadius + 1
+	if p.GetY()+p.GetRadius() > height {
+		p.ApplyYFactor(WallBounceFactor)
+		p.SetY(height - p.GetRadius() - 1)
+	} else if p.GetY()-p.GetRadius() < 0 {
+		p.ApplyYFactor(WallBounceFactor)
+		p.SetY(p.GetRadius() + 1)
 	}
 }
 

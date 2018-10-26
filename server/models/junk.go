@@ -3,19 +3,19 @@ package models
 // Junk related constants
 const (
 	JunkFriction          = 0.98
-	JunkRadius            = 18 // 11
-	JunkDebounceTicks     = 15
+	JunkRadius            = 15
+	JunkDebounceTicks     = 10
 	JunkGravityDamping    = 0.025
-	JunkMass              = 2
+	JunkMass              = 1
 	JunkRestitutionFactor = 1
 )
 
 // Junk a position and velocity struct describing it's state and player struct to identify rewarding points
 type Junk struct {
-	Body          PhysicsBody `json:"body"`
-	Color         string      `json:"color"`
-	LastPlayerHit *Player     `json:"-"`
-	Debounce      int         `json:"-"`
+	PhysicsBody   `json:"body"`
+	Color         string  `json:"color"`
+	LastPlayerHit *Player `json:"-"`
+	Debounce      int     `json:"-"`
 	jDebounce     int
 }
 
@@ -32,15 +32,15 @@ func CreateJunk(position Position) *Junk {
 // UpdatePosition Update Junk's position based on calculations of position/velocity
 func (j *Junk) UpdatePosition(height float64, width float64) {
 	// Check if the junk should reflect off the walls first
-	if j.Body.Position.X+j.Body.Velocity.Dx > width-j.Body.Radius || j.Body.Position.X+j.Body.Velocity.Dx < j.Body.Radius {
-		j.Body.Velocity.Dx = -j.Body.Velocity.Dx
+	if j.GetX()+j.GetVelocity().Dx > width-j.GetRadius() || j.GetX()+j.GetVelocity().Dx < j.GetRadius() {
+		j.SetDx(-j.GetVelocity().Dx)
 	}
-	if j.Body.Position.Y+j.Body.Velocity.Dy > height-j.Body.Radius || j.Body.Position.Y+j.Body.Velocity.Dy < j.Body.Radius {
-		j.Body.Velocity.Dy = -j.Body.Velocity.Dy
+	if j.GetY()+j.GetVelocity().Dy > height-j.GetRadius() || j.GetY()+j.GetVelocity().Dy < j.GetRadius() {
+		j.SetDy(-j.GetVelocity().Dy)
 	}
 
-	j.Body.Velocity.ApplyFactor(JunkFriction)
-	j.Body.ApplyVelocity()
+	j.ApplyFactor(JunkFriction)
+	j.ApplyVelocity()
 
 	if j.Debounce > 0 {
 		j.Debounce--
@@ -64,7 +64,7 @@ func (j *Junk) HitBy(p *Player) {
 
 	j.Color = p.Color //Assign junk to last recently hit player color
 	j.LastPlayerHit = p
-	InelasticCollision(&j.Body, &p.Body)
+	InelasticCollision(j, p)
 
 	j.Debounce = JunkDebounceTicks
 }
@@ -75,7 +75,7 @@ func (j *Junk) HitJunk(jh *Junk) {
 	if j.jDebounce != 0 {
 		return
 	}
-	InelasticCollision(&j.Body, &jh.Body)
+	InelasticCollision(j, jh)
 
 	j.jDebounce = JunkDebounceTicks
 	jh.jDebounce = JunkDebounceTicks

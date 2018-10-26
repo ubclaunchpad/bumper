@@ -27,7 +27,7 @@ func TestUpdateJunkPosition(t *testing.T) {
 	j.UpdatePosition(testHeight, testWidth)
 
 	// Junk with no velocity shouldn't move
-	if j.Body.Position.X != initialPosition.X || j.Body.Position.Y != initialPosition.Y {
+	if j.GetX() != initialPosition.X || j.GetY() != initialPosition.Y {
 		t.Error("Error: Still Junk moved")
 	}
 

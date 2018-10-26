@@ -18,11 +18,11 @@ const (
 
 // Hole contains the data for a hole's position and size
 type Hole struct {
-	Body          PhysicsBody `json:"body"`
-	GravityRadius float64     `json:"-"`
-	IsAlive       bool        `json:"isAlive"`
-	Life          float64     `json:"-"`
-	StartingLife  float64     `json:"-"`
+	PhysicsBody   `json:"body"`
+	GravityRadius float64 `json:"-"`
+	IsAlive       bool    `json:"isAlive"`
+	Life          float64 `json:"-"`
+	StartingLife  float64 `json:"-"`
 }
 
 // CreateHole initializes and returns an instance of a Hole
@@ -46,8 +46,8 @@ func (h *Hole) Update() {
 	if h.Life < h.StartingLife-HoleInfancy {
 		h.IsAlive = true
 	}
-	if h.Body.Radius < MaxHoleRadius*1.2 {
-		h.Body.Radius += 0.02
+	if h.GetRadius() < MaxHoleRadius*1.2 {
+		h.SetRadius(h.GetRadius() + 0.02)
 		h.GravityRadius += 0.03
 	}
 }
@@ -61,13 +61,13 @@ func (h *Hole) IsDead() bool {
 func (h *Hole) ApplyGravity(b1 *PhysicsBody, DampingFactor float64) {
 	gravityVector := Velocity{0, 0}
 
-	gravityVector.Dx = h.Body.Position.X - b1.Position.X
-	gravityVector.Dy = h.Body.Position.Y - b1.Position.Y
+	gravityVector.Dx = h.GetX() - b1.GetX()
+	gravityVector.Dy = h.GetY() - b1.GetY()
 
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()
 
 	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	gravityVector.ApplyFactor(inverseMagnitude * h.Body.Radius * DampingFactor)
+	gravityVector.ApplyFactor(inverseMagnitude * h.GetRadius() * DampingFactor)
 	b1.Velocity.ApplyVector(gravityVector)
 }

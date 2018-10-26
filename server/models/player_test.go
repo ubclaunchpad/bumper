@@ -53,7 +53,7 @@ func TestUpdatePosition(t *testing.T) {
 	//Mock player and info
 	p := new(Player)
 	p.Angle = 0
-	p.Body.Position = centerPosPlayerTest
+	p.SetPosition(centerPosPlayerTest)
 	testCases := []struct {
 		description    string
 		playerVelocity Velocity
@@ -70,13 +70,13 @@ func TestUpdatePosition(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			p := new(Player)
-			p.Body.Velocity = tc.playerVelocity
-			p.Body.Position = tc.playerPosition
+			p.SetVelocity(tc.playerVelocity)
+			p.SetPosition(tc.playerPosition)
 			p.Angle = tc.playerAngle
 
 			p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 			//Test max velocity
-			if p.Body.Velocity.magnitude() > MaxVelocity {
+			if p.VelocityMagnitude() > MaxVelocity {
 				t.Error("Error calculating max velocity")
 			}
 			//Test directional controls
@@ -114,9 +114,9 @@ func TestUpdatePosition(t *testing.T) {
 			p.Controls.Right = false
 			//Up
 			//Friction
-			prevMagnitude := p.Body.Velocity.magnitude()
+			prevMagnitude := p.VelocityMagnitude()
 			p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
-			if p.Body.Velocity.magnitude() > prevMagnitude {
+			if p.VelocityMagnitude() > prevMagnitude {
 				t.Error("Error calculating friction")
 			}
 		})
@@ -124,14 +124,14 @@ func TestUpdatePosition(t *testing.T) {
 		//Test friction and accelerate
 		t.Run(tc.description, func(t *testing.T) {
 			p := new(Player)
-			p.Body.Velocity = tc.playerVelocity
-			p.Body.Position = tc.playerPosition
+			p.SetVelocity(tc.playerVelocity)
+			p.SetPosition(tc.playerPosition)
 			p.Angle = tc.playerAngle
 			//Test Friction
 			prevMagnitude := p.Body.Velocity.magnitude()
 			p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
-			if p.Body.Velocity.magnitude() > prevMagnitude {
-				t.Error("Error calculating friction", p.Body.Velocity.magnitude(), "expected to be less than", prevMagnitude)
+			if p.VelocityMagnitude() > prevMagnitude {
+				t.Error("Error calculating friction", p.VelocityMagnitude(), "expected to be less than", prevMagnitude)
 			}
 
 			// p.Controls.Up = true
@@ -162,17 +162,17 @@ func TestHitJunk(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			p := CreatePlayer(testID, testNamePlayerTest, centerPos, testColorPlayerTest, *new(*websocket.Conn))
-			p.Body.Velocity = tc.playerVelocity
+			p.SetVelocity(tc.playerVelocity)
 			j := CreateJunk(centerPosBelowRight)
 			initialJunkVelocity := Velocity{0, 0}
-			j.Body.Velocity = initialJunkVelocity
+			j.SetVelocity(initialJunkVelocity)
 
 			j.HitBy(p)
 
-			if p.Body.Velocity.Dx == tc.playerVelocity.Dx {
+			if p.GetDx() == tc.playerVelocity.Dx {
 				t.Error("Error calculating player Dx hitting junk")
 			}
-			if p.Body.Velocity.Dy == tc.playerVelocity.Dy {
+			if p.GetDy() == tc.playerVelocity.Dy {
 				t.Error("Error calculating player Dy hitting junk")
 			}
 		})
@@ -223,16 +223,16 @@ func TestPlayerBumpPlayer(t *testing.T) {
 			p1 := CreatePlayer("id1", "player1", centerPos, testColorPlayerTest, nil)
 			p2 := CreatePlayer("id2", "player2", centerPosBelowRight, testColorPlayerTest, nil)
 
-			p1.Body.Velocity = tc.playerVelocity
+			p1.SetVelocity(tc.playerVelocity)
 
 			p1.HitPlayer(p2)
 
-			if checkDirection(p1.Body.Velocity, tc.playerVelocity) || p1.Body.Velocity.Dx == tc.playerVelocity.Dx ||
-				p1.Body.Velocity.Dy == tc.playerVelocity.Dy {
+			if checkDirection(p1.Body.Velocity, tc.playerVelocity) || p1.GetDx() == tc.playerVelocity.Dx ||
+				p1.GetDy() == tc.playerVelocity.Dy {
 				t.Error("Player 1's velocity was unaffected")
 			}
 
-			if p2.Body.Velocity.Dx == 0 || p2.Body.Velocity.Dy == 0 {
+			if p2.GetDx() == 0 || p2.GetDy() == 0 {
 				t.Error("Player 2's velocity was unaffected")
 			}
 		})
@@ -255,7 +255,7 @@ func TestPlayerKillPlayer(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			p1 := CreatePlayer("id1", "player1", tc.bumperPosition, testColorPlayerTest, nil)
 			p2 := CreatePlayer("id2", "player2", tc.bumpeePosition, testColorPlayerTest, nil)
-			p1.Body.Velocity = tc.bumperVelocity
+			p1.SetVelocity(tc.bumperVelocity)
 			h := CreateHole(tc.holePosition)
 
 			p1.HitPlayer(p2)
@@ -265,7 +265,7 @@ func TestPlayerKillPlayer(t *testing.T) {
 				p1.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 				p2.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 
-				if areCirclesColliding(p2.Body.Position, p2.Body.Radius, h.Body.Position, h.Body.Radius) {
+				if areCirclesColliding(p2.GetPosition(), p2.GetRadius(), h.GetPosition(), h.GetRadius()) {
 					playerScored := p2.LastPlayerHit
 					if playerScored != nil {
 						playerScored.AddPoints(PointsPerPlayer)

@@ -29,14 +29,14 @@ func (v *Velocity) magnitude() float64 {
 	return math.Hypot(v.Dx, v.Dy)
 }
 
-func (a Velocity) dot(b Velocity) float64 {
-	return a.Dx*b.Dx + a.Dy*b.Dy
+func (v Velocity) dot(v2 Velocity) float64 {
+	return v.Dx*v2.Dx + v.Dy*v2.Dy
 }
 
-func (a Velocity) sub(b Velocity) Velocity {
+func (v Velocity) sub(v2 Velocity) Velocity {
 	return Velocity{
-		Dx: a.Dx - b.Dx,
-		Dy: a.Dy - b.Dy,
+		Dx: v.Dx - v2.Dx,
+		Dy: v.Dy - v2.Dy,
 	}
 }
 
@@ -72,144 +72,158 @@ func (v *Velocity) ApplyVector(vector Velocity) {
 	v.Dy += vector.Dy
 }
 
+// VelocityMagnitude returns the magnitude of this body's velocity
+func (b *PhysicsBody) VelocityMagnitude() float64 {
+	return math.Hypot(b.Velocity.Dx, b.Velocity.Dy)
+}
+
+// NormalizeVelocity normalizes this body's velocity
+func (b *PhysicsBody) NormalizeVelocity() {
+	mag := b.VelocityMagnitude()
+	if mag > 0 {
+		b.Velocity.Dx /= mag
+		b.Velocity.Dy /= mag
+	}
+}
+
+// ApplyFactor applies given factor to the velocity of this body
+func (b *PhysicsBody) ApplyFactor(factor float64) {
+	b.Velocity.Dx *= factor
+	b.Velocity.Dy *= factor
+}
+
+// ApplyXFactor applies given factor to the Dx velocity of this body
+func (b *PhysicsBody) ApplyXFactor(factor float64) {
+	b.Velocity.Dx *= factor
+}
+
+// ApplyYFactor applies given factor to the Dy velocity of this body
+func (b *PhysicsBody) ApplyYFactor(factor float64) {
+	b.Velocity.Dy *= factor
+}
+
+// ApplyVector applies given vector to the velocity of this body
+func (b *PhysicsBody) ApplyVector(vector Velocity) {
+	b.Velocity.Dx += vector.Dx
+	b.Velocity.Dy += vector.Dy
+}
+
 // ApplyVelocity applies this body's velocity to its position
 func (b *PhysicsBody) ApplyVelocity() {
 	b.Position.X += b.Velocity.Dx
 	b.Position.Y += b.Velocity.Dy
 }
 
+// GetPosition returns the body's position
+func (b *PhysicsBody) GetPosition() Position {
+	return b.Position
+}
+
+// GetX returns the body's X position
+func (b *PhysicsBody) GetX() float64 {
+	return b.Position.X
+}
+
+// GetY returns the body's Y position
+func (b *PhysicsBody) GetY() float64 {
+	return b.Position.Y
+}
+
+// GetVelocity returns the body's velocity
+func (b *PhysicsBody) GetVelocity() Velocity {
+	return b.Velocity
+}
+
+// GetDx sets the Dx of this body's velocity
+func (b *PhysicsBody) GetDx() float64 {
+	return b.Velocity.Dx
+}
+
+// GetDy returns the Dy of this body's velocity
+func (b *PhysicsBody) GetDy() float64 {
+	return b.Velocity.Dy
+}
+
+// GetMass returns the body's Mass
+func (b *PhysicsBody) GetMass() float64 {
+	return b.Mass
+}
+
+// GetRadius returns the body's Radius
+func (b *PhysicsBody) GetRadius() float64 {
+	return b.Radius
+}
+
+// GetRestitution returns the body's Restitution Factor
+func (b *PhysicsBody) GetRestitution() float64 {
+	return b.Restitution
+}
+
+// SetPosition sets the body's position
+func (b *PhysicsBody) SetPosition(x float64, y float64) {
+	b.Position.X = x
+	b.Position.Y = y
+}
+
+// SetX sets the body's X position
+func (b *PhysicsBody) SetX(x float64) {
+	b.Position.X = x
+}
+
+// SetY sets the body's Y position
+func (b *PhysicsBody) SetY(y float64) {
+	b.Position.Y = y
+}
+
+// SetVelocity sets the body's velocity
+func (b *PhysicsBody) SetVelocity(dX float64, dY float64) {
+	b.Velocity.Dx = dX
+	b.Velocity.Dy = dY
+}
+
+// SetDx sets the Dx of this body's velocity
+func (b *PhysicsBody) SetDx(dX float64) {
+	b.Velocity.Dx = dX
+}
+
+// SetDy sets the Dy of this body's velocity
+func (b *PhysicsBody) SetDy(dY float64) {
+	b.Velocity.Dy = dY
+}
+
+// SetMass sets the body's Mass
+func (b *PhysicsBody) SetMass(mass float64) {
+	b.Mass = mass
+}
+
+// SetRadius sets the body's Radius
+func (b *PhysicsBody) SetRadius(radius float64) {
+	b.Radius = radius
+}
+
+// SetRestitution sets the body's Restitution Factor
+func (b *PhysicsBody) SetRestitution(restitution float64) {
+	b.Restitution = restitution
+}
+
 // InelasticCollision update
 func InelasticCollision(b1 *PhysicsBody, b2 *PhysicsBody) {
 
-	// print := true
-	// d := math.Sqrt(math.Pow((b1.Position.X-b2.Position.X), 2) + math.Pow((b1.Position.Y-b2.Position.Y), 2))
-	// if d == 0 {
-	// 	return
-	// }
-
-	// SinYx := (b1.Position.Y - b2.Position.Y) / (b1.Position.X - b2.Position.X)
-	// TanYv := (b2.Velocity.Dy - b1.Velocity.Dy) / (b2.Velocity.Dx - b1.Velocity.Dx)
-	// if SinYx > 1 || SinYx < -1 {
-	// 	SinYx = 1 / SinYx
-	// 	TanYv = 1 / TanYv
-	// }
-
-	// Yx := math.Asin(SinYx)
-	// Yv := math.Atan(TanYv)
-	// alpha := math.Asin((d * math.Sin(Yx-Yv)) / (b2.Radius + b1.Radius))
-	// a := math.Tan(Yv + alpha)
-	// massRatio := float64(b1.Mass / b2.Mass)
-
-	// Deltab1Vx := 2 * (b2.Velocity.Dx - b1.Velocity.Dx + a*(b2.Velocity.Dy-b1.Velocity.Dy)) / ((math.Pow(a, 2) + 1) * (massRatio + 1))
-	// Deltab1Vx := 2 * (b2.Velocity.Dx - b1.Velocity.Dx + a*(b2.Velocity.Dy-b1.Velocity.Dy)) / ((2*a + 1) * (massRatio + 1))
-
-	// if print {
-	// 	fmt.Println("d", d)
-	// 	fmt.Println("Yx", Yx)
-	// 	fmt.Println("SinYx", SinYx)
-	// 	fmt.Println("r1 + r2", b1.Radius+b2.Radius)
-	// 	fmt.Println("Yv", Yv)
-	// 	fmt.Println("Yx - Yv", Yx-Yv)
-	// 	fmt.Println("Alpha", alpha)
-	// 	fmt.Println("a", a)
-	// 	fmt.Println("massRatio", massRatio)
-	// 	fmt.Println("Delta", Deltab1Vx)
-	// 	fmt.Println("B1 Dx", Deltab1Vx*b1.Restitution)
-	// 	fmt.Println("B1 Dy", a*Deltab1Vx*b1.Restitution)
-	// 	fmt.Println("B2 Dx", -massRatio*Deltab1Vx*b2.Restitution)
-	// 	fmt.Println("B2 Dy", -a*massRatio*Deltab1Vx*b2.Restitution)
-	// }
-
-	// b1.Velocity.Dx += Deltab1Vx * b1.Restitution
-	// b1.Velocity.Dy += a * Deltab1Vx * b1.Restitution
-	// b2.Velocity.Dx -= massRatio * Deltab1Vx * b2.Restitution
-	// b2.Velocity.Dy -= a * massRatio * Deltab1Vx * b2.Restitution
-
-	// if b1.Velocity.Dx < 0 {
-	// 	b1.Velocity.Dx = -b1.Velocity.Dx
-	// }
-
-	// if b1.Position.X > b2.Position.X {
-	// 	temp := b1
-	// 	b1 = b2
-	// 	b2 = temp
-	// }
-
-	// v1 := b1.Velocity.magnitude()
-	// v2 := b2.Velocity.magnitude()
-	// theta1 := float64(0)
-	// theta2 := float64(0)
-	// // theta1cos := float64(0)
-	// // theta2cos := float64(0)
-	// if v1 != 0 {
-	// 	theta1 = math.Asin(b1.Velocity.Dy / v1)
-	// 	if b1.Velocity.Dx < 0 {
-	// 		if theta1 > 0 {
-	// 			theta1 = math.Pi - theta1
-	// 		} else if theta1 > 0 {
-	// 			theta1 = math.Pi + theta1
-	// 		}
-	// 	}
-	// 	// if theta1 < 0 {
-	// 	// 	theta1 = math.Pi + theta1
-	// 	// }
-	// 	// theta1cos = math.Acos(b1.Velocity.Dx / v1)
-	// }
-	// if v2 != 0 {
-	// 	theta2 = math.Asin(b2.Velocity.Dy / v2)
-	// 	if b2.Velocity.Dx < 0 {
-	// 		if theta2 > 0 {
-	// 			theta2 = math.Pi - theta2
-	// 		} else if theta2 > 0 {
-	// 			theta2 = math.Pi + theta2
-	// 		}
-	// 	}
-	// 	// if theta2 < 0 {
-	// 	// 	theta2 = math.Pi + theta2
-	// 	// }
-	// 	// theta2cos = math.Acos(b2.Velocity.Dx / v2)
-	// }
-	// phi := 0.0
-	// if b1.Position.Y > b2.Position.Y {
-	// 	phi = math.Asin((b1.Position.Y - b2.Position.Y) / (b1.Radius + b2.Radius))
-	// } else {
-	// 	phi = math.Asin((b2.Position.Y - b1.Position.Y) / (b1.Radius + b2.Radius))
-	// }
-	// // phi := alpha
-
-	// b1factor := (v1*math.Cos(theta1-phi)*(b1.Mass-b2.Mass) + 2*b2.Mass*v2*math.Cos(theta2-phi)) / (b1.Mass + b2.Mass)
-	// // fmt.Println("phi", phi)
-	// // fmt.Println("alpha", alpha)
-	// // fmt.Println("theta1", theta1)
-	// // fmt.Println("theta1cos", theta1cos)
-	// // fmt.Println("theta2", theta2)
-	// // fmt.Println("theta2cos", theta2cos)
-	// // fmt.Println("b1factor", b1factor)
-	// b1.Velocity.Dx = b1factor*math.Cos(phi) + v1*math.Sin(theta1-phi)*math.Sin(phi)
-	// b1.Velocity.Dy = b1factor*math.Sin(phi) + v1*math.Sin(theta1-phi)*math.Cos(phi)
-
-	// b2factor := (v2*math.Cos(theta2-phi)*(b2.Mass-b1.Mass) + 2*b1.Mass*v1*math.Cos(theta1-phi)) / (b2.Mass + b1.Mass)
-	// b2.Velocity.Dx = b2factor*math.Cos(phi) + v2*math.Sin(theta2-phi)*math.Sin(phi)
-	// b2.Velocity.Dy = b2factor*math.Sin(phi) + v2*math.Sin(theta2-phi)*math.Cos(phi)
-
-	// // b1.Velocity.Dx = (b1.Mass*b1.Velocity.Dx + b2.Mass*b2.Velocity.Dx) / (b1.Mass + b2.Mass)
-	// // b1.Velocity.Dy = (b1.Mass*b1.Velocity.Dy + b2.Mass*b2.Velocity.Dy) / (b1.Mass + b2.Mass)
-
-	// // b2.Velocity.Dx = (b1.Mass*b1.Velocity.Dx + b2.Mass*b2.Velocity.Dx) / (b1.Mass + b2.Mass)
-	// // b2.Velocity.Dy = (b1.Mass*b1.Velocity.Dy + b2.Mass*b2.Velocity.Dy) / (b1.Mass + b2.Mass)
-
+	// Math: https://en.wikipedia.org/wiki/Elastic_collision
 	x1Minusx2 := Velocity{
-		Dx: b1.Position.X - b2.Position.X,
-		Dy: b1.Position.Y - b2.Position.Y,
+		Dx: b1.GetX() - b2.GetX(),
+		Dy: b1.GetY() - b2.GetY(),
 	}
 	x2Minusx1 := Velocity{
-		Dx: b2.Position.X - b1.Position.X,
-		Dy: b2.Position.Y - b1.Position.Y,
+		Dx: b2.GetX() - b1.GetX(),
+		Dy: b2.GetY() - b1.GetY(),
 	}
-	b1.Velocity.Dx = b1.Velocity.Dx - (2*b2.Mass/(b1.Mass+b2.Mass))*(b1.Velocity.sub(b2.Velocity).dot(x1Minusx2))/(math.Pow(x1Minusx2.magnitude(), 2))*(x1Minusx2.Dx)
-	b1.Velocity.Dy = b1.Velocity.Dy - (2*b2.Mass/(b1.Mass+b2.Mass))*(b1.Velocity.sub(b2.Velocity).dot(x1Minusx2))/(math.Pow(x1Minusx2.magnitude(), 2))*(x1Minusx2.Dy)
+	// Maybe this function should be made critical as one block anyways?
+	// b1.SetDx(b1.GetDx() * b1.GetRestitution() - (2*b2.GetMass()/(b1.GetMass()+b2.GetMass()))*(b1.)
+	b1.Velocity.Dx = b1.Velocity.Dx*b1.Restitution - (2*b2.Mass/(b1.Mass+b2.Mass))*(b1.Velocity.sub(b2.Velocity).dot(x1Minusx2))/(math.Pow(x1Minusx2.magnitude(), 2))*(x1Minusx2.Dx)
+	b1.Velocity.Dy = b1.Velocity.Dy*b1.Restitution - (2*b2.Mass/(b1.Mass+b2.Mass))*(b1.Velocity.sub(b2.Velocity).dot(x1Minusx2))/(math.Pow(x1Minusx2.magnitude(), 2))*(x1Minusx2.Dy)
 
-	b2.Velocity.Dx = b2.Velocity.Dx - (2*b1.Mass/(b1.Mass+b2.Mass))*(b2.Velocity.sub(b1.Velocity).dot(x2Minusx1))/(math.Pow(x2Minusx1.magnitude(), 2))*(x2Minusx1.Dx)
-	b2.Velocity.Dy = b2.Velocity.Dy - (2*b1.Mass/(b1.Mass+b2.Mass))*(b2.Velocity.sub(b1.Velocity).dot(x2Minusx1))/(math.Pow(x2Minusx1.magnitude(), 2))*(x2Minusx1.Dy)
+	b2.Velocity.Dx = b2.Velocity.Dx*b2.Restitution - (2*b1.Mass/(b1.Mass+b2.Mass))*(b2.Velocity.sub(b1.Velocity).dot(x2Minusx1))/(math.Pow(x2Minusx1.magnitude(), 2))*(x2Minusx1.Dx)
+	b2.Velocity.Dy = b2.Velocity.Dy*b2.Restitution - (2*b1.Mass/(b1.Mass+b2.Mass))*(b2.Velocity.sub(b1.Velocity).dot(x2Minusx1))/(math.Pow(x2Minusx1.magnitude(), 2))*(x2Minusx1.Dy)
 
 }

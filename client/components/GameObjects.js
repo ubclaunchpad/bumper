@@ -1,5 +1,5 @@
 const PLAYER_RADIUS = 25;
-const JUNK_SIZE = 22; // 15
+const JUNK_SIZE = 19;
 
 export function drawGame(data, canvas) {
   const rawPlayer = data.players.find(p => p.id === data.player.id);
@@ -45,7 +45,6 @@ export function drawGame(data, canvas) {
 
     // Create a new object arrays with the positions translated.
     const junk = data.junk.map((j) => {
-      if (!j) { console.log(data.junk); }
       const newPosition = {
         x: j.body.position.x + objectXTranslation,
         y: j.body.position.y + objectYTranslation,
@@ -57,7 +56,6 @@ export function drawGame(data, canvas) {
     });
 
     const holes = data.holes.map((h) => {
-      if (!h) { console.log(data.holes); }
       const newPosition = {
         x: h.body.position.x + objectXTranslation,
         y: h.body.position.y + objectYTranslation,
@@ -70,7 +68,6 @@ export function drawGame(data, canvas) {
     });
 
     const players = data.players.map((p) => {
-      if (!p) { console.log(data.players); }
       if (p.name !== '' && p.id !== data.player.id) {
         const newPosition = {
           x: p.body.position.x + objectXTranslation,

@@ -22,10 +22,10 @@ type Junk struct {
 // CreateJunk initializes and returns an instance of a Junk
 func CreateJunk(position Position) *Junk {
 	return &Junk{
-		Body:      CreateBody(position, JunkRadius, JunkMass, JunkRestitutionFactor),
-		Color:     "white",
-		Debounce:  0,
-		jDebounce: 0,
+		PhysicsBody: CreateBody(position, JunkRadius, JunkMass, JunkRestitutionFactor),
+		Color:       "white",
+		Debounce:    0,
+		jDebounce:   0,
 	}
 }
 
@@ -64,7 +64,7 @@ func (j *Junk) HitBy(p *Player) {
 
 	j.Color = p.Color //Assign junk to last recently hit player color
 	j.LastPlayerHit = p
-	InelasticCollision(j, p)
+	InelasticCollision(&j.PhysicsBody, &p.PhysicsBody)
 
 	j.Debounce = JunkDebounceTicks
 }
@@ -75,7 +75,7 @@ func (j *Junk) HitJunk(jh *Junk) {
 	if j.jDebounce != 0 {
 		return
 	}
-	InelasticCollision(j, jh)
+	InelasticCollision(&j.PhysicsBody, &jh.PhysicsBody)
 
 	j.jDebounce = JunkDebounceTicks
 	jh.jDebounce = JunkDebounceTicks

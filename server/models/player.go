@@ -41,8 +41,8 @@ type KeysPressed struct {
 type Player struct {
 	Name           string `json:"name"`
 	ID             string `json:"id"`
-	Country        string `json:"country"`
 	PhysicsBody    `json:"body"`
+	Country        string      `json:"country"`
 	Color          string      `json:"color"`
 	Angle          float64     `json:"angle"`
 	Controls       KeysPressed `json:"-"`
@@ -60,7 +60,7 @@ func CreatePlayer(id string, name string, pos Position, color string, ws *websoc
 	return &Player{
 		Name:           name,
 		ID:             id,
-		Body:           CreateBody(pos, PlayerRadius, PlayerMass, PlayerRestitutionFactor),
+		PhysicsBody:    CreateBody(pos, PlayerRadius, PlayerMass, PlayerRestitutionFactor),
 		Color:          color,
 		Angle:          math.Pi,
 		Controls:       KeysPressed{},
@@ -150,7 +150,7 @@ func (p *Player) HitPlayer(ph *Player) {
 		return
 	}
 
-	InelasticCollision(p, ph)
+	InelasticCollision(&p.PhysicsBody, &ph.PhysicsBody)
 
 	ph.LastPlayerHit = p
 	p.LastPlayerHit = ph

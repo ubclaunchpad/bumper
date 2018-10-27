@@ -30,7 +30,7 @@ func CreateHole(position Position) *Hole {
 	life := math.Floor(rand.Float64()*((MaxHoleLife-MinHoleLife)+1)) + MinHoleLife
 	radius := math.Floor(rand.Float64()*((MaxHoleRadius-MinHoleRadius)+1)) + MinHoleRadius
 	h := Hole{
-		Body:          CreateBody(position, radius, 0, 0),
+		PhysicsBody:   CreateBody(position, radius, 0, 0),
 		GravityRadius: radius * gravityRadiusFactor,
 		Life:          life,
 		IsAlive:       false,

@@ -208,6 +208,7 @@ func (b *PhysicsBody) SetRestitution(restitution float64) {
 
 // InelasticCollision update
 func InelasticCollision(b1 *PhysicsBody, b2 *PhysicsBody) {
+	// func InelasticCollision(b1 struct{ PhysicsBody }, b2 struct{ PhysicsBody }) {
 
 	// Math: https://en.wikipedia.org/wiki/Elastic_collision
 	x1Minusx2 := Velocity{

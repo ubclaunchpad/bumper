@@ -109,7 +109,7 @@ func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
 // TODO choose color here as well
 func (a *Arena) SpawnPlayer(id string, name string, country string) error {
 	position := a.generateCoordinate(models.PlayerRadius)
-	a.Players[id].Body.Position = position
+	a.Players[id].SetPosition(position.X, position.Y)
 	a.Players[id].Name = name
 	a.Players[id].Country = country
 	return nil
@@ -135,17 +135,17 @@ func (a *Arena) generateCoordinate(objectRadius float64) models.Position {
 
 func (a *Arena) isPositionValid(position models.Position) bool {
 	for _, hole := range a.Holes {
-		if areCirclesColliding(hole.Body.Position, hole.GravityRadius, position, MinDistanceBetween) {
+		if areCirclesColliding(hole.GetPosition(), hole.GravityRadius, position, MinDistanceBetween) {
 			return false
 		}
 	}
 	for _, junk := range a.Junk {
-		if areCirclesColliding(junk.Body.Position, junk.Body.Radius, position, MinDistanceBetween) {
+		if areCirclesColliding(junk.GetPosition(), junk.GetRadius(), position, MinDistanceBetween) {
 			return false
 		}
 	}
 	for _, player := range a.Players {
-		if areCirclesColliding(player.Body.Position, player.Body.Radius, position, MinDistanceBetween) {
+		if areCirclesColliding(player.GetPosition(), player.GetRadius(), position, MinDistanceBetween) {
 			return false
 		}
 	}
@@ -171,13 +171,13 @@ func (a *Arena) playerCollisions() {
 			if player == playerHit || memo[player] == playerHit {
 				continue
 			}
-			if areCirclesColliding(player.Body.Position, player.Body.Radius, playerHit.Body.Position, playerHit.Body.Radius) {
+			if areCirclesColliding(player.GetPosition(), player.GetRadius(), playerHit.GetPosition(), playerHit.GetRadius()) {
 				memo[playerHit] = player
 				player.HitPlayer(playerHit)
 			}
 		}
 		for _, junk := range a.Junk {
-			if areCirclesColliding(player.Body.Position, player.Body.Radius, junk.Body.Position, junk.Body.Radius) {
+			if areCirclesColliding(player.GetPosition(), player.GetRadius(), junk.GetPosition(), junk.GetRadius()) {
 				junk.HitBy(player)
 			}
 		}
@@ -191,7 +191,7 @@ func (a *Arena) holeCollisions() {
 		}
 
 		for name, player := range a.Players {
-			if areCirclesColliding(player.Body.Position, player.Body.Radius, hole.Body.Position, hole.Body.Radius) {
+			if areCirclesColliding(player.GetPosition(), player.GetRadius(), hole.GetPosition(), hole.GetRadius()) {
 				playerScored := player.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerPlayer)
@@ -203,13 +203,13 @@ func (a *Arena) holeCollisions() {
 					Data: name,
 				}
 				MessageChannel <- deathMsg
-			} else if areCirclesColliding(player.Body.Position, player.Body.Radius, hole.Body.Position, hole.GravityRadius) {
-				hole.ApplyGravity(&player.Body, models.PlayerGravityDamping)
+			} else if areCirclesColliding(player.GetPosition(), player.GetRadius(), hole.GetPosition(), hole.GravityRadius) {
+				hole.ApplyGravity(&player.PhysicsBody, models.PlayerGravityDamping)
 			}
 		}
 
 		for i, junk := range a.Junk {
-			if areCirclesColliding(junk.Body.Position, junk.Body.Radius, hole.Body.Position, hole.Body.Radius) {
+			if areCirclesColliding(junk.GetPosition(), junk.GetRadius(), hole.GetPosition(), hole.GetRadius()) {
 				playerScored := junk.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerJunk)
@@ -217,8 +217,8 @@ func (a *Arena) holeCollisions() {
 
 				a.removeJunk(i)
 				a.addJunk()
-			} else if areCirclesColliding(junk.Body.Position, junk.Body.Radius, hole.Body.Position, hole.GravityRadius) {
-				hole.ApplyGravity(&junk.Body, models.JunkGravityDamping)
+			} else if areCirclesColliding(junk.GetPosition(), junk.GetRadius(), hole.GetPosition(), hole.GravityRadius) {
+				hole.ApplyGravity(&junk.PhysicsBody, models.JunkGravityDamping)
 			}
 		}
 	}
@@ -232,7 +232,7 @@ func (a *Arena) junkCollisions() {
 			if junk == junkHit || memo[junkHit] == junk {
 				continue
 			}
-			if areCirclesColliding(junk.Body.Position, junk.Body.Radius, junkHit.Body.Position, junkHit.Body.Radius) {
+			if areCirclesColliding(junk.GetPosition(), junk.GetRadius(), junkHit.GetPosition(), junkHit.GetRadius()) {
 				memo[junkHit] = junk
 				junk.HitJunk(junkHit)
 			}

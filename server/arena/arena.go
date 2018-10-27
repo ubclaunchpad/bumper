@@ -109,7 +109,7 @@ func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
 // TODO choose color here as well
 func (a *Arena) SpawnPlayer(id string, name string, country string) error {
 	position := a.generateCoordinate(models.PlayerRadius)
-	a.Players[id].SetPosition(position.X, position.Y)
+	a.Players[id].SetPosition(position)
 	a.Players[id].Name = name
 	a.Players[id].Country = country
 	return nil

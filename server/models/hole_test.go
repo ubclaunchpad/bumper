@@ -18,13 +18,13 @@ func TestCreateHole(t *testing.T) {
 	if h.IsAlive {
 		t.Error("isAlive is incorrectly set")
 	}
-	if h.Body.Position.X != 5 {
+	if h.GetX() != 5 {
 		t.Error("X position is not set correctly")
 	}
-	if h.Body.Position.Y != 10 {
+	if h.GetY() != 10 {
 		t.Error("Y position is not set correctly")
 	}
-	if h.GravityRadius != h.Body.Radius*gravityRadiusFactor {
+	if h.GravityRadius != h.GetRadius()*gravityRadiusFactor {
 		t.Error("Gravity radius is calculated incorrectly")
 	}
 }
@@ -46,7 +46,7 @@ func TestUpdateHole(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Test updateHole with radius %v", tc.radius), func(t *testing.T) {
 			h := CreateHole(Position{X: 5, Y: 10})
-			h.Body.Radius = tc.radius
+			h.SetRadius(tc.radius)
 			h.Life = 200
 			h.GravityRadius = 5
 			h.IsAlive = false
@@ -55,8 +55,8 @@ func TestUpdateHole(t *testing.T) {
 			for i := 0; i < tc.numUpdates; i++ {
 				h.Update()
 			}
-			if h.Body.Radius != tc.radiusWant {
-				t.Errorf("got %g; want %g", h.Body.Radius, tc.radiusWant)
+			if h.GetRadius() != tc.radiusWant {
+				t.Errorf("got %g; want %g", h.GetRadius(), tc.radiusWant)
 			}
 			if diff := h.GravityRadius - tc.gravityRadiusWant; math.Abs(diff) > 1e-9 {
 				t.Errorf("got %g; want %g", h.GravityRadius, tc.gravityRadiusWant)
@@ -88,7 +88,7 @@ func TestHoleLifeCycle(t *testing.T) {
 		t.Run(fmt.Sprintf("Test hole lifecycle with number of lives %v and number of updates %v", tc.life, tc.numUpdates), func(t *testing.T) {
 			p := Position{X: 5, Y: 10}
 			h := CreateHole(p)
-			h.Body.Radius = 20
+			h.SetRadius(20)
 			h.Life = tc.life
 			h.GravityRadius = 5
 			h.IsAlive = true

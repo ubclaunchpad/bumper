@@ -128,7 +128,7 @@ func TestUpdatePosition(t *testing.T) {
 			p.SetPosition(tc.playerPosition)
 			p.Angle = tc.playerAngle
 			//Test Friction
-			prevMagnitude := p.Body.Velocity.magnitude()
+			prevMagnitude := p.VelocityMagnitude()
 			p.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 			if p.VelocityMagnitude() > prevMagnitude {
 				t.Error("Error calculating friction", p.VelocityMagnitude(), "expected to be less than", prevMagnitude)
@@ -170,7 +170,7 @@ func TestHitJunk(t *testing.T) {
 			j.HitBy(p)
 
 			if p.GetDx() == tc.playerVelocity.Dx {
-				t.Error("Error calculating player Dx hitting junk")
+				t.Error("Error calculating player Dx hitting junk", p.GetDx(), tc.playerVelocity.Dx)
 			}
 			if p.GetDy() == tc.playerVelocity.Dy {
 				t.Error("Error calculating player Dy hitting junk")
@@ -227,7 +227,7 @@ func TestPlayerBumpPlayer(t *testing.T) {
 
 			p1.HitPlayer(p2)
 
-			if checkDirection(p1.Body.Velocity, tc.playerVelocity) || p1.GetDx() == tc.playerVelocity.Dx ||
+			if checkDirection(p1.GetVelocity(), tc.playerVelocity) || p1.GetDx() == tc.playerVelocity.Dx ||
 				p1.GetDy() == tc.playerVelocity.Dy {
 				t.Error("Player 1's velocity was unaffected")
 			}

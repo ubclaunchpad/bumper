@@ -26,8 +26,8 @@ func CreateArenaWithPlayer(p models.Position) *Arena {
 	a.AddPlayer("test", nil)
 	testPlayer := a.Players["test"]
 	testPlayer.Name = "testName"
-	testPlayer.Body.Position = p
-	testPlayer.Body.Velocity = testVelocity
+	testPlayer.SetPosition(p)
+	testPlayer.SetVelocity(testVelocity)
 	return a
 }
 
@@ -113,13 +113,13 @@ func TestPlayerToPlayerCollisions(t *testing.T) {
 			a := CreateArenaWithPlayer(quarterPosition)
 
 			a.AddPlayer(tc.otherPlayer, nil)
-			a.Players[tc.otherPlayer].Body.Position = tc.testPosition
+			a.Players[tc.otherPlayer].SetPosition(tc.testPosition)
 
 			a.playerCollisions()
 			a.UpdatePositions()
 
-			if a.Players["test"].Body.Position != tc.expectedPosition {
-				t.Errorf("%s detection failed. Got player at %v. Expected player at %v", tc.otherPlayer, a.Players["test"].Body.Position, tc.expectedPosition)
+			if a.Players["test"].GetPosition() != tc.expectedPosition {
+				t.Errorf("%s detection failed. Got player at %v. Expected player at %v", tc.otherPlayer, a.Players["test"].GetPosition(), tc.expectedPosition)
 			}
 		})
 	}
@@ -139,11 +139,11 @@ func TestPlayerToJunkCollisions(t *testing.T) {
 	for i, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			a.addJunk()
-			a.Junk[i].Body.Position = tc.testPosition
+			a.Junk[i].SetPosition(tc.testPosition)
 
 			a.playerCollisions()
 			if a.Junk[i].LastPlayerHit != tc.expectedPlayer {
-				t.Errorf("%s detection failed. Test Player at %v. Junk at %v. Junk Last Player Hit %v", tc.description, a.Players["test"].Body.Position, a.Junk[i].Body.Position, a.Junk[i].LastPlayerHit)
+				t.Errorf("%s detection failed. Test Player at %v. Junk at %v. Junk Last Player Hit %v", tc.description, a.Players["test"].GetPosition(), a.Junk[i].GetPosition(), a.Junk[i].LastPlayerHit)
 			}
 		})
 	}
@@ -162,15 +162,15 @@ func TestJunkToJunkCollisions(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			a := CreateArena(testHeight, testWidth, 0, 0)
 			a.addJunk()
-			a.Junk[0].Body.Position = quarterPosition
-			a.Junk[0].Body.Velocity = testVelocity
+			a.Junk[0].SetPosition(quarterPosition)
+			a.Junk[0].SetVelocity(testVelocity)
 
 			a.addJunk()
-			a.Junk[1].Body.Position = tc.testPosition
+			a.Junk[1].SetPosition(tc.testPosition)
 
 			a.junkCollisions()
-			if a.Junk[0].Body.Velocity != tc.expectedVelocity {
-				t.Errorf("%s detection failed. Expected %v. Got %v", tc.description, tc.expectedVelocity, a.Junk[0].Body.Velocity)
+			if a.Junk[0].GetVelocity() != tc.expectedVelocity {
+				t.Errorf("%s detection failed. Expected %v. Got %v", tc.description, tc.expectedVelocity, a.Junk[0].GetVelocity())
 			}
 		})
 	}

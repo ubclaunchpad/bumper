@@ -160,9 +160,9 @@ func (b *PhysicsBody) GetRestitution() float64 {
 }
 
 // SetPosition sets the body's position
-func (b *PhysicsBody) SetPosition(x float64, y float64) {
-	b.Position.X = x
-	b.Position.Y = y
+func (b *PhysicsBody) SetPosition(p Position) {
+	b.Position.X = p.X
+	b.Position.Y = p.Y
 }
 
 // SetX sets the body's X position
@@ -176,9 +176,9 @@ func (b *PhysicsBody) SetY(y float64) {
 }
 
 // SetVelocity sets the body's velocity
-func (b *PhysicsBody) SetVelocity(dX float64, dY float64) {
-	b.Velocity.Dx = dX
-	b.Velocity.Dy = dY
+func (b *PhysicsBody) SetVelocity(v Velocity) {
+	b.Velocity.Dx = v.Dx
+	b.Velocity.Dy = v.Dy
 }
 
 // SetDx sets the Dx of this body's velocity

@@ -10,6 +10,12 @@ deps:
 bundle:
 	(cd ./client ; npm run build)
 
+# Deploy to GH Pages
+.PHONY: deploy
+deploy:
+	make bundle
+	git subtree push --prefix client/public origin gh-pages
+
 # Build and run Bumper in daemon mode
 .PHONY: bumper
 DATABASE_URL=https://bumperdevdb.firebaseio.com

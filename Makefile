@@ -31,6 +31,11 @@ bumper:
 		-p 80:$(SERVER_PORT) \
 		bumper
 
+# Starts a file server in the web/ directory
+.PHONY: web
+web:
+	(cd ./web ; python -m SimpleHTTPServer 8000)
+
 # Starts the client (dev server on port 8080)
 .PHONY: client
 client:

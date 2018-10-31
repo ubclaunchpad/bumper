@@ -53,20 +53,20 @@ export default class Minimap extends React.Component {
     // Deep copy and then translate all game objects
     const holes = this.holes.map((h) => {
       const newPosition = {
-        x: (h.body.position.x / MAP_SCALE) + this.mapX,
-        y: (h.body.position.y / MAP_SCALE) + this.mapY,
+        x: (h.position.x / MAP_SCALE) + this.mapX,
+        y: (h.position.y / MAP_SCALE) + this.mapY,
       };
       return {
         position: newPosition,
-        radius: h.body.radius,
+        radius: h.radius,
         isAlive: h.isAlive,
       };
     });
 
     const players = this.players.map((p) => {
       const newPosition = {
-        x: (p.body.position.x / MAP_SCALE) + this.mapX,
-        y: (p.body.position.y / MAP_SCALE) + this.mapY,
+        x: (p.position.x / MAP_SCALE) + this.mapX,
+        y: (p.position.y / MAP_SCALE) + this.mapY,
       };
       return {
         position: newPosition,
@@ -78,8 +78,8 @@ export default class Minimap extends React.Component {
 
     const junk = this.junk.map((j) => {
       const newPosition = {
-        x: (j.body.position.x / MAP_SCALE) + this.mapX,
-        y: (j.body.position.y / MAP_SCALE) + this.mapY,
+        x: (j.position.x / MAP_SCALE) + this.mapX,
+        y: (j.position.y / MAP_SCALE) + this.mapY,
       };
       return {
         position: newPosition,

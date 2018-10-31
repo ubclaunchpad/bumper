@@ -19,6 +19,13 @@ type Junk struct {
 	jDebounce     int
 }
 
+// JunkMessage contains the data the client needs about a junk
+type JunkMessage struct {
+	Position Position `json:"position"`
+	Velocity Velocity `json:"velocity"`
+	Color    string   `json:"color"`
+}
+
 // CreateJunk initializes and returns an instance of a Junk
 func CreateJunk(position Position) *Junk {
 	return &Junk{

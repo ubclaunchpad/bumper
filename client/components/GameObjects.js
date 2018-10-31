@@ -7,7 +7,7 @@ export function drawGame(data, canvas) {
   // If you don't do this and another frame is draw before the next update message is
   // recieved than the translated position is used to calcluate the next translations and
   // it causes a glitchy effect.
-  const playerPosition = { ...rawPlayer.body.position };
+  const playerPosition = { ...rawPlayer.position };
   // player.position = { ...data.players[0].position };
 
   if (rawPlayer.name !== '') {
@@ -46,8 +46,8 @@ export function drawGame(data, canvas) {
     // Create a new object arrays with the positions translated.
     const junk = data.junk.map((j) => {
       const newPosition = {
-        x: j.body.position.x + objectXTranslation,
-        y: j.body.position.y + objectYTranslation,
+        x: j.position.x + objectXTranslation,
+        y: j.position.y + objectYTranslation,
       };
       return {
         position: newPosition,
@@ -57,12 +57,12 @@ export function drawGame(data, canvas) {
 
     const holes = data.holes.map((h) => {
       const newPosition = {
-        x: h.body.position.x + objectXTranslation,
-        y: h.body.position.y + objectYTranslation,
+        x: h.position.x + objectXTranslation,
+        y: h.position.y + objectYTranslation,
       };
       return {
         position: newPosition,
-        radius: h.body.radius,
+        radius: h.radius,
         isAlive: h.isAlive,
       };
     });
@@ -70,8 +70,8 @@ export function drawGame(data, canvas) {
     const players = data.players.map((p) => {
       if (p.name !== '' && p.id !== data.player.id) {
         const newPosition = {
-          x: p.body.position.x + objectXTranslation,
-          y: p.body.position.y + objectYTranslation,
+          x: p.position.x + objectXTranslation,
+          y: p.position.y + objectYTranslation,
         };
 
         return {

@@ -16,13 +16,20 @@ const (
 	HoleInfancy         = 2 * HzToSeconds
 )
 
-// Hole contains the data for a hole's position and size
+// Hole contains the data for a hole object
 type Hole struct {
 	PhysicsBody   `json:"body"`
 	GravityRadius float64 `json:"-"`
 	IsAlive       bool    `json:"isAlive"`
 	Life          float64 `json:"-"`
 	StartingLife  float64 `json:"-"`
+}
+
+// HoleMessage contains the data the client needs about a hole
+type HoleMessage struct {
+	Position Position `json:"position"`
+	IsAlive  bool     `json:"isAlive"`
+	Radius   float64  `json:"radius"`
 }
 
 // CreateHole initializes and returns an instance of a Hole

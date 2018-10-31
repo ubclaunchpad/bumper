@@ -54,6 +54,18 @@ type Player struct {
 	ws             *websocket.Conn
 }
 
+// PlayerMessage contains the data the client needs about a player
+type PlayerMessage struct {
+	Name     string   `json:"name"`
+	ID       string   `json:"id"`
+	Position Position `json:"position"`
+	Velocity Velocity `json:"velocity"`
+	Country  string   `json:"country"`
+	Color    string   `json:"color"`
+	Angle    float64  `json:"angle"`
+	Points   int      `json:"points"`
+}
+
 // CreatePlayer constructs an instance of player with
 // given position, color, and WebSocket connection
 func CreatePlayer(id string, name string, pos Position, color string, ws *websocket.Conn) *Player {

@@ -78,3 +78,12 @@ func (h *Hole) ApplyGravity(b1 *PhysicsBody, DampingFactor float64) {
 	gravityVector.ApplyFactor(inverseMagnitude * h.GetRadius() * DampingFactor)
 	b1.Velocity.ApplyVector(gravityVector)
 }
+
+// MakeMessage returns a HoleMessage with this hole's data
+func (h *Hole) MakeMessage() *HoleMessage {
+	return &HoleMessage{
+		Position: h.GetPosition(),
+		IsAlive:  h.IsAlive,
+		Radius:   h.GetRadius(),
+	}
+}

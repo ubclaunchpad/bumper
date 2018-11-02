@@ -215,3 +215,17 @@ func (p *Player) KeyUpHandler(key int) {
 		p.Controls.Down = false
 	}
 }
+
+// MakeMessage returns a PlayerMessage with this player's data
+func (p *Player) MakeMessage() *PlayerMessage {
+	return &PlayerMessage{
+		Name:     p.Name,
+		ID:       p.ID,
+		Position: p.GetPosition(),
+		Velocity: p.GetVelocity(),
+		Country:  p.Country,
+		Color:    p.Color,
+		Angle:    p.Angle,
+		Points:   p.Points,
+	}
+}

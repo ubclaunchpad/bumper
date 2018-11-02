@@ -83,37 +83,17 @@ func (a *Arena) CollisionDetection() {
 func (a *Arena) GetState() *models.UpdateMessage {
 	players := make([]*models.PlayerMessage, 0, len(a.Players))
 	for _, player := range a.Players {
-		PlayerMessage := models.PlayerMessage{
-			Name:     player.Name,
-			ID:       player.ID,
-			Position: player.GetPosition(),
-			Velocity: player.GetVelocity(),
-			Country:  player.Country,
-			Color:    player.Color,
-			Angle:    player.Angle,
-			Points:   player.Points,
-		}
-		players = append(players, &PlayerMessage)
+		players = append(players, player.MakeMessage())
 	}
 
 	holes := make([]*models.HoleMessage, 0, len(a.Holes))
 	for _, hole := range a.Holes {
-		holeMessage := models.HoleMessage{
-			Position: hole.GetPosition(),
-			IsAlive:  hole.IsAlive,
-			Radius:   hole.GetRadius(),
-		}
-		holes = append(holes, &holeMessage)
+		holes = append(holes, hole.MakeMessage())
 	}
 
 	junks := make([]*models.JunkMessage, 0, len(a.Junk))
 	for _, junk := range a.Junk {
-		junkMessage := models.JunkMessage{
-			Position: junk.GetPosition(),
-			Velocity: junk.GetVelocity(),
-			Color:    junk.Color,
-		}
-		junks = append(junks, &junkMessage)
+		junks = append(junks, junk.MakeMessage())
 	}
 
 	return &models.UpdateMessage{

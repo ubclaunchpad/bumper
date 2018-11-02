@@ -87,3 +87,12 @@ func (j *Junk) HitJunk(jh *Junk) {
 	j.jDebounce = JunkDebounceTicks
 	jh.jDebounce = JunkDebounceTicks
 }
+
+// MakeMessage returns a JunkMessage with this junk's data
+func (j *Junk) MakeMessage() *JunkMessage {
+	return &JunkMessage{
+		Position: j.GetPosition(),
+		Velocity: j.GetVelocity(),
+		Color:    j.Color,
+	}
+}

@@ -104,7 +104,7 @@ func TestPlayerToPlayerCollisions(t *testing.T) {
 		testPosition     models.Position
 		expectedPosition models.Position
 	}{
-		{"colliding", quarterPositionOffset, models.Position{X: 700.0672949136314, Y: 600.0304422863687}},
+		{"colliding", quarterPositionOffset, models.Position{X: 699.806, Y: 600.388}},
 		{"non-colliding", centerPosition, models.Position{X: 700.97, Y: 600.97}},
 	}
 
@@ -156,7 +156,7 @@ func TestJunkToJunkCollisions(t *testing.T) {
 		expectedVelocity models.Velocity
 	}{
 		{"non-colliding", centerPosition, testVelocity},
-		{"colliding", quarterPositionOffset, models.Velocity{Dx: 0.028538663912726192, Dy: -0.026995454036182975}},
+		{"colliding", quarterPositionOffset, models.Velocity{Dx: 2.220446049250313e-16, Dy: 0.5}},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {

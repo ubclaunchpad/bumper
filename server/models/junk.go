@@ -193,6 +193,8 @@ func (j *Junk) HitJunk(jh *Junk) {
 	jhVelocity.Dx = (jhVelocity.Dx * -JunkVTransferFactor) + (jInitialVelocity.Dx * JunkVTransferFactor)
 	jhVelocity.Dy = (jhVelocity.Dy * -JunkVTransferFactor) + (jInitialVelocity.Dy * JunkVTransferFactor)
 
+	j.setVelocity(jVelocity)
+	jh.setVelocity(jhVelocity)
 	j.setJDebounce(JunkDebounceTicks)
 	jh.setJDebounce(JunkDebounceTicks)
 }
@@ -201,15 +203,16 @@ func (j *Junk) HitJunk(jh *Junk) {
 func (j *Junk) ApplyGravity(h *Hole) {
 	jVelocity := j.getVelocity()
 	jPosition := j.getPosition()
+	hPosition := h.getPosition()
 
 	gravityVector := Velocity{0, 0}
-	gravityVector.Dx = h.Position.X - jPosition.X
-	gravityVector.Dy = h.Position.Y - jPosition.Y
+	gravityVector.Dx = hPosition.X - jPosition.X
+	gravityVector.Dy = hPosition.Y - jPosition.Y
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()
 
 	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	jVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * JunkGravityDamping
-	jVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * JunkGravityDamping
+	jVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.getRadius() * JunkGravityDamping
+	jVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.getRadius() * JunkGravityDamping
 	j.setVelocity(jVelocity)
 }

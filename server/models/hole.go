@@ -3,6 +3,7 @@ package models
 import (
 	"math"
 	"math/rand"
+	"sync"
 )
 
 // Hole related constants
@@ -24,6 +25,7 @@ type Hole struct {
 	IsAlive       bool     `json:"isAlive"`
 	Life          float64  `json:"-"`
 	StartingLife  float64  `json:"-"`
+	rwMutex       sync.RWMutex
 }
 
 // CreateHole initializes and returns an instance of a Hole
@@ -37,24 +39,93 @@ func CreateHole(position Position) *Hole {
 		Life:          life,
 		IsAlive:       false,
 		StartingLife:  life,
+		rwMutex:       sync.RWMutex{},
 	}
 	return &h
 }
 
+// Getters
+func (h *Hole) getPosition() Position {
+	h.rwMutex.RLock()
+	defer h.rwMutex.RUnlock()
+
+	return h.Position
+}
+
+func (h *Hole) getLife() float64 {
+	h.rwMutex.RLock()
+	defer h.rwMutex.RUnlock()
+
+	return h.Life
+}
+
+func (h *Hole) getRadius() float64 {
+	h.rwMutex.RLock()
+	defer h.rwMutex.RUnlock()
+
+	return h.Radius
+}
+
+func (h *Hole) getGravityRadius() float64 {
+	h.rwMutex.RLock()
+	defer h.rwMutex.RUnlock()
+
+	return h.GravityRadius
+}
+
+func (h *Hole) getStartingLife() float64 {
+	h.rwMutex.RLock()
+	defer h.rwMutex.RUnlock()
+
+	return h.StartingLife
+}
+
+// Setters
+
+func (h *Hole) setIsAlive(isAlive bool) {
+	h.rwMutex.Lock()
+	defer h.rwMutex.Unlock()
+
+	h.IsAlive = isAlive
+}
+
+func (h *Hole) setLife(life float64) {
+	h.rwMutex.Lock()
+	defer h.rwMutex.Unlock()
+
+	h.Life = life
+}
+
+func (h *Hole) setRadius(radius float64) {
+	h.rwMutex.Lock()
+	defer h.rwMutex.Unlock()
+
+	h.Radius = radius
+}
+
+func (h *Hole) setGravityRadius(gravityRadius float64) {
+	h.rwMutex.Lock()
+	defer h.rwMutex.Unlock()
+
+	h.GravityRadius = gravityRadius
+}
+
 // Update reduces this holes life and increases radius if max not reached
 func (h *Hole) Update() {
-	h.Life--
+	hLife := h.getLife()
+	hLife--
+	h.setLife(hLife)
 
-	if h.Life < h.StartingLife-HoleInfancy {
-		h.IsAlive = true
+	if hLife < h.getStartingLife()-HoleInfancy {
+		h.setIsAlive(true)
 	}
-	if h.Radius < MaxHoleRadius*1.2 {
-		h.Radius += 0.02
-		h.GravityRadius += 0.03
+	if hRadius := h.getRadius(); hRadius < MaxHoleRadius*1.2 {
+		h.setRadius(hRadius + 0.02)
+		h.setGravityRadius(h.getGravityRadius() + 0.03)
 	}
 }
 
 // IsDead checks the lifespan of the hole
 func (h *Hole) IsDead() bool {
-	return h.Life < 0
+	return h.getLife() < 0
 }

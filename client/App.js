@@ -3,7 +3,6 @@ import React from 'react';
 import GameOverModal from './components/GameOverModal';
 import WelcomeModal from './components/WelcomeModal';
 import { drawGame, drawWalls } from './components/GameObjects';
-import Minimap from './components/Minimap';
 import Leaderboard from './components/Leaderboard';
 
 import {
@@ -217,15 +216,6 @@ export default class App extends React.Component {
       <div style={styles.canvasContainer}>
         <Leaderboard players={this.state.players} />
         <canvas id="ctx" style={styles.canvas} display="inline" width={window.innerWidth - 20} height={window.innerHeight - 20} margin={0} />
-        {
-          this.state.showMiniMap &&
-          <Minimap
-            arena={this.state.arena}
-            junk={this.state.junk}
-            players={this.state.players}
-            holes={this.state.holes}
-          />
-        }
         {
           this.state.showWelcomeModal &&
           <WelcomeModal

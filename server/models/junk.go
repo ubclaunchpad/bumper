@@ -2,6 +2,7 @@ package models
 
 import (
 	"math"
+	"sync"
 )
 
 // Junk related constants
@@ -23,6 +24,7 @@ type Junk struct {
 	LastPlayerHit *Player  `json:"-"`
 	Debounce      int      `json:"-"`
 	jDebounce     int
+	rwMutex       sync.RWMutex
 }
 
 // CreateJunk initializes and returns an instance of a Junk
@@ -33,95 +35,184 @@ func CreateJunk(position Position) *Junk {
 		Color:     "white",
 		Debounce:  0,
 		jDebounce: 0,
+		rwMutex:   sync.RWMutex{},
 	}
+}
+
+// Getters
+
+func (j *Junk) getPosition() Position {
+	j.rwMutex.RLock()
+	defer j.rwMutex.RUnlock()
+
+	return j.Position
+}
+
+func (j *Junk) getVelocity() Velocity {
+	j.rwMutex.RLock()
+	defer j.rwMutex.RUnlock()
+
+	return j.Velocity
+}
+
+func (j *Junk) getDebounce() int {
+	j.rwMutex.RLock()
+	defer j.rwMutex.RUnlock()
+
+	return j.Debounce
+}
+
+func (j *Junk) getJDebounce() int {
+	j.rwMutex.RLock()
+	defer j.rwMutex.RUnlock()
+
+	return j.jDebounce
+}
+
+// Setters
+
+func (j *Junk) setPosition(pos Position) {
+	j.rwMutex.Lock()
+	defer j.rwMutex.Unlock()
+
+	j.Position = pos
+}
+
+func (j *Junk) setVelocity(v Velocity) {
+	j.rwMutex.Lock()
+	defer j.rwMutex.Unlock()
+
+	j.Velocity = v
+}
+
+func (j *Junk) setDebounce(debounce int) {
+	j.rwMutex.Lock()
+	defer j.rwMutex.Unlock()
+
+	j.Debounce = debounce
+}
+
+func (j *Junk) setJDebounce(jDebounce int) {
+	j.rwMutex.Lock()
+	defer j.rwMutex.Unlock()
+
+	j.jDebounce = jDebounce
+}
+
+func (j *Junk) setColor(color string) {
+	j.rwMutex.Lock()
+	defer j.rwMutex.Unlock()
+
+	j.Color = color
+}
+
+func (j *Junk) setLastPlayerHit(player *Player) {
+	j.rwMutex.Lock()
+	defer j.rwMutex.Unlock()
+
+	j.LastPlayerHit = player
 }
 
 // UpdatePosition Update Junk's position based on calculations of position/velocity
 func (j *Junk) UpdatePosition(height float64, width float64) {
-	if j.Position.X+j.Velocity.Dx > width-JunkRadius || j.Position.X+j.Velocity.Dx < JunkRadius {
-		j.Velocity.Dx = -j.Velocity.Dx
+	positionVector := j.getPosition()
+	velocityVector := j.getVelocity()
+	if positionVector.X+velocityVector.Dx > width-JunkRadius || positionVector.X+velocityVector.Dx < JunkRadius {
+		velocityVector.Dx = -velocityVector.Dx
 	}
-	if j.Position.Y+j.Velocity.Dy > height-JunkRadius || j.Position.Y+j.Velocity.Dy < JunkRadius {
-		j.Velocity.Dy = -j.Velocity.Dy
+	if positionVector.Y+velocityVector.Dy > height-JunkRadius || positionVector.Y+velocityVector.Dy < JunkRadius {
+		velocityVector.Dy = -velocityVector.Dy
 	}
 
-	j.Velocity.Dx *= JunkFriction
-	j.Velocity.Dy *= JunkFriction
+	velocityVector.Dx *= JunkFriction
+	velocityVector.Dy *= JunkFriction
 
-	j.Position.X += j.Velocity.Dx
-	j.Position.Y += j.Velocity.Dy
+	positionVector.X += velocityVector.Dx
+	positionVector.Y += velocityVector.Dy
 
-	if j.Debounce > 0 {
-		j.Debounce--
+	j.setPosition(positionVector)
+	j.setVelocity(velocityVector)
+
+	if jDebounce := j.getDebounce(); jDebounce > 0 {
+		j.setDebounce(jDebounce - 1)
 	} else {
-		j.Debounce = 0
+		j.setDebounce(0)
 	}
 
-	if j.jDebounce > 0 {
-		j.jDebounce--
+	if jjDebounce := j.getJDebounce(); jjDebounce > 0 {
+		j.setJDebounce(jjDebounce - 1)
 	} else {
-		j.jDebounce = 0
+		j.setJDebounce(0)
 	}
 }
 
 // HitBy Update Junks's velocity based on calculations of being hit by a player
 func (j *Junk) HitBy(p *Player) {
 	pVelocity := p.getVelocity()
+	jVelocity := j.getVelocity()
 	// We don't want this collision till the debounce is down.
-	if j.Debounce != 0 {
+	if j.getDebounce() != 0 {
 		return
 	}
 
-	j.Color = p.getColor() //Assign junk to last recently hit player color
-	j.LastPlayerHit = p
+	j.setColor(p.getColor()) //Assign junk to last recently hit player color
+	j.setLastPlayerHit(p)
 
 	if pVelocity.Dx < 0 {
-		j.Velocity.Dx = math.Min(pVelocity.Dx*BumpFactor, -MinimumBump)
+		jVelocity.Dx = math.Min(pVelocity.Dx*BumpFactor, -MinimumBump)
 	} else {
-		j.Velocity.Dx = math.Max(pVelocity.Dx*BumpFactor, MinimumBump)
+		jVelocity.Dx = math.Max(pVelocity.Dx*BumpFactor, MinimumBump)
 	}
 
 	if pVelocity.Dy < 0 {
-		j.Velocity.Dy = math.Min(pVelocity.Dy*BumpFactor, -MinimumBump)
+		jVelocity.Dy = math.Min(pVelocity.Dy*BumpFactor, -MinimumBump)
 	} else {
-		j.Velocity.Dy = math.Max(pVelocity.Dy*BumpFactor, MinimumBump)
+		jVelocity.Dy = math.Max(pVelocity.Dy*BumpFactor, MinimumBump)
 	}
 
+	j.setVelocity(jVelocity)
 	p.hitJunk()
-	j.Debounce = JunkDebounceTicks
+	j.setDebounce(JunkDebounceTicks)
 }
 
 // HitJunk Update Junks's velocity based on calculations of being hit by another Junk
 func (j *Junk) HitJunk(jh *Junk) {
 	// We don't want this collision till the debounce is down.
-	if j.jDebounce != 0 {
+	if j.getJDebounce() != 0 {
 		return
 	}
 
-	initalVelocity := j.Velocity
-
+	jInitialVelocity := j.getVelocity()
+	jVelocity := jInitialVelocity
+	jhVelocity := jh.getVelocity()
 	//Calculate this junks's new velocity
-	j.Velocity.Dx = (j.Velocity.Dx * -JunkVTransferFactor) + (jh.Velocity.Dx * JunkVTransferFactor)
-	j.Velocity.Dy = (j.Velocity.Dy * -JunkVTransferFactor) + (jh.Velocity.Dy * JunkVTransferFactor)
+	jVelocity.Dx = (jVelocity.Dx * -JunkVTransferFactor) + (jhVelocity.Dx * JunkVTransferFactor)
+	jVelocity.Dy = (jVelocity.Dy * -JunkVTransferFactor) + (jhVelocity.Dy * JunkVTransferFactor)
 
 	//Calculate other junk's new velocity
-	jh.Velocity.Dx = (jh.Velocity.Dx * -JunkVTransferFactor) + (initalVelocity.Dx * JunkVTransferFactor)
-	jh.Velocity.Dy = (jh.Velocity.Dy * -JunkVTransferFactor) + (initalVelocity.Dy * JunkVTransferFactor)
+	jhVelocity.Dx = (jhVelocity.Dx * -JunkVTransferFactor) + (jInitialVelocity.Dx * JunkVTransferFactor)
+	jhVelocity.Dy = (jhVelocity.Dy * -JunkVTransferFactor) + (jInitialVelocity.Dy * JunkVTransferFactor)
 
-	j.jDebounce = JunkDebounceTicks
-	jh.jDebounce = JunkDebounceTicks
+	j.setVelocity(jVelocity)
+	jh.setVelocity(jhVelocity)
+	j.setJDebounce(JunkDebounceTicks)
+	jh.setJDebounce(JunkDebounceTicks)
 }
 
 // ApplyGravity applys a vector towards given position
 func (j *Junk) ApplyGravity(h *Hole) {
-	gravityVector := Velocity{0, 0}
-	gravityVector.Dx = h.Position.X - j.Position.X
-	gravityVector.Dy = h.Position.Y - j.Position.Y
+	jVelocity := j.getVelocity()
+	jPosition := j.getPosition()
+	hPosition := h.getPosition()
 
+	gravityVector := Velocity{0, 0}
+	gravityVector.Dx = hPosition.X - jPosition.X
+	gravityVector.Dy = hPosition.Y - jPosition.Y
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()
 
 	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	j.Velocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * JunkGravityDamping
-	j.Velocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * JunkGravityDamping
+	jVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.getRadius() * JunkGravityDamping
+	jVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.getRadius() * JunkGravityDamping
+	j.setVelocity(jVelocity)
 }

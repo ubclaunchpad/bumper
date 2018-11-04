@@ -319,16 +319,17 @@ func (p *Player) ApplyGravity(h *Hole) {
 	gravityVector := Velocity{0, 0}
 	pVelocity := p.getVelocity()
 	pPosition := p.getPosition()
+	hPosition := h.getPosition()
 
-	gravityVector.Dx = h.Position.X - pPosition.X
-	gravityVector.Dy = h.Position.Y - pPosition.Y
+	gravityVector.Dx = hPosition.X - pPosition.X
+	gravityVector.Dy = hPosition.Y - pPosition.Y
 
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()
 
 	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	pVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.Radius * gravityDamping
-	pVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.Radius * gravityDamping
+	pVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.getRadius() * gravityDamping
+	pVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.getRadius() * gravityDamping
 
 	p.setVelocity(pVelocity)
 }

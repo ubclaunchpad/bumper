@@ -50,7 +50,7 @@ type Player struct {
 	LastPlayerHit  *Player     `json:"-"`
 	pointsDebounce int
 	pDebounce      int
-	rwMutex        sync.RWMutex
+	rwMutex        *sync.RWMutex
 	ws             *websocket.Conn
 }
 
@@ -79,7 +79,7 @@ func CreatePlayer(id string, name string, pos Position, color string, ws *websoc
 		Controls:       KeysPressed{},
 		pDebounce:      0,
 		pointsDebounce: 0,
-		rwMutex:        lock,
+		rwMutex:        &lock,
 		ws:             ws,
 	}
 }
@@ -309,26 +309,6 @@ func (p *Player) checkWalls2(height float64, width float64) {
 		p.ApplyYFactor(WallBounceFactor)
 		p.SetY(p.GetRadius() + 1)
 	}
-}
-
-// ApplyGravity Applys a vector towards given position
-func (p *Player) ApplyGravity(h *Hole) {
-	gravityVector := Velocity{0, 0}
-	pVelocity := p.GetVelocity()
-	pPosition := p.GetPosition()
-	hPosition := h.GetPosition()
-
-	gravityVector.Dx = hPosition.X - pPosition.X
-	gravityVector.Dy = hPosition.Y - pPosition.Y
-
-	inverseMagnitude := 1.0 / gravityVector.magnitude()
-	gravityVector.normalize()
-
-	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	pVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.GetRadius() * PlayerGravityDamping
-	pVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.GetRadius() * PlayerGravityDamping
-
-	p.SetVelocity(pVelocity)
 }
 
 // KeyDownHandler sets this players given key as pressed down

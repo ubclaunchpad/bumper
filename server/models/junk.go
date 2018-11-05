@@ -21,7 +21,7 @@ type Junk struct {
 	LastPlayerHit *Player `json:"-"`
 	Debounce      int     `json:"-"`
 	jDebounce     int
-	rwMutex       sync.RWMutex
+	rwMutex       *sync.RWMutex
 }
 
 // JunkMessage contains the data the client needs about a junk
@@ -39,7 +39,7 @@ func CreateJunk(position Position) *Junk {
 		Color:       "white",
 		Debounce:    0,
 		jDebounce:   0,
-		rwMutex:     lock,
+		rwMutex:     &lock,
 	}
 }
 
@@ -147,22 +147,4 @@ func (j *Junk) MakeMessage() *JunkMessage {
 		Velocity: j.GetVelocity(),
 		Color:    j.Color,
 	}
-}
-
-// ApplyGravity Applys a vector towards given position
-func (j *Junk) ApplyGravity(h *Hole) {
-	jVelocity := j.GetVelocity()
-	jPosition := j.GetPosition()
-	hPosition := h.GetPosition()
-
-	gravityVector := Velocity{0, 0}
-	gravityVector.Dx = hPosition.X - jPosition.X
-	gravityVector.Dy = hPosition.Y - jPosition.Y
-	inverseMagnitude := 1.0 / gravityVector.magnitude()
-	gravityVector.normalize()
-
-	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	jVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.GetRadius() * JunkGravityDamping
-	jVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.GetRadius() * JunkGravityDamping
-	j.SetVelocity(jVelocity)
 }

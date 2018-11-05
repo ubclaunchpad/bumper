@@ -71,8 +71,8 @@ func (v *Velocity) ApplyFactor(factor float64) {
 
 // VelocityMagnitude returns the magnitude of this body's velocity
 func (b *PhysicsBody) VelocityMagnitude() float64 {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return math.Hypot(b.Velocity.Dx, b.Velocity.Dy)
 }
@@ -134,72 +134,72 @@ func (b *PhysicsBody) ApplyVelocity() {
 
 // GetPosition returns this object's position
 func (b *PhysicsBody) GetPosition() Position {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return b.Position
 }
 
 // GetX return's this object's X position
 func (b *PhysicsBody) GetX() float64 {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return b.Position.X
 }
 
 // GetY return's this object's Y position
 func (b *PhysicsBody) GetY() float64 {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return b.Position.Y
 }
 
 // GetVelocity return's this object's velocity
 func (b *PhysicsBody) GetVelocity() Velocity {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return b.Velocity
 }
 
 // GetDx return's this object's velocity's Dx component
 func (b *PhysicsBody) GetDx() float64 {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return b.Velocity.Dx
 }
 
 // GetDy return's this object's velocity's Dy component
 func (b *PhysicsBody) GetDy() float64 {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return b.Velocity.Dy
 }
 
 // GetMass return's this object's mass
 func (b *PhysicsBody) GetMass() float64 {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return b.Mass
 }
 
 // GetRadius return's this object's radius
 func (b *PhysicsBody) GetRadius() float64 {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return b.Radius
 }
 
 // GetRestitution return's this object's restitution factor
 func (b *PhysicsBody) GetRestitution() float64 {
-	b.rwMutex.Lock()
-	defer b.rwMutex.Unlock()
+	b.rwMutex.RLock()
+	defer b.rwMutex.RUnlock()
 
 	return b.Restitution
 }

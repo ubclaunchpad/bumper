@@ -24,7 +24,7 @@ type Hole struct {
 	IsAlive       bool    `json:"isAlive"`
 	Life          float64 `json:"-"`
 	StartingLife  float64 `json:"-"`
-	rwMutex       sync.RWMutex
+	rwMutex       *sync.RWMutex
 }
 
 // HoleMessage contains the data the client needs about a hole
@@ -45,7 +45,7 @@ func CreateHole(position Position) *Hole {
 		Life:          life,
 		IsAlive:       false,
 		StartingLife:  life,
-		rwMutex:       lock,
+		rwMutex:       &lock,
 	}
 	return &h
 }

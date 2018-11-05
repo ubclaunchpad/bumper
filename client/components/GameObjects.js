@@ -63,7 +63,7 @@ export function drawGame(data, canvas) {
     });
 
     const holes = data.holes.map((h) => {
-      if (!h.position) {
+      if (!h || !h.position) {
         return {
           position: { x: 0, y: 0 },
           radius: 0,

@@ -69,12 +69,6 @@ func (v *Velocity) ApplyFactor(factor float64) {
 	v.Dy *= factor
 }
 
-// ApplyVector applies given vector to this velocity
-func (v *Velocity) ApplyVector(vector Velocity) {
-	v.Dx += vector.Dx
-	v.Dy += vector.Dy
-}
-
 // VelocityMagnitude returns the magnitude of this body's velocity
 func (b *PhysicsBody) VelocityMagnitude() float64 {
 	b.rwMutex.Lock()
@@ -85,6 +79,9 @@ func (b *PhysicsBody) VelocityMagnitude() float64 {
 
 // NormalizeVelocity normalizes this body's velocity
 func (b *PhysicsBody) NormalizeVelocity() {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	mag := b.VelocityMagnitude()
 	if mag > 0 {
 		b.Velocity.Dx /= mag
@@ -94,139 +91,211 @@ func (b *PhysicsBody) NormalizeVelocity() {
 
 // ApplyFactor applies given factor to the velocity of this body
 func (b *PhysicsBody) ApplyFactor(factor float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Velocity.Dx *= factor
 	b.Velocity.Dy *= factor
 }
 
 // ApplyXFactor applies given factor to the Dx velocity of this body
 func (b *PhysicsBody) ApplyXFactor(factor float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Velocity.Dx *= factor
 }
 
 // ApplyYFactor applies given factor to the Dy velocity of this body
 func (b *PhysicsBody) ApplyYFactor(factor float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Velocity.Dy *= factor
 }
 
 // ApplyVector applies given vector to the velocity of this body
 func (b *PhysicsBody) ApplyVector(vector Velocity) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Velocity.Dx += vector.Dx
 	b.Velocity.Dy += vector.Dy
 }
 
-// ApplyVelocity applies this body's velocity to its position
+// ApplyVelocity applies this body's velocity
 func (b *PhysicsBody) ApplyVelocity() {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Position.X += b.Velocity.Dx
 	b.Position.Y += b.Velocity.Dy
 }
 
-// GetPosition returns the body's position
+// GetPosition returns this object's position
 func (b *PhysicsBody) GetPosition() Position {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return b.Position
 }
 
-// GetX returns the body's X position
+// GetX return's this object's X position
 func (b *PhysicsBody) GetX() float64 {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return b.Position.X
 }
 
-// GetY returns the body's Y position
+// GetY return's this object's Y position
 func (b *PhysicsBody) GetY() float64 {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return b.Position.Y
 }
 
-// GetVelocity returns the body's velocity
+// GetVelocity return's this object's velocity
 func (b *PhysicsBody) GetVelocity() Velocity {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return b.Velocity
 }
 
-// GetDx sets the Dx of this body's velocity
+// GetDx return's this object's velocity's Dx component
 func (b *PhysicsBody) GetDx() float64 {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return b.Velocity.Dx
 }
 
-// GetDy returns the Dy of this body's velocity
+// GetDy return's this object's velocity's Dy component
 func (b *PhysicsBody) GetDy() float64 {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return b.Velocity.Dy
 }
 
-// GetMass returns the body's Mass
+// GetMass return's this object's mass
 func (b *PhysicsBody) GetMass() float64 {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return b.Mass
 }
 
-// GetRadius returns the body's Radius
+// GetRadius return's this object's radius
 func (b *PhysicsBody) GetRadius() float64 {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return b.Radius
 }
 
-// GetRestitution returns the body's Restitution Factor
+// GetRestitution return's this object's restitution factor
 func (b *PhysicsBody) GetRestitution() float64 {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return b.Restitution
 }
 
-// SetPosition sets the body's position
+// SetPosition set's this body's position
 func (b *PhysicsBody) SetPosition(p Position) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Position.X = p.X
 	b.Position.Y = p.Y
 }
 
 // SetX sets the body's X position
 func (b *PhysicsBody) SetX(x float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Position.X = x
 }
 
 // SetY sets the body's Y position
 func (b *PhysicsBody) SetY(y float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Position.Y = y
 }
 
 // SetVelocity sets the body's velocity
 func (b *PhysicsBody) SetVelocity(v Velocity) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Velocity.Dx = v.Dx
 	b.Velocity.Dy = v.Dy
 }
 
 // SetDx sets the Dx of this body's velocity
 func (b *PhysicsBody) SetDx(dX float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Velocity.Dx = dX
 }
 
 // SetDy sets the Dy of this body's velocity
 func (b *PhysicsBody) SetDy(dY float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Velocity.Dy = dY
 }
 
 // SetMass sets the body's Mass
 func (b *PhysicsBody) SetMass(mass float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Mass = mass
 }
 
 // SetRadius sets the body's Radius
 func (b *PhysicsBody) SetRadius(radius float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Radius = radius
 }
 
 // SetRestitution sets the body's Restitution Factor
 func (b *PhysicsBody) SetRestitution(restitution float64) {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	b.Restitution = restitution
 }
 
 // InelasticCollision update
 func InelasticCollision(b1 *PhysicsBody, b2 *PhysicsBody) {
-	// func InelasticCollision(b1 struct{ PhysicsBody }, b2 struct{ PhysicsBody }) {
+	// XXX - This feels like it could lead to deadlocks:
+	b1.rwMutex.Lock()
+	defer b1.rwMutex.Unlock()
+	b2.rwMutex.Lock()
+	defer b2.rwMutex.Unlock()
 
 	// Math: https://en.wikipedia.org/wiki/Elastic_collision
 	x1Minusx2 := Velocity{
-		Dx: b1.GetX() - b2.GetX(),
-		Dy: b1.GetY() - b2.GetY(),
+		Dx: b1.Position.X - b2.Position.X,
+		Dy: b1.Position.Y - b2.Position.Y,
 	}
 	x2Minusx1 := Velocity{
-		Dx: b2.GetX() - b1.GetX(),
-		Dy: b2.GetY() - b1.GetY(),
+		Dx: b2.Position.X - b1.Position.X,
+		Dy: b2.Position.Y - b1.Position.Y,
 	}
-	// Maybe this function should be made critical as one block anyways?
-	// b1.SetDx(b1.GetDx() * b1.GetRestitution() - (2*b2.GetMass()/(b1.GetMass()+b2.GetMass()))*(b1.)
+
 	b1.Velocity.Dx = b1.Velocity.Dx*b1.Restitution - (2*b2.Mass/(b1.Mass+b2.Mass))*(b1.Velocity.sub(b2.Velocity).dot(x1Minusx2))/(math.Pow(x1Minusx2.magnitude(), 2))*(x1Minusx2.Dx)
 	b1.Velocity.Dy = b1.Velocity.Dy*b1.Restitution - (2*b2.Mass/(b1.Mass+b2.Mass))*(b1.Velocity.sub(b2.Velocity).dot(x1Minusx2))/(math.Pow(x1Minusx2.magnitude(), 2))*(x1Minusx2.Dy)
 

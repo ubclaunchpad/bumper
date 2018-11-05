@@ -266,11 +266,37 @@ func (p *Player) HitPlayer(ph *Player) {
 	p.pDebounce = PlayerDebounceTicks
 }
 
-// checkWalls check if the player is attempting to exit the walls, reverse they're direction
+// checkWalls if the player is attempting to exit the walls, reverse their direction
 func (p *Player) checkWalls(height float64, width float64) {
+	positionVector := p.GetPosition()
+	velocityVector := p.GetVelocity()
+	playerRadius := p.GetRadius()
+
+	if positionVector.X+playerRadius > width {
+		positionVector.X = width - playerRadius - 1
+		velocityVector.Dx *= WallBounceFactor
+	} else if positionVector.X-playerRadius < 0 {
+		positionVector.X = playerRadius + 1
+		velocityVector.Dx *= WallBounceFactor
+	}
+
+	if positionVector.Y+playerRadius > height {
+		positionVector.Y = height - playerRadius - 1
+		velocityVector.Dy *= WallBounceFactor
+	} else if positionVector.Y-playerRadius < 0 {
+		positionVector.Y = playerRadius + 1
+		velocityVector.Dy *= WallBounceFactor
+	}
+
+	p.SetPosition(positionVector)
+	p.SetVelocity(velocityVector)
+}
+
+// checkWalls2 check if the player is attempting to exit the walls, reverse they're direction
+func (p *Player) checkWalls2(height float64, width float64) {
 	if p.GetX()+p.GetRadius() > width {
-		p.SetX(width - p.GetRadius() - 1)
 		p.ApplyXFactor(WallBounceFactor)
+		p.SetX(width - p.GetRadius() - 1)
 	} else if p.GetX()-p.GetRadius() < 0 {
 		p.ApplyXFactor(WallBounceFactor)
 		p.SetX(p.GetRadius() + 1)
@@ -285,14 +311,15 @@ func (p *Player) checkWalls(height float64, width float64) {
 	}
 }
 
-// ApplyGravity applys a vector towards given position
+// ApplyGravity Applys a vector towards given position
 func (p *Player) ApplyGravity(h *Hole) {
 	gravityVector := Velocity{0, 0}
 	pVelocity := p.GetVelocity()
 	pPosition := p.GetPosition()
+	hPosition := h.GetPosition()
 
-	gravityVector.Dx = h.Position.X - pPosition.X
-	gravityVector.Dy = h.Position.Y - pPosition.Y
+	gravityVector.Dx = hPosition.X - pPosition.X
+	gravityVector.Dy = hPosition.Y - pPosition.Y
 
 	inverseMagnitude := 1.0 / gravityVector.magnitude()
 	gravityVector.normalize()

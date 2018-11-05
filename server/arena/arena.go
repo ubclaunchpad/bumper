@@ -88,6 +88,18 @@ func (a *Arena) GetPlayerMessages() []*models.PlayerMessage {
 	return players
 }
 
+// GetPlayers returns a list of players
+func (a *Arena) GetPlayers() []*models.Player {
+	a.rwMutex.RLock()
+	defer a.rwMutex.RUnlock()
+
+	players := make([]*models.Player, 0, len(a.Players))
+	for _, player := range a.Players {
+		players = append(players, player)
+	}
+	return players
+}
+
 // UpdatePositions calculates the next state of each object
 func (a *Arena) UpdatePositions() {
 	a.rwMutex.Lock()

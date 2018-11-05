@@ -70,8 +70,8 @@ class WelcomeModal extends React.Component {
                   <ControlLabel> From</ControlLabel>
 
                   <FormControl componentClass="select" value={this.state.country} onChange={this.handleSelect}>
-                    <option value="US" key="US">
-                      {countries.US} {'US'.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397))}
+                    <option value="CA" key="CA">
+                      {countries.CA} {'CA'.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397))}
                     </option>
                     {listOfCountries}
                   </FormControl>

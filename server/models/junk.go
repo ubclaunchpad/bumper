@@ -64,12 +64,13 @@ func (j *Junk) UpdatePosition(height float64, width float64) {
 
 // HitBy causes a collision event between this junk and given player.
 func (j *Junk) HitBy(p *Player) {
+	pVelocity := p.getVelocity()
 	// We don't want this collision till the debounce is down.
 	if j.Debounce != 0 {
 		return
 	}
 
-	j.Color = p.Color //Assign junk to last recently hit player color
+	j.Color = p.getColor() //Assign junk to last recently hit player color
 	j.LastPlayerHit = p
 	InelasticCollision(&j.PhysicsBody, &p.PhysicsBody)
 

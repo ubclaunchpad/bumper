@@ -59,7 +59,7 @@ class WelcomeModal extends React.Component {
 
               <form>
                 <FormGroup controlId="formBasicText">
-                  <ControlLabel> Name</ControlLabel>
+                  <ControlLabel> Welcome,</ControlLabel>
                   <FormControl
                     type="text"
                     value={this.state.inputName}
@@ -67,10 +67,12 @@ class WelcomeModal extends React.Component {
                   />
                 </FormGroup>
                 <FormGroup controlId="formControlsSelect">
-                  <ControlLabel> Country</ControlLabel>
+                  <ControlLabel> From</ControlLabel>
 
                   <FormControl componentClass="select" value={this.state.country} onChange={this.handleSelect}>
-                    <option value="None" key="None">None</option>
+                    <option value="US" key="US">
+                      {countries.US} {'US'.toUpperCase().replace(/./g, char => String.fromCodePoint(char.charCodeAt(0) + 127397))}
+                    </option>
                     {listOfCountries}
                   </FormControl>
                 </FormGroup>

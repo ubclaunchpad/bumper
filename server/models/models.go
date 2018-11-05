@@ -2,15 +2,17 @@ package models
 
 import (
 	"math"
+	"sync"
 )
 
 // PhysicsBody houses the physical properties of any object.
 type PhysicsBody struct {
-	Position    Position `json:"position"`
+	Position    Position
 	Velocity    Velocity
-	Radius      float64 `json:"radius"`
+	Radius      float64
 	Mass        float64
 	Restitution float64
+	rwMutex     *sync.RWMutex
 }
 
 // Position x y position
@@ -50,13 +52,14 @@ func (v *Velocity) normalize() {
 
 // CreateBody constructs a physics body at rest with
 // given position, mass, and resitution factor.
-func CreateBody(p Position, rad float64, m float64, res float64) PhysicsBody {
+func CreateBody(p Position, rad float64, m float64, res float64, lock *sync.RWMutex) PhysicsBody {
 	return PhysicsBody{
 		Position:    p,
 		Velocity:    Velocity{},
 		Radius:      rad,
 		Mass:        m,
 		Restitution: res,
+		rwMutex:     lock,
 	}
 }
 
@@ -74,6 +77,9 @@ func (v *Velocity) ApplyVector(vector Velocity) {
 
 // VelocityMagnitude returns the magnitude of this body's velocity
 func (b *PhysicsBody) VelocityMagnitude() float64 {
+	b.rwMutex.Lock()
+	defer b.rwMutex.Unlock()
+
 	return math.Hypot(b.Velocity.Dx, b.Velocity.Dy)
 }
 

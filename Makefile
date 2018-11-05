@@ -5,7 +5,32 @@ deps:
 	(cd server ; go get -u github.com/golang/dep/cmd/dep ; dep ensure)
 	(cd client ; npm install )
 
-# Starts the client
+# Build and minify client
+.PHONY: bundle
+bundle:
+	(cd ./client ; npm run build)
+
+# Deploy to GH Pages
+.PHONY: deploy
+deploy:
+	make bundle
+	git subtree push --prefix client/public origin gh-pages
+
+# Build and run Bumper in daemon mode
+.PHONY: bumper
+DATABASE_URL=https://bumperdevdb.firebaseio.com
+SERVER_PORT=9090
+bumper:
+	docker stop bumper 2>&1 || true
+	docker build -t bumper .
+	docker run -d --rm \
+		--name bumper \
+		-e DATABASE_URL=$(DATABASE_URL) \
+		-e PORT=$(SERVER_PORT) \
+		-p 9090:$(SERVER_PORT) \
+		bumper
+
+# Starts the client (dev server on port 8080)
 .PHONY: client
 client:
 	(cd ./client ; npm start)
@@ -13,4 +38,4 @@ client:
 # Starts the server (exposed on port 9090)
 .PHONY: server
 server:
-	(cd ./server ; PORT=8081 ; gin -p 9090 -a 8081 -i run main.go)
+	(cd ./server ; DATABASE_URL=$(DATABASE_URL) PORT=8081 gin -p $(SERVER_PORT) -a 8081 -i run main.go)

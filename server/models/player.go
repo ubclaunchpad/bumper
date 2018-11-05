@@ -50,7 +50,7 @@ type Player struct {
 	LastPlayerHit  *Player     `json:"-"`
 	pointsDebounce int
 	pDebounce      int
-	mutex          sync.Mutex
+	rwMutex        sync.RWMutex
 	ws             *websocket.Conn
 }
 
@@ -69,18 +69,111 @@ type PlayerMessage struct {
 // CreatePlayer constructs an instance of player with
 // given position, color, and WebSocket connection
 func CreatePlayer(id string, name string, pos Position, color string, ws *websocket.Conn) *Player {
+	lock := sync.RWMutex{}
 	return &Player{
 		Name:           name,
 		ID:             id,
-		PhysicsBody:    CreateBody(pos, PlayerRadius, PlayerMass, PlayerRestitutionFactor),
+		PhysicsBody:    CreateBody(pos, PlayerRadius, PlayerMass, PlayerRestitutionFactor, &lock),
 		Color:          color,
 		Angle:          math.Pi,
 		Controls:       KeysPressed{},
 		pDebounce:      0,
 		pointsDebounce: 0,
-		mutex:          sync.Mutex{},
+		rwMutex:        lock,
 		ws:             ws,
 	}
+}
+
+// GetName returns name of player
+func (p *Player) GetName() string {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Name
+}
+
+func (p *Player) getColor() string {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Color
+}
+
+func (p *Player) getControls() KeysPressed {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Controls
+}
+
+func (p *Player) getAngle() float64 {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.Angle
+}
+
+func (p *Player) getPDebounce() int {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.pDebounce
+}
+
+func (p *Player) getPointsDebounce() int {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.pointsDebounce
+}
+
+func (p *Player) getLastPlayerHit() *Player {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
+	return p.LastPlayerHit
+}
+
+func (p *Player) setControls(k KeysPressed) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.Controls = k
+}
+
+func (p *Player) setAngle(a float64) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.Angle = a
+}
+
+func (p *Player) setPDebounce(pDebounce int) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.pDebounce = pDebounce
+}
+
+func (p *Player) setPointsDebounce(pointsDebounce int) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.pointsDebounce = pointsDebounce
+}
+
+func (p *Player) setPoints(points int) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.Points = points
+}
+
+func (p *Player) setLastPlayerHit(playerHit *Player) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+
+	p.LastPlayerHit = playerHit
 }
 
 // GenUniqueID generates a unique id string
@@ -91,13 +184,13 @@ func GenUniqueID() string {
 
 // AddPoints adds numPoints to player p
 func (p *Player) AddPoints(numPoints int) {
-	p.Points = p.Points + numPoints
+	p.setPoints(p.Points + numPoints)
 }
 
 // SendJSON sends JSON data through the player's websocket connection
 func (p *Player) SendJSON(m *Message) error {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
 
 	return p.ws.WriteJSON(m)
 }
@@ -114,15 +207,17 @@ func (p *Player) Close() {
 func (p *Player) UpdatePosition(height float64, width float64) {
 	controlsVector := Velocity{0, 0}
 
-	if p.Controls.Left {
-		p.Angle = math.Mod(p.Angle+0.1, 360)
+	if p.getControls().Left {
+		p.setAngle(math.Mod(p.getAngle()+0.1, 360))
 	}
-	if p.Controls.Right {
-		p.Angle = math.Mod(p.Angle-0.1, 360)
+
+	if p.getControls().Right {
+		p.setAngle(math.Mod(p.getAngle()-0.1, 360))
 	}
-	if p.Controls.Up {
-		controlsVector.Dy = (0.5 * PlayerRadius * math.Cos(p.Angle))
-		controlsVector.Dx = (0.5 * PlayerRadius * math.Sin(p.Angle))
+
+	if p.getControls().Up {
+		controlsVector.Dy = (0.5 * PlayerRadius * math.Cos(p.getAngle()))
+		controlsVector.Dx = (0.5 * PlayerRadius * math.Sin(p.getAngle()))
 	}
 
 	controlsVector.normalize()
@@ -142,23 +237,23 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 
 	p.checkWalls(height, width)
 
-	if p.pDebounce > 0 {
-		p.pDebounce--
+	if pDebounce := p.getPDebounce(); pDebounce > 0 {
+		p.setPDebounce(pDebounce - 1)
 	} else {
-		p.pDebounce = 0
+		p.setPDebounce(0)
 	}
 
-	if p.pointsDebounce > 0 {
-		p.pointsDebounce--
+	if pointsDebounce := p.getPointsDebounce(); pointsDebounce > 0 {
+		p.setPointsDebounce(pointsDebounce - 1)
 	} else {
-		p.LastPlayerHit = nil
-		p.pointsDebounce = 0
+		p.setLastPlayerHit(nil)
+		p.setPointsDebounce(0)
 	}
 }
 
 // HitPlayer calculates collision, update Player's position based on calculation of hitting another player
 func (p *Player) HitPlayer(ph *Player) {
-	if p.pDebounce != 0 {
+	if p.getPDebounce() != 0 {
 		return
 	}
 
@@ -190,30 +285,57 @@ func (p *Player) checkWalls(height float64, width float64) {
 	}
 }
 
+// ApplyGravity applys a vector towards given position
+func (p *Player) ApplyGravity(h *Hole) {
+	gravityVector := Velocity{0, 0}
+	pVelocity := p.GetVelocity()
+	pPosition := p.GetPosition()
+
+	gravityVector.Dx = h.Position.X - pPosition.X
+	gravityVector.Dy = h.Position.Y - pPosition.Y
+
+	inverseMagnitude := 1.0 / gravityVector.magnitude()
+	gravityVector.normalize()
+
+	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
+	pVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.GetRadius() * PlayerGravityDamping
+	pVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.GetRadius() * PlayerGravityDamping
+
+	p.SetVelocity(pVelocity)
+}
+
 // KeyDownHandler sets this players given key as pressed down
 func (p *Player) KeyDownHandler(key int) {
+	pControls := p.getControls()
+
 	if key == RightKey {
-		p.Controls.Right = true
+		pControls.Right = true
 	} else if key == LeftKey {
-		p.Controls.Left = true
+		pControls.Left = true
 	} else if key == UpKey {
-		p.Controls.Up = true
+		pControls.Up = true
 	} else if key == DownKey {
-		p.Controls.Down = true
+		pControls.Down = true
 	}
+
+	p.setControls(pControls)
 }
 
 // KeyUpHandler sets this players given key as released
 func (p *Player) KeyUpHandler(key int) {
+	pControls := p.getControls()
+
 	if key == RightKey {
-		p.Controls.Right = false
+		pControls.Right = false
 	} else if key == LeftKey {
-		p.Controls.Left = false
+		pControls.Left = false
 	} else if key == UpKey {
-		p.Controls.Up = false
+		pControls.Up = false
 	} else if key == DownKey {
-		p.Controls.Down = false
+		pControls.Down = false
 	}
+
+	p.setControls(pControls)
 }
 
 // MakeMessage returns a PlayerMessage with this player's data

@@ -50,6 +50,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer ws.Close()
+
 	var initialMsg models.Message
 	id := models.GenUniqueID()
 
@@ -68,7 +69,7 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("%v\n", err)
-			delete(g.Arena.Players, id)
+			g.Arena.RemovePlayer(id)
 			break
 		}
 		switch msg.Type {
@@ -102,11 +103,13 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				log.Printf("%v\n", err)
 				continue
 			}
-			if _, ok := g.Arena.Players[id]; ok {
+
+			p := g.Arena.GetPlayer(id)
+			if p != nil {
 				if kh.IsPressed {
-					g.Arena.Players[id].KeyDownHandler(kh.Key)
+					p.KeyDownHandler(kh.Key)
 				} else {
-					g.Arena.Players[id].KeyUpHandler(kh.Key)
+					p.KeyUpHandler(kh.Key)
 				}
 			}
 
@@ -135,13 +138,12 @@ func (g *Game) tick() {
 		}
 
 		// update every client
-		for id := range g.Arena.Players {
-			p := g.Arena.Players[id]
+		for _, p := range g.Arena.GetPlayers() {
 			err := p.SendJSON(&msg)
 			if err != nil {
 				log.Printf("error: %v", err)
 				p.Close()
-				delete(g.Arena.Players, id)
+				g.Arena.RemovePlayer(p.ID)
 			}
 		}
 	}
@@ -154,7 +156,7 @@ func (g *Game) messageEmitter() {
 		switch msg.Type {
 		case "connect":
 			id := msg.Data.(string)
-			p := g.Arena.Players[id]
+			p := g.Arena.GetPlayer(id)
 
 			initalMsg := models.Message{
 				Type: "initial",
@@ -169,7 +171,7 @@ func (g *Game) messageEmitter() {
 			if err != nil {
 				log.Printf("error: %v", err)
 				p.Close()
-				delete(g.Arena.Players, id)
+				g.Arena.RemovePlayer(id)
 			}
 
 		case "death":
@@ -179,13 +181,13 @@ func (g *Game) messageEmitter() {
 				Data: nil,
 			}
 
-			p := g.Arena.Players[id]
+			p := g.Arena.GetPlayer(id)
 			err := p.SendJSON(&deathMsg)
 			if err != nil {
 				log.Printf("error: %v", err)
 				p.Close()
 			}
-			delete(g.Arena.Players, id)
+			g.Arena.RemovePlayer(id)
 
 		default:
 			log.Println("Unknown message type to emit")

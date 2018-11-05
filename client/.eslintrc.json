@@ -3,7 +3,8 @@
     "globals": {
         "window": false,
         "WebSocket": false,
-        "document": false
+        "document": false,
+        "fetch": false
     },
     "rules": {
         "react/jsx-filename-extension": 0,

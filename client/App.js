@@ -11,10 +11,7 @@ import {
   registerTesterUpdateEvent,
 } from './database/database';
 
-
-const address = process.env.NODE_ENV === 'production'
-  ? 'bumper.ubclaunchpad.com'
-  : 'localhost:9090';
+const address = 'localhost:9090';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -50,7 +47,7 @@ export default class App extends React.Component {
 
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
-    this.connectPlayer();
+    await this.connectPlayer();
     registerNewTesterEvent();
     registerTesterUpdateEvent();
   }
@@ -69,7 +66,13 @@ export default class App extends React.Component {
   }
 
   // connect player on load
-  connectPlayer() {
+  async connectPlayer() {
+    const response = await fetch(`http://${address}/start`);
+    const res = await response.json();
+
+    // Address of lobby to connect to
+    console.log(res.location);
+
     if (window.WebSocket) {
       this.socket = new WebSocket(`ws://${address}/connect`);
       this.socket.onopen = () => {

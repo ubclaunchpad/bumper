@@ -52,8 +52,47 @@ func CreateArena(height float64, width float64, holeCount int, junkCount int) *A
 	return &a
 }
 
+// GetHoleMessages returns a list of hole messages
+func (a *Arena) GetHoleMessages() []*models.HoleMessage {
+	a.rwMutex.RLock()
+	defer a.rwMutex.RUnlock()
+
+	holes := make([]*models.HoleMessage, 0, len(a.Holes))
+	for _, hole := range a.Holes {
+		holes = append(holes, hole.MakeMessage())
+	}
+	return holes
+}
+
+// GetJunkMessages returns a list of junk messages
+func (a *Arena) GetJunkMessages() []*models.JunkMessage {
+	a.rwMutex.RLock()
+	defer a.rwMutex.RUnlock()
+
+	junks := make([]*models.JunkMessage, 0, len(a.Junk))
+	for _, junk := range a.Junk {
+		junks = append(junks, junk.MakeMessage())
+	}
+	return junks
+}
+
+// GetPlayerMessages returns a list of player messages
+func (a *Arena) GetPlayerMessages() []*models.PlayerMessage {
+	a.rwMutex.RLock()
+	defer a.rwMutex.RUnlock()
+
+	players := make([]*models.PlayerMessage, 0, len(a.Players))
+	for _, player := range a.Players {
+		players = append(players, player.MakeMessage())
+	}
+	return players
+}
+
 // UpdatePositions calculates the next state of each object
 func (a *Arena) UpdatePositions() {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
 	for i, hole := range a.Holes {
 		hole.Update()
 		if hole.IsDead() {
@@ -66,7 +105,7 @@ func (a *Arena) UpdatePositions() {
 	}
 	for _, player := range a.Players {
 		// check whether player has been spawned
-		if player.Name != "" {
+		if player.GetName() != "" {
 			player.UpdatePosition(a.Height, a.Width)
 		}
 	}
@@ -74,6 +113,9 @@ func (a *Arena) UpdatePositions() {
 
 // CollisionDetection loops through players and holes and determines if a collision has occurred
 func (a *Arena) CollisionDetection() {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
 	a.playerCollisions()
 	a.holeCollisions()
 	a.junkCollisions()
@@ -81,25 +123,10 @@ func (a *Arena) CollisionDetection() {
 
 // GetState assembles an UpdateMessage from the current state of the arena
 func (a *Arena) GetState() *models.UpdateMessage {
-	players := make([]*models.PlayerMessage, 0, len(a.Players))
-	for _, player := range a.Players {
-		players = append(players, player.MakeMessage())
-	}
-
-	holes := make([]*models.HoleMessage, 0, len(a.Holes))
-	for _, hole := range a.Holes {
-		holes = append(holes, hole.MakeMessage())
-	}
-
-	junks := make([]*models.JunkMessage, 0, len(a.Junk))
-	for _, junk := range a.Junk {
-		junks = append(junks, junk.MakeMessage())
-	}
-
 	return &models.UpdateMessage{
-		Holes:   holes,
-		Junk:    junks,
-		Players: players,
+		Holes:   a.GetHoleMessages(),
+		Junk:    a.GetJunkMessages(),
+		Players: a.GetPlayerMessages(),
 	}
 }
 
@@ -107,6 +134,9 @@ func (a *Arena) GetState() *models.UpdateMessage {
 // player has no position or name until spawned
 // TODO player has no color until spawned
 func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
 	color, err := a.generateRandomColor()
 	if err != nil {
 		return err
@@ -115,9 +145,27 @@ func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
 	return nil
 }
 
+// GetPlayer gets the specified player
+func (a *Arena) GetPlayer(id string) *models.Player {
+	a.rwMutex.RLock()
+	defer a.rwMutex.RUnlock()
+	return a.Players[id]
+}
+
+// RemovePlayer removes the specified player from the arena
+func (a *Arena) RemovePlayer(id string) {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
+	delete(a.Players, id)
+}
+
 // SpawnPlayer spawns the player with a position on the map
 // TODO choose color here as well
 func (a *Arena) SpawnPlayer(id string, name string, country string) error {
+	a.rwMutex.Lock()
+	defer a.rwMutex.Unlock()
+
 	position := a.generateCoordinate(models.PlayerRadius)
 	a.Players[id].SetPosition(position)
 	a.Players[id].Name = name

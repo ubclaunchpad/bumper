@@ -1,0 +1,7 @@
+version: '3.4'
+
+services:
+  bumper:
+    build: .
+    ports:
+      - "80:9090"

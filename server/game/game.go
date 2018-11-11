@@ -51,25 +51,23 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	var initialMsg models.Message
-	id := models.GenUniqueID()
-
-	err = g.Arena.AddPlayer(id, ws)
+	player, err := g.Arena.AddPlayer(ws)
 	if err != nil {
 		log.Printf("Error adding player:\n%v", err)
-	} else {
-		initialMsg = models.Message{
-			Type: "connect",
-			Data: id,
-		}
-		arena.MessageChannel <- initialMsg
+		return
 	}
+
+	arena.MessageChannel <- models.Message{
+		Type: "connect",
+		Data: player.GetID(),
+	}
+
 	for {
 		var msg models.Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("%v\n", err)
-			g.Arena.RemovePlayer(id)
+			g.Arena.RemovePlayer(player)
 			break
 		}
 		switch msg.Type {
@@ -80,19 +78,19 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				log.Printf("%v\n", err)
 				continue
 			}
-			err := g.Arena.SpawnPlayer(id, spawn.Name, spawn.Country)
+			err := g.Arena.SpawnPlayer(player.GetID(), spawn.Name, spawn.Country)
 			if err != nil {
 				log.Printf("Error spawning player:\n%v", err)
 				continue
 			}
 		case "reconnect":
-			err = g.Arena.AddPlayer(id, ws)
+			player, err = g.Arena.AddPlayer(ws)
 			if err != nil {
 				log.Printf("Error adding player:\n%v", err)
 			} else {
 				connectMsg := models.Message{
 					Type: "connect",
-					Data: id,
+					Data: player.GetID(),
 				}
 				arena.MessageChannel <- connectMsg
 			}
@@ -104,15 +102,11 @@ func (g *Game) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			p := g.Arena.GetPlayer(id)
-			if p != nil {
-				if kh.IsPressed {
-					p.KeyDownHandler(kh.Key)
-				} else {
-					p.KeyUpHandler(kh.Key)
-				}
+			if kh.IsPressed {
+				player.KeyDownHandler(kh.Key)
+			} else {
+				player.KeyUpHandler(kh.Key)
 			}
-
 		default:
 			log.Println("Unknown message type received")
 		}
@@ -143,7 +137,7 @@ func (g *Game) tick() {
 			if err != nil {
 				log.Printf("error: %v", err)
 				p.Close()
-				g.Arena.RemovePlayer(p.ID)
+				g.Arena.RemovePlayer(p)
 			}
 		}
 	}
@@ -171,7 +165,7 @@ func (g *Game) messageEmitter() {
 			if err != nil {
 				log.Printf("error: %v", err)
 				p.Close()
-				g.Arena.RemovePlayer(id)
+				g.Arena.RemovePlayer(p)
 			}
 
 		case "death":
@@ -187,7 +181,7 @@ func (g *Game) messageEmitter() {
 				log.Printf("error: %v", err)
 				p.Close()
 			}
-			g.Arena.RemovePlayer(id)
+			g.Arena.RemovePlayer(p)
 
 		default:
 			log.Println("Unknown message type to emit")

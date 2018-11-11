@@ -2,7 +2,6 @@ package models
 
 import (
 	"math"
-	"sync"
 )
 
 // Junk related constants
@@ -24,7 +23,6 @@ type Junk struct {
 	LastPlayerHit *Player  `json:"-"`
 	Debounce      int      `json:"-"`
 	jDebounce     int
-	rwMutex       sync.RWMutex
 }
 
 // CreateJunk initializes and returns an instance of a Junk
@@ -35,88 +33,70 @@ func CreateJunk(position Position) *Junk {
 		Color:     "white",
 		Debounce:  0,
 		jDebounce: 0,
-		rwMutex:   sync.RWMutex{},
 	}
 }
 
-// Getters
+// GetID returns the ID of this junk
+func (j Junk) GetID() string {
+	return ""
+}
 
-func (j *Junk) getPosition() Position {
-	j.rwMutex.RLock()
-	defer j.rwMutex.RUnlock()
+// GetColor returns the color of this junk
+func (j Junk) GetColor() string {
+	return j.Color
+}
 
+// GetPosition returns the position of this jun
+func (j Junk) GetPosition() Position {
 	return j.Position
 }
 
-func (j *Junk) getVelocity() Velocity {
-	j.rwMutex.RLock()
-	defer j.rwMutex.RUnlock()
-
+// GetVelocity returns the velocity of this junk
+func (j Junk) GetVelocity() Velocity {
 	return j.Velocity
 }
 
-func (j *Junk) getDebounce() int {
-	j.rwMutex.RLock()
-	defer j.rwMutex.RUnlock()
+// GetRadius returns the radius of this junk
+func (j Junk) GetRadius() float64 {
+	return JunkRadius
+}
 
+func (j *Junk) getDebounce() int {
 	return j.Debounce
 }
 
 func (j *Junk) getJDebounce() int {
-	j.rwMutex.RLock()
-	defer j.rwMutex.RUnlock()
-
 	return j.jDebounce
 }
 
-// Setters
-
 func (j *Junk) setPosition(pos Position) {
-	j.rwMutex.Lock()
-	defer j.rwMutex.Unlock()
-
 	j.Position = pos
 }
 
 func (j *Junk) setVelocity(v Velocity) {
-	j.rwMutex.Lock()
-	defer j.rwMutex.Unlock()
-
 	j.Velocity = v
 }
 
 func (j *Junk) setDebounce(debounce int) {
-	j.rwMutex.Lock()
-	defer j.rwMutex.Unlock()
-
 	j.Debounce = debounce
 }
 
 func (j *Junk) setJDebounce(jDebounce int) {
-	j.rwMutex.Lock()
-	defer j.rwMutex.Unlock()
-
 	j.jDebounce = jDebounce
 }
 
 func (j *Junk) setColor(color string) {
-	j.rwMutex.Lock()
-	defer j.rwMutex.Unlock()
-
 	j.Color = color
 }
 
 func (j *Junk) setLastPlayerHit(player *Player) {
-	j.rwMutex.Lock()
-	defer j.rwMutex.Unlock()
-
 	j.LastPlayerHit = player
 }
 
 // UpdatePosition Update Junk's position based on calculations of position/velocity
 func (j *Junk) UpdatePosition(height float64, width float64) {
-	positionVector := j.getPosition()
-	velocityVector := j.getVelocity()
+	positionVector := j.GetPosition()
+	velocityVector := j.GetVelocity()
 	if positionVector.X+velocityVector.Dx > width-JunkRadius || positionVector.X+velocityVector.Dx < JunkRadius {
 		velocityVector.Dx = -velocityVector.Dx
 	}
@@ -148,14 +128,14 @@ func (j *Junk) UpdatePosition(height float64, width float64) {
 
 // HitBy Update Junks's velocity based on calculations of being hit by a player
 func (j *Junk) HitBy(p *Player) {
-	pVelocity := p.getVelocity()
-	jVelocity := j.getVelocity()
+	pVelocity := p.GetVelocity()
+	jVelocity := j.GetVelocity()
 	// We don't want this collision till the debounce is down.
 	if j.getDebounce() != 0 {
 		return
 	}
 
-	j.setColor(p.getColor()) //Assign junk to last recently hit player color
+	j.setColor(p.GetColor()) //Assign junk to last recently hit player color
 	j.setLastPlayerHit(p)
 
 	if pVelocity.Dx < 0 {
@@ -182,9 +162,9 @@ func (j *Junk) HitJunk(jh *Junk) {
 		return
 	}
 
-	jInitialVelocity := j.getVelocity()
+	jInitialVelocity := j.GetVelocity()
 	jVelocity := jInitialVelocity
-	jhVelocity := jh.getVelocity()
+	jhVelocity := jh.GetVelocity()
 	//Calculate this junks's new velocity
 	jVelocity.Dx = (jVelocity.Dx * -JunkVTransferFactor) + (jhVelocity.Dx * JunkVTransferFactor)
 	jVelocity.Dy = (jVelocity.Dy * -JunkVTransferFactor) + (jhVelocity.Dy * JunkVTransferFactor)
@@ -201,9 +181,9 @@ func (j *Junk) HitJunk(jh *Junk) {
 
 // ApplyGravity applys a vector towards given position
 func (j *Junk) ApplyGravity(h *Hole) {
-	jVelocity := j.getVelocity()
-	jPosition := j.getPosition()
-	hPosition := h.getPosition()
+	jVelocity := j.GetVelocity()
+	jPosition := j.GetPosition()
+	hPosition := h.GetPosition()
 
 	gravityVector := Velocity{0, 0}
 	gravityVector.Dx = hPosition.X - jPosition.X
@@ -212,7 +192,7 @@ func (j *Junk) ApplyGravity(h *Hole) {
 	gravityVector.normalize()
 
 	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	jVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.getRadius() * JunkGravityDamping
-	jVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.getRadius() * JunkGravityDamping
+	jVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.GetRadius() * JunkGravityDamping
+	jVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.GetRadius() * JunkGravityDamping
 	j.setVelocity(jVelocity)
 }

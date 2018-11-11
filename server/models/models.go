@@ -4,10 +4,13 @@ import (
 	"math"
 )
 
-// Vector represents a point in 2D space
-type Vector struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
+// Object represents an interactable object on the Arena
+type Object interface {
+	GetID() string
+	GetColor() string
+	GetPosition() Position
+	GetVelocity() Velocity
+	GetRadius() float64
 }
 
 // Position x y position

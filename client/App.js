@@ -5,11 +5,6 @@ import WelcomeModal from './components/WelcomeModal';
 import { drawGame, drawWalls } from './components/GameObjects';
 import Leaderboard from './components/Leaderboard';
 
-import {
-  registerNewTesterEvent,
-  registerTesterUpdateEvent,
-} from './database/database';
-
 const address = 'localhost:9090';
 
 export default class App extends React.Component {
@@ -47,8 +42,8 @@ export default class App extends React.Component {
   async componentDidMount() {
     this.canvas = document.getElementById('ctx');
     await this.connectPlayer();
-    registerNewTesterEvent();
-    registerTesterUpdateEvent();
+    // registerNewTesterEvent();
+    // registerTesterUpdateEvent();
   }
 
   openGameOverModal() {
@@ -198,7 +193,7 @@ export default class App extends React.Component {
 
     // Drawing the walls requires the players position
     const player = this.state.players.find(p => p.id === this.state.player.id);
-    if (player.name !== '') {
+    if (player && player.name !== '') {
       drawWalls(player, this.state.arena, this.canvas);
     }
   }

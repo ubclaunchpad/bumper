@@ -38,12 +38,13 @@ func TestAddPoints(t *testing.T) {
 }
 
 func TestCreatePlayer(t *testing.T) {
-	ws := new(*websocket.Conn)
+	ws := new(websocket.Conn)
 
 	//Test initialization of player
-	p := CreatePlayer(testID, testNamePlayerTest, centerPosPlayerTest, testColorPlayerTest, *ws)
+	p := CreatePlayer(testNamePlayerTest, testColorPlayerTest, ws)
+	p.Position = centerPosPlayerTest
 
-	//Test name assignment of player
+	// Test name assignment of player
 	if p.Name != testNamePlayerTest {
 		t.Error("Error assigning name")
 	}
@@ -218,8 +219,8 @@ func TestPlayerBumpPlayer(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			p1 := CreatePlayer("id1", "player1", Position{}, testColorPlayerTest, nil)
-			p2 := CreatePlayer("id2", "player2", Position{}, testColorPlayerTest, nil)
+			p1 := CreatePlayer("player1", testColorPlayerTest, nil)
+			p2 := CreatePlayer("player2", testColorPlayerTest, nil)
 
 			p1.Velocity = tc.playerVelocity
 
@@ -246,8 +247,12 @@ func TestPlayerKillPlayer(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			p1 := CreatePlayer("id1", "player1", tc.bumperPosition, testColorPlayerTest, nil)
-			p2 := CreatePlayer("id2", "player2", tc.bumpeePosition, testColorPlayerTest, nil)
+			p1 := CreatePlayer("player1", testColorPlayerTest, nil)
+			p1.Position = tc.bumperPosition
+
+			p2 := CreatePlayer("player2", testColorPlayerTest, nil)
+			p2.Position = tc.bumpeePosition
+
 			p1.Velocity = tc.bumperVelocity
 			h := CreateHole(tc.holePosition)
 
@@ -258,7 +263,7 @@ func TestPlayerKillPlayer(t *testing.T) {
 				p1.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 				p2.UpdatePosition(testHeightPlayerTest, testWidthPlayerTest)
 
-				if areCirclesColliding(p2.Position, PlayerRadius, h.Position, h.Radius) {
+				if areCirclesColliding(p2, h) {
 					playerScored := p2.LastPlayerHit
 					if playerScored != nil {
 						playerScored.AddPoints(PointsPerPlayer)
@@ -281,7 +286,10 @@ func TestPlayerKillPlayer(t *testing.T) {
 	}
 }
 
-// Helper function, detect collision between objects
-func areCirclesColliding(p Position, r1 float64, q Position, r2 float64) bool {
-	return math.Pow(p.X-q.X, 2)+math.Pow(p.Y-q.Y, 2) <= math.Pow(r1+r2, 2)
+// detect collision between objects
+// (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
+func areCirclesColliding(obj Object, other Object) bool {
+	objPosition := obj.GetPosition()
+	otherPosition := other.GetPosition()
+	return math.Pow(objPosition.X-otherPosition.X, 2)+math.Pow(objPosition.Y-otherPosition.Y, 2) <= math.Pow(obj.GetRadius()+other.GetRadius(), 2)
 }

@@ -3,7 +3,6 @@ package models
 import (
 	"math"
 	"math/rand"
-	"sync"
 )
 
 // Hole related constants
@@ -25,7 +24,6 @@ type Hole struct {
 	IsAlive       bool     `json:"isAlive"`
 	Life          float64  `json:"-"`
 	StartingLife  float64  `json:"-"`
-	rwMutex       sync.RWMutex
 }
 
 // CreateHole initializes and returns an instance of a Hole
@@ -39,74 +37,61 @@ func CreateHole(position Position) *Hole {
 		Life:          life,
 		IsAlive:       false,
 		StartingLife:  life,
-		rwMutex:       sync.RWMutex{},
 	}
 	return &h
 }
 
-// Getters
-func (h *Hole) getPosition() Position {
-	h.rwMutex.RLock()
-	defer h.rwMutex.RUnlock()
+// GetID returns the hole's ID
+func (h Hole) GetID() string {
+	return ""
+}
 
+// GetColor returns this hole's color
+func (h Hole) GetColor() string {
+	return ""
+}
+
+// GetPosition returns this hole's position
+func (h Hole) GetPosition() Position {
 	return h.Position
 }
 
-func (h *Hole) getLife() float64 {
-	h.rwMutex.RLock()
-	defer h.rwMutex.RUnlock()
-
-	return h.Life
+// GetVelocity returns this hole's velocity
+func (h Hole) GetVelocity() Velocity {
+	return Velocity{}
 }
 
-func (h *Hole) getRadius() float64 {
-	h.rwMutex.RLock()
-	defer h.rwMutex.RUnlock()
-
+// GetRadius returns this hole's radius
+func (h Hole) GetRadius() float64 {
 	return h.Radius
 }
 
-func (h *Hole) getGravityRadius() float64 {
-	h.rwMutex.RLock()
-	defer h.rwMutex.RUnlock()
+func (h *Hole) getLife() float64 {
+	return h.Life
+}
 
+// GetGravityRadius returns this hole's gravitational radius
+func (h *Hole) GetGravityRadius() float64 {
 	return h.GravityRadius
 }
 
 func (h *Hole) getStartingLife() float64 {
-	h.rwMutex.RLock()
-	defer h.rwMutex.RUnlock()
-
 	return h.StartingLife
 }
 
-// Setters
-
 func (h *Hole) setIsAlive(isAlive bool) {
-	h.rwMutex.Lock()
-	defer h.rwMutex.Unlock()
-
 	h.IsAlive = isAlive
 }
 
 func (h *Hole) setLife(life float64) {
-	h.rwMutex.Lock()
-	defer h.rwMutex.Unlock()
-
 	h.Life = life
 }
 
 func (h *Hole) setRadius(radius float64) {
-	h.rwMutex.Lock()
-	defer h.rwMutex.Unlock()
-
 	h.Radius = radius
 }
 
 func (h *Hole) setGravityRadius(gravityRadius float64) {
-	h.rwMutex.Lock()
-	defer h.rwMutex.Unlock()
-
 	h.GravityRadius = gravityRadius
 }
 
@@ -119,9 +104,9 @@ func (h *Hole) Update() {
 	if hLife < h.getStartingLife()-HoleInfancy {
 		h.setIsAlive(true)
 	}
-	if hRadius := h.getRadius(); hRadius < MaxHoleRadius*1.2 {
+	if hRadius := h.GetRadius(); hRadius < MaxHoleRadius*1.2 {
 		h.setRadius(hRadius + 0.02)
-		h.setGravityRadius(h.getGravityRadius() + 0.03)
+		h.setGravityRadius(h.GetGravityRadius() + 0.03)
 	}
 }
 

@@ -39,3 +39,8 @@ client:
 .PHONY: server
 server:
 	(cd ./server ; DATABASE_URL=$(DATABASE_URL) PORT=8081 gin -p $(SERVER_PORT) -a 8081 -i run main.go)
+
+# Runs unit tests
+.PHONY: test
+test:
+	(cd ./server ; go test -race ./...)

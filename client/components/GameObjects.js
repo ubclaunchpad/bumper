@@ -3,6 +3,7 @@ const JUNK_SIZE = 15;
 
 export function drawGame(data, canvas) {
   const rawPlayer = data.players.find(p => p.id === data.player.id);
+  if (!rawPlayer) return;
   // Need to copy the player and his position as it gets altered below.
   // If you don't do this and another frame is draw before the next update message is
   // recieved than the translated position is used to calcluate the next translations and

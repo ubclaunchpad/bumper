@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-	"github.com/ubclaunchpad/bumper/server/database"
 	"github.com/ubclaunchpad/bumper/server/models"
 )
 
@@ -125,16 +124,18 @@ func (a *Arena) GetState() *models.UpdateMessage {
 // AddPlayer adds a new player to the arena
 // player has no position or name until spawned
 // TODO player has no color until spawned
-func (a *Arena) AddPlayer(id string, ws *websocket.Conn) error {
+func (a *Arena) AddPlayer(ws *websocket.Conn) (*models.Player, error) {
 	a.rwMutex.Lock()
 	defer a.rwMutex.Unlock()
 
 	color, err := a.generateRandomColor()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	a.Players[id] = models.CreatePlayer(id, "", models.Position{}, color, ws)
-	return nil
+
+	p := models.CreatePlayer("", color, ws)
+	a.Players[p.GetID()] = p
+	return p, nil
 }
 
 // GetPlayer gets the specified player
@@ -145,11 +146,11 @@ func (a *Arena) GetPlayer(id string) *models.Player {
 }
 
 // RemovePlayer removes the specified player from the arena
-func (a *Arena) RemovePlayer(id string) {
+func (a *Arena) RemovePlayer(p *models.Player) {
 	a.rwMutex.Lock()
 	defer a.rwMutex.Unlock()
 
-	delete(a.Players, id)
+	delete(a.Players, p.GetID())
 }
 
 // SpawnPlayer spawns the player with a position on the map
@@ -171,31 +172,34 @@ func (a *Arena) SpawnPlayer(id string, name string, country string) error {
 func (a *Arena) generateCoordinate(objectRadius float64) models.Position {
 	maxWidth := a.Width - objectRadius
 	maxHeight := a.Height - objectRadius
+
+	dummy := models.Hole{
+		Position: models.Position{},
+		Radius:   MinDistanceBetween,
+	}
 	for {
 		x := math.Floor(rand.Float64()*(maxWidth)) + objectRadius
 		y := math.Floor(rand.Float64()*(maxHeight)) + objectRadius
-		position := models.Position{X: x, Y: y}
-		if a.isPositionValid(position) {
-			return position
+		dummy.Position = models.Position{X: x, Y: y}
+		if a.isPositionValid(&dummy) {
+			return dummy.Position
 		}
-
-		// TODO: Add a timeout here; return error here
 	}
 }
 
-func (a *Arena) isPositionValid(position models.Position) bool {
+func (a *Arena) isPositionValid(obj models.Object) bool {
 	for _, hole := range a.Holes {
-		if areCirclesColliding(hole.Position, hole.GravityRadius, position, MinDistanceBetween) {
+		if areCirclesColliding(hole, obj) {
 			return false
 		}
 	}
 	for _, junk := range a.Junk {
-		if areCirclesColliding(junk.Position, models.JunkRadius, position, MinDistanceBetween) {
+		if areCirclesColliding(junk, obj) {
 			return false
 		}
 	}
 	for _, player := range a.Players {
-		if areCirclesColliding(player.Position, models.PlayerRadius, position, MinDistanceBetween) {
+		if areCirclesColliding(player, obj) {
 			return false
 		}
 	}
@@ -205,8 +209,10 @@ func (a *Arena) isPositionValid(position models.Position) bool {
 
 // detect collision between objects
 // (x2-x1)^2 + (y1-y2)^2 <= (r1+r2)^2
-func areCirclesColliding(p models.Position, r1 float64, q models.Position, r2 float64) bool {
-	return math.Pow(p.X-q.X, 2)+math.Pow(p.Y-q.Y, 2) <= math.Pow(r1+r2, 2)
+func areCirclesColliding(obj models.Object, other models.Object) bool {
+	p := obj.GetPosition()
+	q := other.GetPosition()
+	return math.Pow(p.X-q.X, 2)+math.Pow(p.Y-q.Y, 2) <= math.Pow(obj.GetRadius()+other.GetRadius(), 2)
 }
 
 /*
@@ -221,13 +227,13 @@ func (a *Arena) playerCollisions() {
 			if player == playerHit || memo[player] == playerHit {
 				continue
 			}
-			if areCirclesColliding(player.Position, models.PlayerRadius, playerHit.Position, models.PlayerRadius) {
+			if areCirclesColliding(player, playerHit) {
 				memo[playerHit] = player
 				player.HitPlayer(playerHit)
 			}
 		}
 		for _, junk := range a.Junk {
-			if areCirclesColliding(player.Position, models.PlayerRadius, junk.Position, models.JunkRadius) {
+			if areCirclesColliding(player, junk) {
 				junk.HitBy(player)
 			}
 		}
@@ -240,12 +246,17 @@ func (a *Arena) holeCollisions() {
 			continue
 		}
 
+		gravityField := models.Hole{
+			Position: hole.GetPosition(),
+			Radius:   hole.GetGravityRadius(),
+		}
+
 		for name, player := range a.Players {
-			if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.Radius) {
+			if areCirclesColliding(player, hole) {
 				playerScored := player.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerPlayer)
-					go database.UpdatePlayerScore(playerScored)
+					// go database.UpdatePlayerScore(playerScored)
 				}
 
 				deathMsg := models.Message{
@@ -253,13 +264,13 @@ func (a *Arena) holeCollisions() {
 					Data: name,
 				}
 				MessageChannel <- deathMsg
-			} else if areCirclesColliding(player.Position, models.PlayerRadius, hole.Position, hole.GravityRadius) {
+			} else if areCirclesColliding(player, gravityField) {
 				player.ApplyGravity(hole)
 			}
 		}
 
 		for i, junk := range a.Junk {
-			if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.Radius) {
+			if areCirclesColliding(junk, hole) {
 				playerScored := junk.LastPlayerHit
 				if playerScored != nil {
 					playerScored.AddPoints(models.PointsPerJunk)
@@ -267,7 +278,7 @@ func (a *Arena) holeCollisions() {
 
 				a.removeJunk(i)
 				a.addJunk()
-			} else if areCirclesColliding(junk.Position, models.JunkRadius, hole.Position, hole.GravityRadius) {
+			} else if areCirclesColliding(junk, gravityField) {
 				junk.ApplyGravity(hole)
 			}
 		}
@@ -282,7 +293,7 @@ func (a *Arena) junkCollisions() {
 			if junk == junkHit || memo[junkHit] == junk {
 				continue
 			}
-			if areCirclesColliding(junk.Position, models.JunkRadius, junkHit.Position, models.JunkRadius) {
+			if areCirclesColliding(junk, junkHit) {
 				memo[junkHit] = junk
 				junk.HitJunk(junkHit)
 			}

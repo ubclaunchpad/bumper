@@ -57,11 +57,11 @@ type Player struct {
 
 // CreatePlayer constructs an instance of player with
 // given position, color, and WebSocket connection
-func CreatePlayer(id string, name string, pos Position, color string, ws *websocket.Conn) *Player {
+func CreatePlayer(name string, color string, ws *websocket.Conn) *Player {
 	return &Player{
 		Name:           name,
-		ID:             id,
-		Position:       pos,
+		ID:             xid.New().String(),
+		Position:       Position{},
 		Velocity:       Velocity{},
 		Color:          color,
 		Angle:          math.Pi,
@@ -73,130 +73,86 @@ func CreatePlayer(id string, name string, pos Position, color string, ws *websoc
 	}
 }
 
-// GetName returns name of player
-func (p *Player) GetName() string {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
-
-	return p.Name
+// GetID returns the ID of the player
+func (p Player) GetID() string {
+	return p.ID
 }
 
-func (p *Player) getColor() string {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
-
+// GetColor returns the color of the player
+func (p Player) GetColor() string {
 	return p.Color
 }
 
-func (p *Player) getVelocity() Velocity {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
+// GetPosition returns the position of the player
+func (p Player) GetPosition() Position {
+	return p.Position
+}
 
+// GetVelocity returns the velocity of the player
+func (p Player) GetVelocity() Velocity {
 	return p.Velocity
 }
 
-func (p *Player) getControls() KeysPressed {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
+// GetRadius returns the radius of the player
+func (p Player) GetRadius() float64 {
+	return PlayerRadius
+}
 
+// GetName returns name of player
+func (p Player) GetName() string {
+	return p.Name
+}
+
+func (p *Player) getControls() KeysPressed {
 	return p.Controls
 }
 
 func (p *Player) getAngle() float64 {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
-
 	return p.Angle
 }
 
-func (p *Player) getPosition() Position {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
-
-	return p.Position
-}
-
 func (p *Player) getPDebounce() int {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
-
 	return p.pDebounce
 }
 
 func (p *Player) getPointsDebounce() int {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
-
 	return p.pointsDebounce
 }
 
 func (p *Player) getLastPlayerHit() *Player {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
-
 	return p.LastPlayerHit
 }
 
 func (p *Player) setVelocity(v Velocity) {
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-
 	p.Velocity = v
 }
 
 func (p *Player) setControls(k KeysPressed) {
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-
 	p.Controls = k
 }
 
 func (p *Player) setAngle(a float64) {
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-
 	p.Angle = a
 }
 
 func (p *Player) setPosition(pos Position) {
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-
 	p.Position = pos
 }
 
 func (p *Player) setPDebounce(pDebounce int) {
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-
 	p.pDebounce = pDebounce
 }
 
 func (p *Player) setPointsDebounce(pointsDebounce int) {
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-
 	p.pointsDebounce = pointsDebounce
 }
 
 func (p *Player) setPoints(points int) {
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-
 	p.Points = points
 }
 
 func (p *Player) setLastPlayerHit(playerHit *Player) {
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-
 	p.LastPlayerHit = playerHit
-}
-
-// GenUniqueID generates unique id...
-func GenUniqueID() string {
-	id := xid.New()
-	return id.String()
 }
 
 // AddPoints adds numPoints to player p
@@ -242,8 +198,8 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 	controlsVector.Dx *= PlayerAcceleration
 	controlsVector.Dy *= PlayerAcceleration
 
-	positionVector := p.getPosition()
-	velocityVector := p.getVelocity()
+	positionVector := p.GetPosition()
+	velocityVector := p.GetVelocity()
 	velocityVector.Dx = (velocityVector.Dx * PlayerFriction) + controlsVector.Dx
 	velocityVector.Dy = (velocityVector.Dy * PlayerFriction) + controlsVector.Dy
 
@@ -281,7 +237,7 @@ func (p *Player) UpdatePosition(height float64, width float64) {
 }
 
 func (p *Player) hitJunk() {
-	velocityVector := p.getVelocity()
+	velocityVector := p.GetVelocity()
 	velocityVector.Dx *= JunkBounceFactor
 	velocityVector.Dy *= JunkBounceFactor
 	p.setVelocity(velocityVector)
@@ -293,9 +249,9 @@ func (p *Player) HitPlayer(ph *Player) {
 		return
 	}
 
-	pInitialVelocity := p.getVelocity()
+	pInitialVelocity := p.GetVelocity()
 	pVelocity := pInitialVelocity
-	phVelocity := ph.getVelocity()
+	phVelocity := ph.GetVelocity()
 
 	//Calculate player's new velocity
 	pVelocity.Dx = (pVelocity.Dx * -VelocityTransferFactor) + (phVelocity.Dx * VelocityTransferFactor)
@@ -317,9 +273,9 @@ func (p *Player) HitPlayer(ph *Player) {
 // ApplyGravity applys a vector towards given position
 func (p *Player) ApplyGravity(h *Hole) {
 	gravityVector := Velocity{0, 0}
-	pVelocity := p.getVelocity()
-	pPosition := p.getPosition()
-	hPosition := h.getPosition()
+	pVelocity := p.GetVelocity()
+	pPosition := p.GetPosition()
+	hPosition := h.GetPosition()
 
 	gravityVector.Dx = hPosition.X - pPosition.X
 	gravityVector.Dy = hPosition.Y - pPosition.Y
@@ -328,16 +284,16 @@ func (p *Player) ApplyGravity(h *Hole) {
 	gravityVector.normalize()
 
 	//Velocity is affected by how close you are, the size of the hole, and a damping factor.
-	pVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.getRadius() * gravityDamping
-	pVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.getRadius() * gravityDamping
+	pVelocity.Dx += gravityVector.Dx * inverseMagnitude * h.GetRadius() * gravityDamping
+	pVelocity.Dy += gravityVector.Dy * inverseMagnitude * h.GetRadius() * gravityDamping
 
 	p.setVelocity(pVelocity)
 }
 
 // checkWalls if the player is attempting to exit the walls, reverse their direction
 func (p *Player) checkWalls(height float64, width float64) {
-	positionVector := p.getPosition()
-	velocityVector := p.getVelocity()
+	positionVector := p.GetPosition()
+	velocityVector := p.GetVelocity()
 	if positionVector.X+PlayerRadius > width {
 		positionVector.X = width - PlayerRadius - 1
 		velocityVector.Dx *= WallBounceFactor

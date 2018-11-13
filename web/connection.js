@@ -17,14 +17,14 @@ function update(data) {
 
 function handleMessage(msg) {
     switch (msg.type) {
-      case 'initial':
-        initializeArena(msg.data);
-        break;
-      case 'update':
-        update(msg.data);
-        break;
-      default:
-        break;
+        case 'initial':
+            initializeArena(msg.data);
+            break;
+        case 'update':
+            update(msg.data);
+            break;
+        default:
+            break;
     }
 }
 

@@ -27,7 +27,7 @@ bumper:
 		--name bumper \
 		-e DATABASE_URL=$(DATABASE_URL) \
 		-e PORT=$(SERVER_PORT) \
-		-v `PWD`/client/public:/app/build \
+		-v $(PWD)/client/public:/app/build \
 		-p 80:$(SERVER_PORT) \
 		bumper
 

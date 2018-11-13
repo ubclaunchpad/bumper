@@ -37,6 +37,7 @@ func main() {
 	// 	log.Println("DBClient not initialized correctly")
 	// }
 
+	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.HandleFunc("/start", getLobby)
 	http.Handle("/connect", game)
 	game.StartGame()

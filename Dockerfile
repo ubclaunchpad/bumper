@@ -16,5 +16,6 @@ WORKDIR /app
 COPY server/service-account.json .
 COPY --from=server /app/server .
 
-EXPOSE 9090
+ENV PORT 80
+EXPOSE 80
 ENTRYPOINT ./server

@@ -5,7 +5,7 @@ import WelcomeModal from './components/WelcomeModal';
 import { drawGame, drawWalls } from './components/GameObjects';
 import Leaderboard from './components/Leaderboard';
 
-const address = 'localhost';
+const address = 'ec2-34-220-30-193.us-west-2.compute.amazonaws.com';
 
 export default class App extends React.Component {
   constructor(props) {

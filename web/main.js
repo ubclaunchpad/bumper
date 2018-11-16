@@ -1,5 +1,5 @@
 
-import connectPlayer from './connection.js';
+import { Connection, connectPlayer} from './connection.js';
 export const Game = {
     showMiniMap: false,
     showWelcomeModal: true,
@@ -68,8 +68,14 @@ function setup() {
     rocket.scale.set(0.2, 0.2); //scale of original png object
     rocket.rotation = 0.5; //radians
     app.stage.addChild(rocket);
-    connectPlayer();
-    console.log(Game)
 }
 
-//must add things to the stage
+window.onload = async () => {
+    console.log('Starting...');
+
+    const socket = new Connection({
+        address: 'localhost:9090',
+    });
+
+    socket.connectPlayer();
+};

@@ -29,19 +29,19 @@ func getLobby(w http.ResponseWriter, r *http.Request) {
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
+	PORT := os.Getenv("PORT")
+	if PORT == "" {
+		PORT = "9090"
+	}
+
 	arena.MessageChannel = make(chan models.Message)
 	game := game.CreateGame()
-
-	// database.ConnectDB("service-account.json")
-	// if database.DBC == nil {
-	// 	log.Println("DBClient not initialized correctly")
-	// }
 
 	http.Handle("/", http.FileServer(http.Dir("./build")))
 	http.HandleFunc("/start", getLobby)
 	http.Handle("/connect", game)
 	game.StartGame()
 
-	log.Println("Starting server on localhost:" + os.Getenv("PORT"))
-	log.Println(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
+	log.Println("Starting server on localhost:" + PORT)
+	log.Println(http.ListenAndServe(":"+PORT, nil))
 }

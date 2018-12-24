@@ -46,7 +46,7 @@ bumper:
 		-e DATABASE_URL=$(DATABASE_URL) \
 		-e PORT=$(SERVER_PORT) \
 		-v $(PWD)/client/public:/app/build \
-		-p 80:$(SERVER_PORT) \
+		-p $(SERVER_PORT):$(SERVER_PORT) \
 		bumper
 
 # Starts a file server in the web/ directory

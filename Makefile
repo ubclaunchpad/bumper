@@ -23,16 +23,16 @@ https:
 
 # Run NGINX container in daemon mode
 # KNOWN ISSUE: Docker for Mac/Windows runs in VM --network host will not work as expected
+# Replace --network host with -p 80:80 and -p 443:443 when in development
 .PHONY: nginx
 nginx:
 	docker run -d --rm \
 		--name bumper_nginx \
-		-v $(PWD)/web:/usr/share/nginx/html \
 		-v $(PWD)/config/nginx.conf:/etc/nginx/nginx.conf \
 		-v $(PWD)/config/cert.pem:/etc/nginx/ssl/nginx.crt \
 		-v $(PWD)/config/key.pem:/etc/nginx/ssl/nginx.key \
-		# -p 80:80 \ # Development setting
-		--network host \ # Production setting
+		-p 80:80 \
+		-p 443:443 \
 		nginx:alpine
 
 # Build and run Bumper in daemon mode

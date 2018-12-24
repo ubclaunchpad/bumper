@@ -31,8 +31,7 @@ nginx:
 		-v $(PWD)/config/nginx.conf:/etc/nginx/nginx.conf \
 		-v $(PWD)/config/cert.pem:/etc/nginx/ssl/nginx.crt \
 		-v $(PWD)/config/key.pem:/etc/nginx/ssl/nginx.key \
-		-p 80:80 \
-		-p 443:443 \
+		--network host \
 		nginx:alpine
 
 # Build and run Bumper in daemon mode

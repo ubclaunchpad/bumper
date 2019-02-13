@@ -13,7 +13,7 @@ RUN go build -o server; cp server /app
 FROM alpine
 RUN apk add --update --no-cache ca-certificates
 WORKDIR /app
-COPY server/service-account.json .
+# COPY server/service-account.json .
 COPY --from=server /app/server .
 
 EXPOSE 9090

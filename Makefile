@@ -16,6 +16,24 @@ deploy:
 	make bundle
 	git subtree push --prefix client/public origin gh-pages
 
+# Generate self-signed key and certificate
+.PHONY: https
+https:
+	openssl req -x509 -newkey rsa:4096 -keyout config/key.pem -out config/cert.pem -days 365 -nodes
+
+# Run NGINX container in daemon mode
+# KNOWN ISSUE: Docker for Mac/Windows runs in VM --network host will not work as expected
+# Replace --network host with -p 80:80 and -p 443:443 when in development
+.PHONY: nginx
+nginx:
+	docker run -d --rm \
+		--name bumper_nginx \
+		-v $(PWD)/config/nginx.conf:/etc/nginx/nginx.conf \
+		-v $(PWD)/config/cert.pem:/etc/nginx/ssl/nginx.crt \
+		-v $(PWD)/config/key.pem:/etc/nginx/ssl/nginx.key \
+		--network host \
+		nginx:alpine
+
 # Build and run Bumper in daemon mode
 .PHONY: bumper
 DATABASE_URL=https://bumperdevdb.firebaseio.com
@@ -28,7 +46,7 @@ bumper:
 		-e DATABASE_URL=$(DATABASE_URL) \
 		-e PORT=$(SERVER_PORT) \
 		-v $(PWD)/client/public:/app/build \
-		-p 80:$(SERVER_PORT) \
+		-p $(SERVER_PORT):$(SERVER_PORT) \
 		bumper
 
 # Starts a file server in the web/ directory

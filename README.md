@@ -30,12 +30,6 @@ PORT=$YOUR_VAR
 $ make server
 ```
 
-To add dependencies:
-
-```bash
-$ dep ensure -add github.com/my/dependency
-```
-
 ### Start the Client
 
 ```bash

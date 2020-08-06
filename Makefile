@@ -2,7 +2,7 @@
 .PHONY: deps
 deps:
 	go get github.com/codegangsta/gin
-	(cd server ; go get -u github.com/golang/dep/cmd/dep ; dep ensure)
+	(cd server ; go mod download)
 	(cd client ; npm install )
 
 # Build and minify client

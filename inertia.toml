@@ -1,0 +1,9 @@
+name = "bumper"
+url = "git@github.com:ubclaunchpad/bumper.git"
+
+[[profile]]
+  name = "default"
+  branch = "refresh"
+  [profile.build]
+    type = "dockerfile"
+    buildfile = "Dockerfile"

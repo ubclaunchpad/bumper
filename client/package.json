@@ -24,7 +24,7 @@
     "react-dom": "^16.2.0",
     "react-world-flags": "SeeratSek/react-world-flags#patch-1",
     "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.11.1"
+    "webpack-dev-server": "^4.13.3"
   },
   "devDependencies": {
     "babel-minify-webpack-plugin": "^0.3.0",
